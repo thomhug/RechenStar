@@ -384,7 +384,7 @@ struct ParentDashboardView: View {
                 // Table header
                 HStack(spacing: 0) {
                     Text("Aufgabe")
-                        .frame(width: 70, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     Text("Richtig")
                         .frame(width: 55, alignment: .center)
                     Text("Falsch")
@@ -392,7 +392,7 @@ struct ParentDashboardView: View {
                     Text("Ø Zeit")
                         .frame(width: 45, alignment: .center)
                     Text("Letzte 3")
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .frame(width: 80, alignment: .trailing)
                 }
                 .font(AppFonts.caption)
                 .foregroundColor(.appTextSecondary)
@@ -404,7 +404,9 @@ struct ParentDashboardView: View {
                         Text(stat.displayText)
                             .font(AppFonts.body)
                             .foregroundColor(.appTextPrimary)
-                            .frame(width: 70, alignment: .leading)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
                         Text("\(stat.correctCount)")
                             .font(AppFonts.body)
@@ -424,7 +426,7 @@ struct ParentDashboardView: View {
                         Text(stat.lastThreeTimes.map { formatSeconds($0) }.joined(separator: ", "))
                             .font(AppFonts.caption)
                             .foregroundColor(.appTextSecondary)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .frame(width: 80, alignment: .trailing)
                     }
                     .accessibilityElement(children: .combine)
                 }
