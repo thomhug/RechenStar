@@ -85,6 +85,56 @@ struct SettingsView: View {
                 }
                 .settingsCard()
 
+                // MARK: - Categories
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("Aufgabentypen", systemImage: "square.grid.2x2.fill")
+                        .font(AppFonts.headline)
+                        .foregroundColor(.appTextPrimary)
+
+                    if let prefs {
+                        let enabledCategories = prefs.enabledCategories
+
+                        ForEach(["Addition", "Subtraktion", "Multiplikation"], id: \.self) { group in
+                            Text(group)
+                                .font(AppFonts.footnote)
+                                .foregroundColor(.appTextSecondary)
+                                .padding(.top, 4)
+
+                            let groupCategories = ExerciseCategory.allCases.filter { $0.groupLabel == group }
+                            ForEach(groupCategories, id: \.rawValue) { category in
+                                let isEnabled = enabledCategories.contains(category)
+                                let isLastEnabled = isEnabled && enabledCategories.count == 1
+
+                                Toggle(isOn: Binding(
+                                    get: { isEnabled },
+                                    set: { newValue in
+                                        var cats = enabledCategories
+                                        if newValue {
+                                            cats.append(category)
+                                        } else {
+                                            cats.removeAll { $0 == category }
+                                        }
+                                        prefs.enabledCategories = cats
+                                        save()
+                                    }
+                                )) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: category.icon)
+                                            .foregroundColor(.appSkyBlue)
+                                            .frame(width: 24)
+                                        Text(category.label)
+                                            .font(AppFonts.body)
+                                            .foregroundColor(.appTextPrimary)
+                                    }
+                                }
+                                .tint(.appSkyBlue)
+                                .disabled(isLastEnabled)
+                            }
+                        }
+                    }
+                }
+                .settingsCard()
+
                 // MARK: - Audio
                 VStack(alignment: .leading, spacing: 16) {
                     Label("Ton & Haptik", systemImage: "speaker.wave.2.fill")

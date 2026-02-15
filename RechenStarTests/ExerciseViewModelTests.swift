@@ -3,8 +3,11 @@ import XCTest
 
 final class ExerciseViewModelTests: XCTestCase {
 
-    private func makeSUT(sessionLength: Int = 10) -> ExerciseViewModel {
-        ExerciseViewModel(sessionLength: sessionLength, difficulty: .easy)
+    private func makeSUT(
+        sessionLength: Int = 10,
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+    ) -> ExerciseViewModel {
+        ExerciseViewModel(sessionLength: sessionLength, difficulty: .easy, categories: categories)
     }
 
     func testInitialState() {
@@ -30,13 +33,15 @@ final class ExerciseViewModelTests: XCTestCase {
         XCTAssertEqual(vm.userAnswer, "53")
     }
 
-    func testAppendDigitMaxTwoDigits() {
+    func testAppendDigitMaxThreeDigits() {
         let vm = makeSUT()
         vm.startSession()
         vm.appendDigit(1)
         vm.appendDigit(2)
         vm.appendDigit(3)
-        XCTAssertEqual(vm.userAnswer, "12")
+        XCTAssertEqual(vm.userAnswer, "123")
+        vm.appendDigit(4)
+        XCTAssertEqual(vm.userAnswer, "123")
     }
 
     func testDeleteLastDigit() {
@@ -160,5 +165,56 @@ final class ExerciseViewModelTests: XCTestCase {
         XCTAssertEqual(vm.sessionResults.count, 1)
         XCTAssertFalse(vm.sessionResults.first?.isCorrect ?? true)
         XCTAssertEqual(vm.exerciseIndex, 1)
+    }
+
+    func testNegativeToggle() {
+        let vm = makeSUT(categories: [.subtraction_100])
+        vm.startSession()
+        XCTAssertFalse(vm.isNegative)
+        vm.toggleNegative()
+        XCTAssertTrue(vm.isNegative)
+        vm.toggleNegative()
+        XCTAssertFalse(vm.isNegative)
+    }
+
+    func testNegativeAnswerSubmission() {
+        let vm = makeSUT(categories: [.subtraction_100])
+        vm.startSession()
+        guard let exercise = vm.currentExercise else {
+            return XCTFail("No current exercise")
+        }
+        let answer = exercise.correctAnswer
+        if answer < 0 {
+            vm.toggleNegative()
+            for digit in String(abs(answer)) {
+                vm.appendDigit(Int(String(digit))!)
+            }
+        } else {
+            for digit in String(answer) {
+                vm.appendDigit(Int(String(digit))!)
+            }
+        }
+        vm.submitAnswer()
+        XCTAssertEqual(vm.feedbackState, .correct(stars: 3))
+    }
+
+    func testDisplayAnswerWithNegative() {
+        let vm = makeSUT(categories: [.subtraction_100])
+        vm.startSession()
+        vm.appendDigit(4)
+        vm.appendDigit(2)
+        XCTAssertEqual(vm.displayAnswer, "42")
+        vm.toggleNegative()
+        XCTAssertEqual(vm.displayAnswer, "-42")
+    }
+
+    func testShowNegativeToggleOnlyForSubtraction100() {
+        let vm1 = makeSUT(categories: [.subtraction_100])
+        vm1.startSession()
+        XCTAssertTrue(vm1.showNegativeToggle)
+
+        let vm2 = makeSUT(categories: [.addition_10])
+        vm2.startSession()
+        XCTAssertFalse(vm2.showNegativeToggle)
     }
 }

@@ -59,7 +59,8 @@ struct HomeView: View {
             case .exercising:
                 ExerciseView(
                     sessionLength: appState.currentUser?.preferences?.sessionLength ?? 10,
-                    difficulty: difficultyFromPreferences()
+                    difficulty: difficultyFromPreferences(),
+                    categories: categoriesFromPreferences()
                 ) { results in
                     let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(
@@ -136,6 +137,14 @@ struct HomeView: View {
         guard let prefs = appState.currentUser?.preferences else { return .easy }
         if prefs.adaptiveDifficulty { return .easy }
         return Difficulty(rawValue: prefs.difficultyLevel) ?? .easy
+    }
+
+    private func categoriesFromPreferences() -> [ExerciseCategory] {
+        guard let prefs = appState.currentUser?.preferences else {
+            return [.addition_10, .subtraction_10]
+        }
+        let cats = prefs.enabledCategories
+        return cats.isEmpty ? [.addition_10, .subtraction_10] : cats
     }
 }
 

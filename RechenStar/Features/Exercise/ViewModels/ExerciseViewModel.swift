@@ -21,12 +21,14 @@ final class ExerciseViewModel {
 
     private(set) var currentExercise: Exercise?
     var userAnswer: String = ""
+    var isNegative: Bool = false
     private(set) var exerciseIndex: Int = 0
     private(set) var sessionResults: [ExerciseResult] = []
     private(set) var feedbackState: FeedbackState = .none
     private(set) var sessionState: SessionState = .notStarted
 
     let sessionLength: Int
+    let categories: [ExerciseCategory]
 
     private var exercises: [Exercise] = []
     private var currentAttempts: Int = 0
@@ -60,11 +62,29 @@ final class ExerciseViewModel {
         return Double(correctCount) / Double(sessionResults.count)
     }
 
+    var maxDigits: Int {
+        3
+    }
+
+    var showNegativeToggle: Bool {
+        currentExercise?.category == .subtraction_100
+    }
+
+    var displayAnswer: String {
+        if userAnswer.isEmpty { return "_" }
+        return isNegative ? "-\(userAnswer)" : userAnswer
+    }
+
     // MARK: - Init
 
-    init(sessionLength: Int = 10, difficulty: Difficulty = .easy) {
+    init(
+        sessionLength: Int = 10,
+        difficulty: Difficulty = .easy,
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+    ) {
         self.sessionLength = sessionLength
         self.currentDifficulty = difficulty
+        self.categories = categories
     }
 
     // MARK: - Actions
@@ -72,11 +92,13 @@ final class ExerciseViewModel {
     func startSession() {
         exercises = ExerciseGenerator.generateSession(
             count: sessionLength,
-            difficulty: currentDifficulty
+            difficulty: currentDifficulty,
+            categories: categories
         )
         sessionResults = []
         exerciseIndex = 0
         userAnswer = ""
+        isNegative = false
         feedbackState = .none
         currentAttempts = 0
         sessionState = .inProgress
@@ -86,7 +108,7 @@ final class ExerciseViewModel {
 
     func appendDigit(_ digit: Int) {
         guard feedbackState == .none else { return }
-        guard userAnswer.count < 2 else { return }
+        guard userAnswer.count < maxDigits else { return }
         userAnswer += "\(digit)"
     }
 
@@ -96,11 +118,17 @@ final class ExerciseViewModel {
         userAnswer.removeLast()
     }
 
+    func toggleNegative() {
+        guard feedbackState == .none else { return }
+        isNegative.toggle()
+    }
+
     func submitAnswer() {
         guard let exercise = currentExercise,
-              let answer = Int(userAnswer),
+              let absAnswer = Int(userAnswer),
               feedbackState == .none else { return }
 
+        let answer = isNegative ? -absAnswer : absAnswer
         currentAttempts += 1
 
         if answer == exercise.correctAnswer {
@@ -123,6 +151,7 @@ final class ExerciseViewModel {
         guard feedbackState == .incorrect else { return }
         feedbackState = .none
         userAnswer = ""
+        isNegative = false
     }
 
     func nextExercise() {
@@ -148,8 +177,10 @@ final class ExerciseViewModel {
                 let usedSignatures = Set(exercises.map(\.signature))
                 var newExercises: [Exercise] = []
                 for _ in 0..<remaining {
+                    let category = categories.randomElement()!
                     let ex = ExerciseGenerator.generate(
                         difficulty: currentDifficulty,
+                        category: category,
                         excluding: usedSignatures
                     )
                     newExercises.append(ex)
@@ -161,6 +192,7 @@ final class ExerciseViewModel {
         exerciseIndex = nextIndex
         currentExercise = exercises[nextIndex]
         userAnswer = ""
+        isNegative = false
         feedbackState = .none
         currentAttempts = 0
         exerciseStartTime = Date()

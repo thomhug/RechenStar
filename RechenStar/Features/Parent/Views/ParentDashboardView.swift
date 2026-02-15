@@ -228,39 +228,60 @@ struct ParentDashboardView: View {
 
     // MARK: - Strengths & Weaknesses
 
+    private struct CategoryStats {
+        let category: ExerciseCategory
+        let correct: Int
+        let total: Int
+        var accuracy: Double {
+            total > 0 ? Double(correct) / Double(total) : 0
+        }
+    }
+
+    private var categoryStatsData: [CategoryStats] {
+        let descriptor = FetchDescriptor<ExerciseRecord>()
+        guard let allRecords = try? modelContext.fetch(descriptor) else { return [] }
+
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: Date()))!
+        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
+
+        let weeklyRecords = allRecords.filter { record in
+            guard let session = record.session else { return false }
+            return userSessionIDs.contains(session.id) && record.date >= sevenDaysAgo
+        }
+
+        let grouped = Dictionary(grouping: weeklyRecords) { $0.category }
+
+        return ExerciseCategory.allCases.compactMap { cat in
+            let records = grouped[cat.rawValue] ?? []
+            guard !records.isEmpty else { return nil }
+            let correct = records.filter(\.isCorrect).count
+            return CategoryStats(category: cat, correct: correct, total: records.count)
+        }
+    }
+
     private var strengthsWeaknesses: some View {
-        let allSessions = weeklyProgress.flatMap(\.sessions)
-        let addTotal = allSessions.reduce(0) { $0 + $1.additionTotal }
-        let addCorrect = allSessions.reduce(0) { $0 + $1.additionCorrect }
-        let subTotal = allSessions.reduce(0) { $0 + $1.subtractionTotal }
-        let subCorrect = allSessions.reduce(0) { $0 + $1.subtractionCorrect }
-        let addAccuracy = addTotal > 0 ? Double(addCorrect) / Double(addTotal) : 0
-        let subAccuracy = subTotal > 0 ? Double(subCorrect) / Double(subTotal) : 0
+        let stats = categoryStatsData
 
         return VStack(alignment: .leading, spacing: 16) {
             Text("Staerken & Schwaechen")
                 .font(AppFonts.headline)
                 .foregroundColor(.appTextPrimary)
 
-            if addTotal == 0 && subTotal == 0 {
+            if stats.isEmpty {
                 Text("Noch keine Daten diese Woche")
                     .font(AppFonts.body)
                     .foregroundColor(.appTextSecondary)
             } else {
-                operationRow(
-                    label: "Addition",
-                    icon: "plus.circle.fill",
-                    correct: addCorrect,
-                    total: addTotal,
-                    accuracy: addAccuracy
-                )
-                operationRow(
-                    label: "Subtraktion",
-                    icon: "minus.circle.fill",
-                    correct: subCorrect,
-                    total: subTotal,
-                    accuracy: subAccuracy
-                )
+                ForEach(stats, id: \.category) { stat in
+                    operationRow(
+                        label: stat.category.label,
+                        icon: stat.category.icon,
+                        correct: stat.correct,
+                        total: stat.total,
+                        accuracy: stat.accuracy
+                    )
+                }
             }
         }
         .padding(20)

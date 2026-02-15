@@ -4,7 +4,7 @@ import XCTest
 final class ExerciseResultTests: XCTestCase {
 
     private func makeExercise(type: OperationType = .addition, first: Int = 3, second: Int = 4) -> Exercise {
-        Exercise(type: type, firstNumber: first, secondNumber: second)
+        Exercise(type: type, category: type == .addition ? .addition_10 : .subtraction_10, firstNumber: first, secondNumber: second)
     }
 
     func testStarsThreeOnFirstAttempt() {

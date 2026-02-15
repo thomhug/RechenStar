@@ -25,7 +25,7 @@ final class EngagementServiceTests: XCTestCase {
     private func makeResults(count: Int = 10, allCorrect: Bool = true) -> [ExerciseResult] {
         (0..<count).map { i in
             ExerciseResult(
-                exercise: Exercise(type: .addition, firstNumber: 1 + (i % 5), secondNumber: 1),
+                exercise: Exercise(type: .addition, category: .addition_10, firstNumber: 1 + (i % 5), secondNumber: 1),
                 userAnswer: allCorrect ? (2 + (i % 5)) : 99,
                 isCorrect: allCorrect,
                 attempts: 1,

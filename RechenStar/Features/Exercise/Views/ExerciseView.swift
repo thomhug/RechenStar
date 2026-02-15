@@ -18,10 +18,15 @@ struct ExerciseView: View {
     init(
         sessionLength: Int = 10,
         difficulty: Difficulty = .easy,
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
-        _viewModel = State(initialValue: ExerciseViewModel(sessionLength: sessionLength, difficulty: difficulty))
+        _viewModel = State(initialValue: ExerciseViewModel(
+            sessionLength: sessionLength,
+            difficulty: difficulty,
+            categories: categories
+        ))
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel
     }
@@ -125,13 +130,13 @@ struct ExerciseView: View {
     // MARK: - Answer Display
 
     private var answerDisplay: some View {
-        Text(viewModel.userAnswer.isEmpty ? "_" : viewModel.userAnswer)
+        Text(viewModel.displayAnswer)
             .font(AppFonts.numberHuge)
             .foregroundColor(viewModel.userAnswer.isEmpty ? .appTextSecondary.opacity(0.4) : .appSkyBlue)
             .frame(height: 80)
             .offset(x: shakeOffset)
             .accessibilityIdentifier("answer-display")
-            .accessibilityLabel(viewModel.userAnswer.isEmpty ? "Noch keine Antwort" : "Antwort: \(viewModel.userAnswer)")
+            .accessibilityLabel(viewModel.userAnswer.isEmpty ? "Noch keine Antwort" : "Antwort: \(viewModel.displayAnswer)")
     }
 
     // MARK: - Feedback
@@ -178,24 +183,62 @@ struct ExerciseView: View {
                 }
             }
             HStack(spacing: 16) {
-                IconButton(icon: "delete.left", size: 24, color: .appCoral) {
-                    viewModel.deleteLastDigit()
+                if viewModel.showNegativeToggle {
+                    Button {
+                        viewModel.toggleNegative()
+                    } label: {
+                        Text("±")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(viewModel.isNegative ? .white : .appSkyBlue)
+                            .frame(width: 80, height: 80)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(viewModel.isNegative ? Color.appSkyBlue : Color.appCardBackground)
+                            )
+                    }
+                    .disabled(!padEnabled)
+                    .accessibilityIdentifier("negative-button")
+                } else {
+                    IconButton(icon: "delete.left", size: 24, color: .appCoral) {
+                        viewModel.deleteLastDigit()
+                    }
+                    .frame(width: 80, height: 80)
+                    .disabled(!padEnabled)
+                    .accessibilityIdentifier("delete-button")
                 }
-                .frame(width: 80, height: 80)
-                .disabled(!padEnabled)
-                .accessibilityIdentifier("delete-button")
 
                 NumberPadButton(number: 0) { d in
                     viewModel.appendDigit(d)
                 }
                 .disabled(!padEnabled)
 
-                IconButton(icon: "checkmark.circle.fill", size: 24, color: .appGrassGreen) {
-                    submitWithFeedback()
+                if viewModel.showNegativeToggle {
+                    IconButton(icon: "delete.left", size: 24, color: .appCoral) {
+                        viewModel.deleteLastDigit()
+                    }
+                    .frame(width: 80, height: 80)
+                    .disabled(!padEnabled)
+                    .accessibilityIdentifier("delete-button")
+                } else {
+                    IconButton(icon: "checkmark.circle.fill", size: 24, color: .appGrassGreen) {
+                        submitWithFeedback()
+                    }
+                    .frame(width: 80, height: 80)
+                    .disabled(!viewModel.canSubmit)
+                    .accessibilityIdentifier("submit-button")
                 }
-                .frame(width: 80, height: 80)
-                .disabled(!viewModel.canSubmit)
-                .accessibilityIdentifier("submit-button")
+            }
+
+            if viewModel.showNegativeToggle {
+                HStack {
+                    Spacer()
+                    IconButton(icon: "checkmark.circle.fill", size: 24, color: .appGrassGreen) {
+                        submitWithFeedback()
+                    }
+                    .frame(width: 80, height: 80)
+                    .disabled(!viewModel.canSubmit)
+                    .accessibilityIdentifier("submit-button")
+                }
             }
         }
     }
@@ -270,4 +313,3 @@ struct ExerciseView: View {
         }
     }
 }
-

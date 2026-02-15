@@ -20,6 +20,9 @@ final class UserPreferences {
     var largerText: Bool = false
     var colorBlindModeRawValue: String = ColorBlindMode.none.rawValue
 
+    // Categories
+    var enabledCategoriesRaw: String = "addition_10,subtraction_10"
+
     // Parental
     var timeLimitMinutes: Int = 0
     var timeLimitEnabled: Bool = false
@@ -31,6 +34,17 @@ final class UserPreferences {
     var colorBlindMode: ColorBlindMode {
         get { ColorBlindMode(rawValue: colorBlindModeRawValue) ?? .none }
         set { colorBlindModeRawValue = newValue.rawValue }
+    }
+
+    var enabledCategories: [ExerciseCategory] {
+        get {
+            enabledCategoriesRaw
+                .split(separator: ",")
+                .compactMap { ExerciseCategory(rawValue: String($0)) }
+        }
+        set {
+            enabledCategoriesRaw = newValue.map(\.rawValue).joined(separator: ",")
+        }
     }
 
     init() {}
