@@ -16,7 +16,8 @@ final class Achievement {
     }
 
     var progressPercentage: Double {
-        min(Double(progress) / Double(max(target, 1)), 1.0)
+        if isUnlocked { return 1.0 }
+        return min(Double(progress) / Double(max(target, 1)), 1.0)
     }
 
     var type: AchievementType? {

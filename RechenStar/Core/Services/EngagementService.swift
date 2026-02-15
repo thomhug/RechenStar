@@ -109,6 +109,7 @@ struct EngagementService {
             achievement.progress = max(achievement.progress, progress)
 
             if met {
+                achievement.progress = achievement.target
                 achievement.unlockedAt = Date()
                 newlyUnlocked.append(achievement)
             }
@@ -175,6 +176,13 @@ struct EngagementService {
             let achievement = Achievement(type: type, target: type.defaultTarget)
             achievement.user = user
             context.insert(achievement)
+        }
+
+        // Fix unlocked achievements with incorrect progress
+        for achievement in user.achievements where achievement.isUnlocked {
+            if achievement.progress < achievement.target {
+                achievement.progress = achievement.target
+            }
         }
     }
 }

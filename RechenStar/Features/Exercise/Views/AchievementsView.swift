@@ -44,7 +44,7 @@ struct AchievementsView: View {
                                 description: type.description,
                                 icon: type.icon,
                                 progress: achievement.progressPercentage,
-                                progressText: "\(achievement.progress)/\(achievement.target)"
+                                progressText: achievement.isUnlocked ? "\(achievement.target)/\(achievement.target)" : "\(achievement.progress)/\(achievement.target)"
                             ),
                             isUnlocked: achievement.isUnlocked
                         )
