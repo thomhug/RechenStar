@@ -11,7 +11,14 @@ struct HelpView: View {
                         icon: "play.circle.fill",
                         color: .appSkyBlue,
                         title: "Spielen",
-                        text: "Tippe auf \"Spielen\", um eine Runde zu starten. Du bekommst Rechenaufgaben mit Plus und Minus. Tippe die Antwort auf dem Zahlenfeld ein und drücke den grünen Haken."
+                        text: "Tippe auf \"Spielen\", um eine Runde zu starten. Du bekommst Rechenaufgaben mit Plus, Minus und Mal. Tippe die Antwort auf dem Zahlenfeld ein und drücke den grünen Haken."
+                    )
+
+                    helpSection(
+                        icon: "square.grid.2x2.fill",
+                        color: .appSkyBlue,
+                        title: "Aufgabentypen",
+                        text: "In den Einstellungen kannst du auswählen, welche Aufgaben vorkommen: Addition und Subtraktion bis 10 oder bis 100, sowie kleines und grosses Einmaleins. Bei Subtraktion bis 100 gibt es einen ±-Knopf für negative Ergebnisse."
                     )
 
                     helpSection(
@@ -46,14 +53,14 @@ struct HelpView: View {
                         icon: "gearshape.fill",
                         color: .appTextSecondary,
                         title: "Einstellungen",
-                        text: "Passe die Schriftgrösse, Töne und die Anzahl der Aufgaben pro Runde an. Du findest die Einstellungen im letzten Tab."
+                        text: "Passe die Aufgabentypen, Schriftgrösse, Töne und die Anzahl der Aufgaben pro Runde an. Du findest die Einstellungen im letzten Tab."
                     )
 
                     helpSection(
                         icon: "person.2.fill",
                         color: .appPurple,
                         title: "Elternbereich",
-                        text: "Eltern können oben rechts auf das Personen-Symbol tippen. Nach einer Rechenaufgabe für Erwachsene seht ihr detaillierte Statistiken."
+                        text: "Eltern können oben rechts auf das Personen-Symbol tippen. Nach einer Rechenaufgabe für Erwachsene seht ihr detaillierte Statistiken und Stärken pro Aufgabentyp."
                     )
                 }
                 .padding(20)
