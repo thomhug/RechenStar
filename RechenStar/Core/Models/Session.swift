@@ -11,6 +11,10 @@ final class Session {
     var correctCount: Int = 0
     var totalCount: Int = 0
     var starsEarned: Int = 0
+    var additionCorrect: Int = 0
+    var additionTotal: Int = 0
+    var subtractionCorrect: Int = 0
+    var subtractionTotal: Int = 0
 
     @Relationship(inverse: \DailyProgress.sessions)
     var dailyProgress: DailyProgress?

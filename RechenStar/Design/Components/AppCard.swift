@@ -141,6 +141,7 @@ struct AchievementData {
     let description: String
     let icon: String
     let progress: Double // 0.0 to 1.0
+    var progressText: String? = nil
 }
 
 // MARK: - Achievement Card
@@ -174,15 +175,27 @@ struct AchievementCard: View {
                         .foregroundColor(isUnlocked ? .appTextSecondary : .gray.opacity(0.7))
                         .lineLimit(2)
 
-                    ProgressBarView(
-                        progress: achievement.progress,
-                        color: isUnlocked ? .appSunYellow : .gray
-                    )
+                    HStack(spacing: 8) {
+                        ProgressBarView(
+                            progress: achievement.progress,
+                            color: isUnlocked ? .appSunYellow : .gray
+                        )
+                        if let progressText = achievement.progressText {
+                            Text(progressText)
+                                .font(AppFonts.caption)
+                                .foregroundColor(isUnlocked ? .appTextSecondary : .gray.opacity(0.7))
+                                .fixedSize()
+                        }
+                    }
                 }
 
                 Spacer()
 
-                if !isUnlocked {
+                if isUnlocked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.appGrassGreen)
+                } else {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 20))
                         .foregroundColor(.gray)

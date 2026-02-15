@@ -94,6 +94,13 @@ struct HomeView: View {
         session.totalCount = results.count
         session.starsEarned = results.reduce(0) { $0 + $1.stars }
 
+        let additionResults = results.filter { $0.exercise.type == .addition }
+        let subtractionResults = results.filter { $0.exercise.type == .subtraction }
+        session.additionTotal = additionResults.count
+        session.additionCorrect = additionResults.filter(\.isCorrect).count
+        session.subtractionTotal = subtractionResults.count
+        session.subtractionCorrect = subtractionResults.filter(\.isCorrect).count
+
         modelContext.insert(session)
 
         if let user = appState.currentUser {

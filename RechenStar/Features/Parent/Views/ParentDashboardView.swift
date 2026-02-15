@@ -49,6 +49,7 @@ struct ParentDashboardView: View {
                     exercisesChart
                     accuracyChart
                     summaryCards
+                    strengthsWeaknesses
                     overallStats
                     sessionsHistory
                     parentSettings
@@ -221,6 +222,82 @@ struct ParentDashboardView: View {
                     color: .appCoral
                 )
             }
+        }
+    }
+
+    // MARK: - Strengths & Weaknesses
+
+    private var strengthsWeaknesses: some View {
+        let allSessions = weeklyProgress.flatMap(\.sessions)
+        let addTotal = allSessions.reduce(0) { $0 + $1.additionTotal }
+        let addCorrect = allSessions.reduce(0) { $0 + $1.additionCorrect }
+        let subTotal = allSessions.reduce(0) { $0 + $1.subtractionTotal }
+        let subCorrect = allSessions.reduce(0) { $0 + $1.subtractionCorrect }
+        let addAccuracy = addTotal > 0 ? Double(addCorrect) / Double(addTotal) : 0
+        let subAccuracy = subTotal > 0 ? Double(subCorrect) / Double(subTotal) : 0
+
+        return VStack(alignment: .leading, spacing: 16) {
+            Text("Staerken & Schwaechen")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            if addTotal == 0 && subTotal == 0 {
+                Text("Noch keine Daten diese Woche")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextSecondary)
+            } else {
+                operationRow(
+                    label: "Addition",
+                    icon: "plus.circle.fill",
+                    correct: addCorrect,
+                    total: addTotal,
+                    accuracy: addAccuracy
+                )
+                operationRow(
+                    label: "Subtraktion",
+                    icon: "minus.circle.fill",
+                    correct: subCorrect,
+                    total: subTotal,
+                    accuracy: subAccuracy
+                )
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+    }
+
+    private func operationRow(label: String, icon: String, correct: Int, total: Int, accuracy: Double) -> some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral)
+                    .frame(width: 28)
+                Text(label)
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextPrimary)
+                Spacer()
+                if total > 0 {
+                    Text("\(correct)/\(total)")
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                    Text(String(format: "%.0f%%", accuracy * 100))
+                        .font(AppFonts.headline)
+                        .foregroundColor(accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral)
+                } else {
+                    Text("–")
+                        .font(AppFonts.body)
+                        .foregroundColor(.appTextSecondary)
+                }
+            }
+            .accessibilityElement(children: .combine)
+            ProgressBarView(
+                progress: accuracy,
+                color: accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral
+            )
         }
     }
 
