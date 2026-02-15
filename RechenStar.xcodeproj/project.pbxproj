@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,6 +15,7 @@
 		3C4328F3ACFE4B7E08F763C8 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */; };
 		524852831B3B3A4F4027B24C /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A8D726BA0823ED2D3A7CCE /* User.swift */; };
 		5B40BAE1A7DEC5BA88118EE5 /* LearningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD13591B21634708F88F0F /* LearningProgressView.swift */; };
+		6DFDB2133EB0BE39A99B0CD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */; };
 		72847DEF620B38691478C5C8 /* SoundService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757E1DAB6B2B2029FC4C0994 /* SoundService.swift */; };
 		73099763D78DBA2199817C40 /* ExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4A0C97C2C8146B57AAAEFC /* ExerciseView.swift */; };
 		76656AA4C4D6FAEDBD3EEF0F /* ExerciseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC54CC3BBC832073C7CBC8D /* ExerciseViewModel.swift */; };
@@ -32,6 +33,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -269,6 +271,7 @@
 		CBDB5663A525576415A5145B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -327,6 +330,7 @@
 			buildConfigurationList = E4F9C5E6FAD181B3B00265CC /* Build configuration list for PBXNativeTarget "RechenStar" */;
 			buildPhases = (
 				9E8B0E7325A5E88FD0DCC2FA /* Sources */,
+				A4FC56EAD4D2FA0723BAE4C9 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -366,6 +370,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A4FC56EAD4D2FA0723BAE4C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DFDB2133EB0BE39A99B0CD8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9E8B0E7325A5E88FD0DCC2FA /* Sources */ = {
