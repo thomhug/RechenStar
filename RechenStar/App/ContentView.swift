@@ -184,6 +184,7 @@ struct TabBarButton: View {
             .padding(.vertical, 8)
             .accessibilityLabel(tab.rawValue)
         }
+        .accessibilityIdentifier("tab-\(tab.rawValue)")
         .animation(.spring(duration: 0.3, bounce: 0.3), value: isSelected)
     }
 }

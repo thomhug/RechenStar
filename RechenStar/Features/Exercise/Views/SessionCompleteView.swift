@@ -232,6 +232,7 @@ struct SessionCompleteView: View {
                     AppButton(title: "Weiter", variant: .primary, icon: "house.fill") {
                         onDismiss()
                     }
+                    .accessibilityIdentifier("done-button")
 
                     Spacer(minLength: 20)
                 }
@@ -243,6 +244,7 @@ struct SessionCompleteView: View {
                 ConfettiView()
             }
         }
+        .accessibilityIdentifier("session-complete")
         .onAppear {
             if themeManager.soundEnabled {
                 SoundService.playSessionComplete()

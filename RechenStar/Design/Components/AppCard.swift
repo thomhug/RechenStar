@@ -79,6 +79,7 @@ struct ExerciseCard: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(accessibilityDescription)
+            .accessibilityIdentifier("exercise-card")
         }
         .animation(.spring(duration: 0.4, bounce: 0.3), value: showResult)
     }

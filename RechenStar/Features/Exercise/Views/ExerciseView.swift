@@ -9,6 +9,10 @@ struct ExerciseView: View {
     @State private var autoAdvanceTask: DispatchWorkItem?
     @State private var showBreakReminder = false
     @State private var sessionStartTime = Date()
+    @State private var starCounterFrame: CGRect = .zero
+    @State private var feedbackFrame: CGRect = .zero
+    @State private var showStarAnimation = false
+    @State private var animatingStars = 0
 
     private let breakCheckTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
@@ -26,18 +30,31 @@ struct ExerciseView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            progressSection
-                .padding(.top, 10)
-            exerciseCardSection
-            answerDisplay
-            feedbackSection
-            Spacer(minLength: 0)
-            numberPad
-            actionButtons
+        ZStack {
+            VStack(spacing: 12) {
+                progressSection
+                    .padding(.top, 10)
+                exerciseCardSection
+                answerDisplay
+                feedbackSection
+                Spacer(minLength: 0)
+                numberPad
+                actionButtons
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 8)
+            .coordinateSpace(name: "exercise")
+
+            if showStarAnimation {
+                StarAnimationView(
+                    starCount: animatingStars,
+                    from: feedbackFrame,
+                    to: starCounterFrame
+                ) {
+                    showStarAnimation = false
+                }
+            }
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 8)
         .background(Color.appBackgroundGradient.ignoresSafeArea())
         .onAppear {
             viewModel.startSession()
@@ -45,6 +62,11 @@ struct ExerciseView: View {
         .onChange(of: viewModel.sessionState) { _, newState in
             if newState == .completed {
                 onSessionComplete(viewModel.sessionResults)
+            }
+        }
+        .onChange(of: viewModel.feedbackState) { _, newState in
+            if newState == .none {
+                showStarAnimation = false
             }
         }
         .onReceive(breakCheckTimer) { _ in
@@ -83,6 +105,17 @@ struct ExerciseView: View {
                         .font(AppFonts.subheadline)
                         .foregroundColor(.appTextPrimary)
                 }
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: StarCounterFrameKey.self,
+                            value: geo.frame(in: .named("exercise"))
+                        )
+                    }
+                )
+                .onPreferenceChange(StarCounterFrameKey.self) { frame in
+                    starCounterFrame = frame
+                }
                 Button {
                     onCancel(viewModel.sessionResults)
                 } label: {
@@ -91,6 +124,7 @@ struct ExerciseView: View {
                         .foregroundColor(.appTextSecondary.opacity(0.6))
                 }
                 .accessibilityLabel("Abbrechen")
+                .accessibilityIdentifier("cancel-button")
                 .padding(.leading, 8)
             }
             ProgressBarView(
@@ -125,6 +159,7 @@ struct ExerciseView: View {
             .foregroundColor(viewModel.userAnswer.isEmpty ? .appTextSecondary.opacity(0.4) : .appSkyBlue)
             .frame(height: 80)
             .offset(x: shakeOffset)
+            .accessibilityIdentifier("answer-display")
             .accessibilityLabel(viewModel.userAnswer.isEmpty ? "Noch keine Antwort" : "Antwort: \(viewModel.userAnswer)")
     }
 
@@ -148,6 +183,17 @@ struct ExerciseView: View {
                     }
                 }
                 .frame(height: 40)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: FeedbackFrameKey.self,
+                            value: geo.frame(in: .named("exercise"))
+                        )
+                    }
+                )
+                .onPreferenceChange(FeedbackFrameKey.self) { frame in
+                    feedbackFrame = frame
+                }
                 .transition(.scale.combined(with: .opacity))
 
             case .incorrect:
@@ -184,6 +230,7 @@ struct ExerciseView: View {
                 }
                 .frame(width: 80, height: 80)
                 .disabled(!padEnabled)
+                .accessibilityIdentifier("delete-button")
 
                 NumberPadButton(number: 0) { d in
                     viewModel.appendDigit(d)
@@ -195,6 +242,7 @@ struct ExerciseView: View {
                 }
                 .frame(width: 80, height: 80)
                 .disabled(!viewModel.canSubmit)
+                .accessibilityIdentifier("submit-button")
             }
         }
     }
@@ -209,10 +257,12 @@ struct ExerciseView: View {
                     cancelAutoAdvance()
                     viewModel.nextExercise()
                 }
+                .accessibilityIdentifier("continue-button")
             case .none:
                 SkipButton {
                     viewModel.skipExercise()
                 }
+                .accessibilityIdentifier("skip-button")
             case .incorrect:
                 Color.clear.frame(height: 60)
             }
@@ -239,6 +289,15 @@ struct ExerciseView: View {
             if themeManager.soundEnabled {
                 SoundService.playCorrect()
             }
+
+            if case .correct(let stars) = viewModel.feedbackState,
+               !themeManager.reducedMotion {
+                animatingStars = stars
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    showStarAnimation = true
+                }
+            }
+
             scheduleAutoAdvance()
         }
     }
@@ -249,7 +308,7 @@ struct ExerciseView: View {
             viewModel.nextExercise()
         }
         autoAdvanceTask = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: task)
     }
 
     private func cancelAutoAdvance() {
@@ -268,5 +327,21 @@ struct ExerciseView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Preference Keys
+
+private struct StarCounterFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
+    }
+}
+
+private struct FeedbackFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
     }
 }

@@ -57,3 +57,18 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rechenstar.tests
         GENERATE_INFOPLIST_FILE: YES
+
+  RechenStarUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: RechenStarUITests
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: RechenStar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rechenstar.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: RechenStar

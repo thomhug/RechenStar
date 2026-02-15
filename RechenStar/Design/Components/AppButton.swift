@@ -157,6 +157,7 @@ struct NumberPadButton: View {
         }
         .buttonStyle(BounceButtonStyle(scaleOnPress: 0.9))
         .accessibilityLabel("\(number)")
+        .accessibilityIdentifier("number-pad-\(number)")
     }
 }
 

@@ -49,6 +49,7 @@ struct HomeView: View {
             ) {
                 exerciseFlowState = .exercising
             }
+            .accessibilityIdentifier("play-button")
 
             Spacer()
         }
