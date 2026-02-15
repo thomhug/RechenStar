@@ -253,11 +253,7 @@ struct ExerciseView: View {
         Group {
             switch viewModel.feedbackState {
             case .correct:
-                AppButton(title: "Weiter", variant: .primary, icon: "arrow.right") {
-                    cancelAutoAdvance()
-                    viewModel.nextExercise()
-                }
-                .accessibilityIdentifier("continue-button")
+                Color.clear.frame(height: 60)
             case .none:
                 SkipButton {
                     viewModel.skipExercise()
@@ -308,7 +304,7 @@ struct ExerciseView: View {
             viewModel.nextExercise()
         }
         autoAdvanceTask = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
     }
 
     private func cancelAutoAdvance() {
