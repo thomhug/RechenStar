@@ -8,7 +8,7 @@ struct HomeView: View {
 
     enum ExerciseFlowState: Identifiable {
         case exercising
-        case completed(results: [ExerciseResult], sessionLength: Int)
+        case completed(results: [ExerciseResult], sessionLength: Int, engagement: EngagementResult)
 
         var id: String {
             switch self {
@@ -57,28 +57,31 @@ struct HomeView: View {
             switch state {
             case .exercising:
                 ExerciseView { results in
-                    let sessionLength = results.count
+                    let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(
                         results: results,
-                        sessionLength: sessionLength
+                        sessionLength: results.count,
+                        engagement: engagement
                     )
                 } onCancel: {
                     exerciseFlowState = nil
                 }
 
-            case .completed(let results, let sessionLength):
+            case .completed(let results, let sessionLength, let engagement):
                 SessionCompleteView(
                     results: results,
-                    sessionLength: sessionLength
+                    sessionLength: sessionLength,
+                    unlockedAchievements: engagement.newlyUnlockedAchievements,
+                    currentStreak: engagement.currentStreak,
+                    isNewStreak: engagement.isNewStreak
                 ) {
-                    saveSession(results: results)
                     exerciseFlowState = nil
                 }
             }
         }
     }
 
-    private func saveSession(results: [ExerciseResult]) {
+    private func saveSession(results: [ExerciseResult]) -> EngagementResult {
         let session = Session()
         session.endTime = Date()
         session.isCompleted = true
@@ -92,9 +95,21 @@ struct HomeView: View {
         if let user = appState.currentUser {
             user.totalExercises += results.count
             user.totalStars += session.starsEarned
+
+            let engagement = EngagementService.processSession(
+                results: results,
+                session: session,
+                user: user,
+                context: modelContext
+            )
+            return engagement
         }
 
-        try? modelContext.save()
+        return EngagementResult(
+            newlyUnlockedAchievements: [],
+            currentStreak: 0,
+            isNewStreak: false
+        )
     }
 }
 

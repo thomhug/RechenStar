@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: Tab = .home
     @State private var showParentGate = false
 
@@ -35,6 +37,25 @@ struct ContentView: View {
                 mainInterface
             }
         }
+        .task {
+            loadExistingUser()
+            ensureAchievementsInitialized()
+        }
+    }
+
+    private func loadExistingUser() {
+        guard appState.currentUser == nil else { return }
+        let descriptor = FetchDescriptor<User>()
+        guard let users = try? modelContext.fetch(descriptor),
+              let user = users.first else { return }
+        appState.currentUser = user
+    }
+
+    private func ensureAchievementsInitialized() {
+        guard let user = appState.currentUser else { return }
+        guard user.achievements.count < AchievementType.allCases.count else { return }
+        EngagementService.initializeAchievements(for: user, context: modelContext)
+        try? modelContext.save()
     }
 
     private var mainInterface: some View {
@@ -155,6 +176,7 @@ struct TabBarButton: View {
 // MARK: - Placeholder Views
 struct UserSelectionView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         VStack(spacing: 40) {
@@ -183,6 +205,9 @@ struct UserSelectionView: View {
     private func createNewUser() {
         let newUser = User()
         newUser.name = "Noah"
+        modelContext.insert(newUser)
+        EngagementService.initializeAchievements(for: newUser, context: modelContext)
+        try? modelContext.save()
         appState.currentUser = newUser
     }
 }

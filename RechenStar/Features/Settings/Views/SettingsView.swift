@@ -40,7 +40,20 @@ struct SettingsView: View {
                 }
             }
             .padding(20)
+
+            Text("Version \(Bundle.main.appVersionString)")
+                .font(AppFonts.footnote)
+                .foregroundColor(.appTextSecondary.opacity(0.5))
+                .padding(.bottom, 20)
         }
+    }
+}
+
+extension Bundle {
+    var appVersionString: String {
+        let version = infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        return "\(version) (\(build))"
     }
 }
 

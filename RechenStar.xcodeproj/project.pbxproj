@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -21,7 +21,9 @@
 		76656AA4C4D6FAEDBD3EEF0F /* ExerciseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC54CC3BBC832073C7CBC8D /* ExerciseViewModel.swift */; };
 		89D4D864BA6833F65AF28741 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92091DA1EA0A2CA2A49A5A56 /* Colors.swift */; };
 		91A3DE7E82A389E74FB34ABA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59955A829110357DBF3DFF6D /* SettingsView.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* EngagementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E1D0C9B8A7F6E5D4C3B2A1 /* EngagementService.swift */; };
 		B0E762B5F0C8AC00E1E51339 /* SessionCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B974D51C0159D70FBE06C0 /* SessionCompleteView.swift */; };
+		B3C4D5E6F7A8B9C0D1E2F3A4 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F3E2D1C0B9A8F7E6D5C4B3 /* ConfettiView.swift */; };
 		B5D4C9E87B37D127733A70A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C12B2673C9A375F251DE14 /* ContentView.swift */; };
 		CF7A8A8646288D4506550402 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */; };
 		D8D7D35E4AA8F4DA43EBFDAF /* DailyProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C624BF870DA45D04D32A388F /* DailyProgress.swift */; };
@@ -36,7 +38,7 @@
 		0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
-		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		299E1653F5C2F1EF6117A17F /* ExerciseGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseGenerator.swift; sourceTree = "<group>"; };
 		2A80DB39F65231DBC960C839 /* ExerciseResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseResult.swift; sourceTree = "<group>"; };
 		51C12B2673C9A375F251DE14 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -50,12 +52,14 @@
 		975F4468940269559665D3FD /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		99A8D726BA0823ED2D3A7CCE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		99AD13591B21634708F88F0F /* LearningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningProgressView.swift; sourceTree = "<group>"; };
+		A4F3E2D1C0B9A8F7E6D5C4B3 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		AAC54CC3BBC832073C7CBC8D /* ExerciseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseViewModel.swift; sourceTree = "<group>"; };
 		B02B8622AE612BA76FAD6F4A /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		C1B974D51C0159D70FBE06C0 /* SessionCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompleteView.swift; sourceTree = "<group>"; };
 		C624BF870DA45D04D32A388F /* DailyProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProgress.swift; sourceTree = "<group>"; };
 		C73E48A43E789A7E8CF34E4D /* RechenStarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RechenStarApp.swift; sourceTree = "<group>"; };
 		D2671F1CC36C36A15C1AB0F6 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		F2E1D0C9B8A7F6E5D4C3B2A1 /* EngagementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementService.swift; sourceTree = "<group>"; };
 		F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -124,6 +128,7 @@
 		47EF8A1C8CB086A3CE92283A /* Animations */ = {
 			isa = PBXGroup;
 			children = (
+				A4F3E2D1C0B9A8F7E6D5C4B3 /* ConfettiView.swift */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -148,6 +153,7 @@
 		59AA1DFDB93C1685ECBFD336 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F2E1D0C9B8A7F6E5D4C3B2A1 /* EngagementService.swift */,
 				299E1653F5C2F1EF6117A17F /* ExerciseGenerator.swift */,
 				757E1DAB6B2B2029FC4C0994 /* SoundService.swift */,
 			);
@@ -362,7 +368,6 @@
 			);
 			mainGroup = E628E28473DE54C6C218CDE8;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -409,6 +414,8 @@
 				72847DEF620B38691478C5C8 /* SoundService.swift in Sources */,
 				524852831B3B3A4F4027B24C /* User.swift in Sources */,
 				1F42BC5756E78A3AAA9C2082 /* UserPreferences.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* EngagementService.swift in Sources */,
+				B3C4D5E6F7A8B9C0D1E2F3A4 /* ConfettiView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,6 +567,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 79DD3LF864;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -577,6 +585,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 79DD3LF864;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
