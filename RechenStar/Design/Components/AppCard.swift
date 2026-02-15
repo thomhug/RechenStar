@@ -48,33 +48,42 @@ struct ExerciseCard: View {
 
     var body: some View {
         AppCard(padding: 30) {
-            HStack(spacing: 20) {
+            HStack(spacing: 12) {
                 Text("\(firstNumber)")
                     .font(AppFonts.numberHuge)
                     .foregroundColor(.appTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
                 Text(operation)
                     .font(AppFonts.numberLarge)
                     .foregroundColor(.appSkyBlue)
+                    .fixedSize()
 
                 Text("\(secondNumber)")
                     .font(AppFonts.numberHuge)
                     .foregroundColor(.appTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
                 Text("=")
                     .font(AppFonts.numberLarge)
                     .foregroundColor(.appTextSecondary)
+                    .fixedSize()
 
                 if showResult, let result {
                     Text("\(result)")
                         .font(AppFonts.numberHuge)
                         .foregroundColor(.appSuccess)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                         .transition(.scale.combined(with: .opacity))
                 } else {
                     Text("?")
                         .font(AppFonts.numberHuge)
                         .foregroundColor(.appTextSecondary)
                         .opacity(0.5)
+                        .fixedSize()
                 }
             }
             .accessibilityElement(children: .combine)
