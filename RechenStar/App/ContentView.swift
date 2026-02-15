@@ -6,7 +6,7 @@ struct ContentView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: Tab = .home
-    @State private var showParentGate = false
+    @State private var showParentSheet = false
 
     enum Tab: String, CaseIterable {
         case home = "Spielen"
@@ -31,15 +31,16 @@ struct ContentView: View {
 
             if appState.currentUser == nil {
                 UserSelectionView()
-            } else if appState.isParentMode && !showParentGate {
-                ParentGateView(isPresented: $showParentGate)
             } else {
                 mainInterface
             }
         }
         .task {
             loadExistingUser()
-            ensureAchievementsInitialized()
+            ensureUserDataInitialized()
+        }
+        .fullScreenCover(isPresented: $showParentSheet) {
+            ParentFlowView(onDismiss: { showParentSheet = false })
         }
     }
 
@@ -51,17 +52,30 @@ struct ContentView: View {
         appState.currentUser = user
     }
 
-    private func ensureAchievementsInitialized() {
+    private func ensureUserDataInitialized() {
         guard let user = appState.currentUser else { return }
-        guard user.achievements.count < AchievementType.allCases.count else { return }
-        EngagementService.initializeAchievements(for: user, context: modelContext)
-        try? modelContext.save()
+        var needsSave = false
+        if user.achievements.count < AchievementType.allCases.count {
+            EngagementService.initializeAchievements(for: user, context: modelContext)
+            needsSave = true
+        }
+        if user.preferences == nil {
+            let prefs = UserPreferences()
+            prefs.user = user
+            modelContext.insert(prefs)
+            needsSave = true
+        }
+        if needsSave {
+            try? modelContext.save()
+        }
     }
 
     private var mainInterface: some View {
         VStack(spacing: 0) {
-            HeaderView(selectedTab: $selectedTab)
-                .padding(.top, 10)
+            HeaderView(selectedTab: $selectedTab, onParentTap: {
+                showParentSheet = true
+            })
+            .padding(.top, 10)
 
             TabView(selection: $selectedTab) {
                 HomeView()
@@ -87,6 +101,7 @@ struct ContentView: View {
 struct HeaderView: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(AppState.self) private var appState
+    var onParentTap: () -> Void
 
     var body: some View {
         HStack {
@@ -104,7 +119,7 @@ struct HeaderView: View {
             Spacer()
 
             Button {
-                appState.isParentMode.toggle()
+                onParentTap()
             } label: {
                 Image(systemName: "person.2.fill")
                     .font(.title2)
@@ -173,7 +188,7 @@ struct TabBarButton: View {
     }
 }
 
-// MARK: - Placeholder Views
+// MARK: - User Selection
 struct UserSelectionView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
@@ -206,6 +221,9 @@ struct UserSelectionView: View {
         let newUser = User()
         newUser.name = "Noah"
         modelContext.insert(newUser)
+        let prefs = UserPreferences()
+        prefs.user = newUser
+        modelContext.insert(prefs)
         EngagementService.initializeAchievements(for: newUser, context: modelContext)
         try? modelContext.save()
         appState.currentUser = newUser
@@ -227,27 +245,152 @@ struct UserAvatarView: View {
     }
 }
 
-struct ParentGateView: View {
-    @Binding var isPresented: Bool
+// MARK: - Parent Flow
+struct ParentFlowView: View {
+    let onDismiss: () -> Void
+    @State private var gateUnlocked = false
+    @Environment(AppState.self) private var appState
 
     var body: some View {
-        VStack(spacing: 30) {
-            Text("Elternbereich")
-                .font(AppFonts.title)
-
-            Text("Bitte löse diese Aufgabe:")
-                .font(AppFonts.bodyLarge)
-
-            Text("15 + 27 = ?")
-                .font(AppFonts.numberLarge)
-                .foregroundColor(.appSkyBlue)
+        if gateUnlocked, let user = appState.currentUser {
+            ParentDashboardView(user: user, onDismiss: onDismiss)
+        } else {
+            ParentGateView(
+                onSuccess: { withAnimation { gateUnlocked = true } },
+                onCancel: onDismiss
+            )
         }
-        .padding(40)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.appCardBackground)
-                .shadow(color: .black.opacity(0.15), radius: 20)
-        )
+    }
+}
+
+// MARK: - Parent Gate
+struct ParentGateView: View {
+    let onSuccess: () -> Void
+    let onCancel: () -> Void
+
+    @State private var num1: Int
+    @State private var num2: Int
+    @State private var isAddition: Bool
+    @State private var userAnswer = ""
+    @State private var showError = false
+    @FocusState private var isInputFocused: Bool
+
+    init(onSuccess: @escaping () -> Void, onCancel: @escaping () -> Void) {
+        self.onSuccess = onSuccess
+        self.onCancel = onCancel
+        let addition = Bool.random()
+        var a = Int.random(in: 10...99)
+        var b = Int.random(in: 10...99)
+        if !addition && a < b {
+            swap(&a, &b)
+        }
+        _num1 = State(initialValue: a)
+        _num2 = State(initialValue: b)
+        _isAddition = State(initialValue: addition)
+    }
+
+    private var correctAnswer: Int {
+        isAddition ? num1 + num2 : num1 - num2
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button("Abbrechen") {
+                    onCancel()
+                }
+                .foregroundColor(.appTextSecondary)
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+
+            Spacer()
+
+            VStack(spacing: 24) {
+                Text("Elternbereich")
+                    .font(AppFonts.title)
+                    .foregroundColor(.appTextPrimary)
+
+                Text("Bitte löse diese Aufgabe:")
+                    .font(AppFonts.bodyLarge)
+                    .foregroundColor(.appTextSecondary)
+
+                Text("\(num1) \(isAddition ? "+" : "−") \(num2) = ?")
+                    .font(AppFonts.numberLarge)
+                    .foregroundColor(.appSkyBlue)
+
+                TextField("Antwort", text: $userAnswer)
+                    .keyboardType(.numberPad)
+                    .font(AppFonts.numberLarge)
+                    .multilineTextAlignment(.center)
+                    .frame(width: 120)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(showError ? Color.appCoral : Color.appTextSecondary.opacity(0.3), lineWidth: 2)
+                    )
+                    .focused($isInputFocused)
+
+                if showError {
+                    Text("Leider falsch. Versuch es nochmal!")
+                        .font(AppFonts.body)
+                        .foregroundColor(.appCoral)
+                        .transition(.opacity)
+                }
+
+                Button(action: checkAnswer) {
+                    Text("Prüfen")
+                        .font(AppFonts.buttonLarge)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.appSkyBlue)
+                        )
+                }
+                .disabled(userAnswer.isEmpty)
+                .opacity(userAnswer.isEmpty ? 0.5 : 1.0)
+            }
+            .padding(30)
+            .background(
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(Color.appCardBackground)
+                    .shadow(color: .black.opacity(0.15), radius: 20)
+            )
+            .padding(.horizontal, 20)
+
+            Spacer()
+        }
+        .background(Color.appBackgroundGradient.ignoresSafeArea())
+        .onAppear {
+            isInputFocused = true
+        }
+    }
+
+    private func checkAnswer() {
+        if Int(userAnswer) == correctAnswer {
+            onSuccess()
+        } else {
+            withAnimation {
+                showError = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                generateNewProblem()
+            }
+        }
+    }
+
+    private func generateNewProblem() {
+        isAddition = Bool.random()
+        num1 = Int.random(in: 10...99)
+        num2 = Int.random(in: 10...99)
+        if !isAddition && num1 < num2 {
+            swap(&num1, &num2)
+        }
+        userAnswer = ""
+        showError = false
     }
 }
 

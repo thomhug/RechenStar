@@ -1,10 +1,16 @@
 import SwiftUI
+import Combine
 
 struct ExerciseView: View {
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(AppState.self) private var appState
     @State private var viewModel: ExerciseViewModel
     @State private var shakeOffset: CGFloat = 0
     @State private var autoAdvanceTask: DispatchWorkItem?
+    @State private var showBreakReminder = false
+    @State private var sessionStartTime = Date()
+
+    private let breakCheckTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     let onSessionComplete: ([ExerciseResult]) -> Void
     let onCancel: ([ExerciseResult]) -> Void
@@ -40,6 +46,24 @@ struct ExerciseView: View {
             if newState == .completed {
                 onSessionComplete(viewModel.sessionResults)
             }
+        }
+        .onReceive(breakCheckTimer) { _ in
+            guard let prefs = appState.currentUser?.preferences,
+                  prefs.breakReminder else { return }
+            let elapsed = Date().timeIntervalSince(sessionStartTime)
+            if elapsed >= Double(prefs.breakIntervalSeconds) && !showBreakReminder {
+                showBreakReminder = true
+            }
+        }
+        .alert("Zeit für eine Pause!", isPresented: $showBreakReminder) {
+            Button("Weiter spielen") {
+                sessionStartTime = Date()
+            }
+            Button("Pause machen") {
+                onCancel(viewModel.sessionResults)
+            }
+        } message: {
+            Text("Du spielst schon eine Weile. Eine kurze Pause tut gut!")
         }
     }
 

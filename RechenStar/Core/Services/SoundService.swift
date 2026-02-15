@@ -19,6 +19,91 @@ enum SoundService {
         playTone(frequency: 280, duration: 0.25) // tiefer Ton
     }
 
+    // Fanfare "tütertütüü" bei Session-Abschluss
+    static func playSessionComplete() {
+        playMelody(notes: [
+            (frequency: 523.25, duration: 0.13),  // C5  "tü"
+            (frequency: 659.25, duration: 0.13),  // E5  "ter"
+            (frequency: 783.99, duration: 0.13),  // G5  "tü"
+            (frequency: 1046.50, duration: 0.45), // C6  "tüü"
+        ])
+    }
+
+    // Aufsteigender Chime bei neuem Achievement
+    static func playAchievement() {
+        playMelody(notes: [
+            (frequency: 659.25, duration: 0.1),   // E5
+            (frequency: 830.61, duration: 0.1),   // G#5
+            (frequency: 987.77, duration: 0.1),   // B5
+            (frequency: 1318.51, duration: 0.35), // E6
+        ])
+    }
+
+    private static func playMelody(notes: [(frequency: Double, duration: Double)]) {
+        let sampleRate: Double = 44100
+        let pauseDuration: Double = 0.025
+
+        var allSamples = [Float]()
+
+        for note in notes {
+            let frameCount = Int(sampleRate * note.duration)
+            for i in 0..<frameCount {
+                let t = Double(i) / sampleRate
+                let attack = min(t / 0.008, 1.0)
+                let release = min((note.duration - t) / 0.04, 1.0)
+                let envelope = Float(max(0, min(attack, release)))
+                let fundamental = sin(Float(2.0 * .pi * note.frequency * t))
+                let harmonic2 = 0.35 * sin(Float(2.0 * .pi * note.frequency * 2.0 * t))
+                let harmonic3 = 0.12 * sin(Float(2.0 * .pi * note.frequency * 3.0 * t))
+                allSamples.append(envelope * (fundamental + harmonic2 + harmonic3))
+            }
+            let gapFrames = Int(sampleRate * pauseDuration)
+            allSamples.append(contentsOf: [Float](repeating: 0, count: gapFrames))
+        }
+
+        // Normalisieren
+        let peak = allSamples.map { abs($0) }.max() ?? 1.0
+        if peak > 0 {
+            for i in 0..<allSamples.count {
+                allSamples[i] /= peak
+            }
+        }
+
+        let dataSize = UInt32(allSamples.count * 2)
+        var wavData = Data()
+
+        wavData.append(contentsOf: "RIFF".utf8)
+        appendUInt32(&wavData, 36 + dataSize)
+        wavData.append(contentsOf: "WAVE".utf8)
+
+        wavData.append(contentsOf: "fmt ".utf8)
+        appendUInt32(&wavData, 16)
+        appendUInt16(&wavData, 1)
+        appendUInt16(&wavData, 1)
+        appendUInt32(&wavData, UInt32(sampleRate))
+        appendUInt32(&wavData, UInt32(sampleRate) * 2)
+        appendUInt16(&wavData, 2)
+        appendUInt16(&wavData, 16)
+
+        wavData.append(contentsOf: "data".utf8)
+        appendUInt32(&wavData, dataSize)
+
+        for sample in allSamples {
+            let clamped = max(-1.0, min(1.0, sample))
+            let intSample = Int16(clamped * Float(Int16.max))
+            appendInt16(&wavData, intSample)
+        }
+
+        do {
+            configureSession()
+            audioPlayer = try AVAudioPlayer(data: wavData)
+            audioPlayer?.volume = 0.5
+            audioPlayer?.play()
+        } catch {
+            AudioToolbox.AudioServicesPlayAlertSound(SystemSoundID(1057))
+        }
+    }
+
     private static func playTone(frequency: Double, duration: Double) {
         let sampleRate: Double = 44100
         let frameCount = Int(sampleRate * duration)

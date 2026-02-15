@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SessionCompleteView: View {
+    @Environment(ThemeManager.self) private var themeManager
     let results: [ExerciseResult]
     let sessionLength: Int
     var unlockedAchievements: [Achievement] = []
@@ -211,6 +212,16 @@ struct SessionCompleteView: View {
 
             if showConfetti {
                 ConfettiView()
+            }
+        }
+        .onAppear {
+            if themeManager.soundEnabled {
+                SoundService.playSessionComplete()
+                if !unlockedAchievements.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        SoundService.playAchievement()
+                    }
+                }
             }
         }
     }

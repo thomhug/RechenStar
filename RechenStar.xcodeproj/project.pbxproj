@@ -24,6 +24,7 @@
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* EngagementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E1D0C9B8A7F6E5D4C3B2A1 /* EngagementService.swift */; };
 		B0E762B5F0C8AC00E1E51339 /* SessionCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B974D51C0159D70FBE06C0 /* SessionCompleteView.swift */; };
 		B3C4D5E6F7A8B9C0D1E2F3A4 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F3E2D1C0B9A8F7E6D5C4B3 /* ConfettiView.swift */; };
+		B4D5E6F7A8B9C0D1E2F3A4B5 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E6F7A8B9C0D1E2F3A4B5C6 /* ParentDashboardView.swift */; };
 		B5D4C9E87B37D127733A70A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C12B2673C9A375F251DE14 /* ContentView.swift */; };
 		CF7A8A8646288D4506550402 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */; };
 		D8D7D35E4AA8F4DA43EBFDAF /* DailyProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C624BF870DA45D04D32A388F /* DailyProgress.swift */; };
@@ -59,6 +60,7 @@
 		C624BF870DA45D04D32A388F /* DailyProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProgress.swift; sourceTree = "<group>"; };
 		C73E48A43E789A7E8CF34E4D /* RechenStarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RechenStarApp.swift; sourceTree = "<group>"; };
 		D2671F1CC36C36A15C1AB0F6 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D5E6F7A8B9C0D1E2F3A4B5C6 /* ParentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentDashboardView.swift; sourceTree = "<group>"; };
 		F2E1D0C9B8A7F6E5D4C3B2A1 /* EngagementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementService.swift; sourceTree = "<group>"; };
 		F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -297,6 +299,7 @@
 		E23633C28AF08DC25B4F640C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D5E6F7A8B9C0D1E2F3A4B5C6 /* ParentDashboardView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -416,6 +419,7 @@
 				1F42BC5756E78A3AAA9C2082 /* UserPreferences.swift in Sources */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* EngagementService.swift in Sources */,
 				B3C4D5E6F7A8B9C0D1E2F3A4 /* ConfettiView.swift in Sources */,
+				B4D5E6F7A8B9C0D1E2F3A4B5 /* ParentDashboardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
