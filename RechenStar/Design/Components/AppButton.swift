@@ -148,7 +148,7 @@ struct NumberPadButton: View {
                 .frame(width: 80, height: 80)
                 .background(
                     Circle()
-                        .fill(isEnabled ? Color.white : Color.gray.opacity(0.1))
+                        .fill(isEnabled ? Color.appCardBackground : Color.gray.opacity(0.1))
                         .shadow(
                             color: isEnabled ? .black.opacity(0.05) : .clear,
                             radius: 4, y: 2
