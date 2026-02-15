@@ -8,17 +8,18 @@ Eine kindgerechte Mathe-Lern-App fuer iOS (Erstklassler, 6-8 Jahre) mit Fokus au
 ## Fortschritt
 
 ```
-Gesamt-Fortschritt:    ████████████████░░░░ 80%
+Gesamt-Fortschritt:    ██████████████████░░ 90%
 
 Dokumentation:         ████████████████████ 100%
 Projekt-Setup:         ████████████████████ 100%
 Core Models:           ████████████████████ 100%
 Services:              ████████████████████ 100%
-UI Implementation:     ████████████████░░░░ 80%
-Gamification:          ██████████████░░░░░░ 70%
-Parent Features:       ██████░░░░░░░░░░░░░░ 30%
+UI Implementation:     ████████████████████ 100%
+Gamification:          ████████████████████ 100%
+Parent Features:       ████████████████████ 100%
 Accessibility:         ████████████████████ 100%
 Testing:               ████████████████████ 100%
+Polish:                ░░░░░░░░░░░░░░░░░░░░ 0%
 ```
 
 ## Abgeschlossene Features
@@ -40,7 +41,7 @@ Alle 7 Models implementiert:
 - `Exercise` — Aufgaben-Struct mit OperationType (Addition/Subtraktion) und Difficulty
 - `ExerciseResult` — Ergebnis-Struct mit Sterne-Berechnung (3/2/1 je nach Versuchen)
 - `User` — SwiftData-Model mit Streaks, Sternen, Beziehungen
-- `Session` — SwiftData-Model mit Accuracy-Berechnung, Start-/Endzeit
+- `Session` — SwiftData-Model mit Accuracy-Berechnung, Addition/Subtraktion-Stats
 - `Achievement` — SwiftData-Model mit 12 Achievement-Typen
 - `DailyProgress` — SwiftData-Model fuer taegliche Statistiken
 - `UserPreferences` — SwiftData-Model mit Accessibility- und Eltern-Einstellungen
@@ -50,29 +51,33 @@ Alle 7 Models implementiert:
 - `SoundService` — System-Sounds fuer richtig/falsch/session-complete/achievement
 - `EngagementService` — Achievement-Unlocking, Streak-Berechnung, DailyProgress-Aggregation
 
-### UI Implementation (80%)
+### UI Implementation (100%)
 - `HomeView` — Willkommen, Sterne-Anzeige, Spielen-Button, Session-Speicherung
-- `ExerciseView` — Aufgaben-Anzeige, NumberPad (0-9), Feedback-Animationen, Shake bei Fehler, Auto-Advance (0.6s)
+- `ExerciseView` — Aufgaben-Anzeige, NumberPad (0-9), Feedback-Animationen, Shake bei Fehler, Auto-Advance (0.6s), Stern-Animation
 - `ExerciseViewModel` — Session-State, Antwort-Pruefung, adaptive Schwierigkeit alle 3 Aufgaben
 - `SessionCompleteView` — Sterne, Accuracy-Statistiken, Konfetti, Streak-Anzeige, neue Achievements
 - `LearningProgressView` — Basis-Statistiken (heutige Aufgaben, Streak, Sterne)
-- `AchievementsView` — Hardcodierte Beispiel-Achievements (TODO: echte Daten)
+- `AchievementsView` — Echte Achievement-Daten mit Fortschritts-Labels (z.B. 7/10)
 - `SettingsView` — Schriftgroesse, Sound, Haptic, Aufgabenanzahl, Schwierigkeit, Pausen-Erinnerung
-- `ParentDashboardView` — Basis-Elternbereich (TODO: detaillierte Statistiken)
+- `ParentDashboardView` — Charts, Staerken/Schwaechen, Sessions-Historie, Gesamt-Stats
 
-### Gamification (70%)
+### Gamification (100%)
 - Sterne pro Aufgabe (3/2/1 basierend auf Versuchen)
 - Achievement-System mit 12 Typen, automatisches Unlocking nach Sessions
+- Fortschrittsbalken + Labels pro Achievement (freigeschaltet vs. gesperrt)
 - Streak-Tracking (aktuell + laengster)
 - DailyProgress-Aggregation
 - Stern-Sammel-Animation (fliegen zum Zaehler)
 - Konfetti auf SessionCompleteView bei >= 90% Accuracy
-- Fehlend: AchievementsView mit echten Daten
 
-### Parent Features (30%)
+### Parent Features (100%)
 - Parent-Gate mit Mathe-Aufgabe
 - Basis-Einstellungen (Aufgabenanzahl, Schwierigkeit, Pausen)
-- Fehlend: Parent Dashboard mit detaillierten Statistiken
+- Aufgaben-Chart (Balken pro Tag, letzte 7 Tage)
+- Genauigkeits-Trend (Linien-Chart)
+- Staerken/Schwaechen-Analyse (Addition vs. Subtraktion mit Fortschrittsbalken)
+- Sessions-Historie (letzte 10 Sessions mit Accuracy-Badge)
+- Gesamt-Statistiken (Aufgaben, Sterne, Streak, Mitglied seit)
 
 ### Accessibility (100%)
 - ThemeManager mit reducedMotion, highContrast, largerText, colorBlindMode
@@ -122,12 +127,12 @@ RechenStar/
       HomeView.swift             # Startbildschirm
     Exercise/Views/
       ExerciseView.swift         # Uebungsansicht
+      AchievementsView.swift     # Erfolge-Ansicht
       SessionCompleteView.swift  # Session-Abschluss
     Exercise/ViewModels/
       ExerciseViewModel.swift    # Uebungs-Logik
     Progress/Views/
       LearningProgressView.swift # Fortschritts-Ansicht
-      AchievementsView.swift     # Erfolge-Ansicht
     Settings/Views/
       SettingsView.swift         # Einstellungen
     Parent/Views/

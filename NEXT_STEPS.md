@@ -11,23 +11,7 @@
 - [x] Phase 3: Settings, Accessibility, VoiceOver (ThemeManager, Farbpaletten, Dynamic Type)
 - [x] Phase 4: Unit Tests (16+ Tests fuer ExerciseGenerator, ExerciseResult, ViewModel, EngagementService)
 - [x] Phase 5: Stern-Animation + UI Tests (StarAnimationView, 5 UI Tests)
-
----
-
-## Phase 6: AchievementsView + Parent Dashboard (AKTUELL)
-
-### 6.1 AchievementsView mit echten Daten
-- AchievementsView zeigt aktuell Hardcoded-Beispiele
-- SwiftData-Query fuer echte Achievement-Daten des Users
-- Fortschrittsbalken pro Achievement (z.B. 7/10 Aufgaben)
-- Freigeschaltete vs. gesperrte Achievements visuell unterscheiden
-
-### 6.2 Parent Dashboard mit Statistiken
-- Detaillierte Lernstatistiken pro Tag/Woche
-- Sessions-Historie
-- Accuracy-Trend
-- Staerken/Schwaechen-Analyse (Addition vs. Subtraktion)
-- Daten aus Session und DailyProgress aggregieren
+- [x] Phase 6: AchievementsView + Parent Dashboard (Fortschritts-Labels, Charts, Staerken/Schwaechen)
 
 ---
 
