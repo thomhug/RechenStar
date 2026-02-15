@@ -103,7 +103,8 @@ struct EngagementService {
                 type: type,
                 user: user,
                 session: session,
-                results: results
+                results: results,
+                currentProgress: achievement.progress
             )
 
             achievement.progress = max(achievement.progress, progress)
@@ -122,7 +123,8 @@ struct EngagementService {
         type: AchievementType,
         user: User,
         session: Session,
-        results: [ExerciseResult]
+        results: [ExerciseResult],
+        currentProgress: Int = 0
     ) -> (met: Bool, progress: Int) {
         switch type {
         case .exercises10:
@@ -142,10 +144,9 @@ struct EngagementService {
             return (user.currentStreak >= 30, min(user.currentStreak, 30))
 
         case .perfect10:
-            let allCorrect = results.allSatisfy(\.isCorrect)
-            let met = allCorrect && results.count >= 10
-            let progress = allCorrect ? min(results.count, 10) : 0
-            return (met, progress)
+            let isPerfectSession = results.allSatisfy(\.isCorrect) && results.count >= 10
+            let newProgress = isPerfectSession ? currentProgress + 1 : currentProgress
+            return (newProgress >= 10, newProgress)
 
         case .allStars:
             return (user.totalStars >= 100, min(user.totalStars, 100))
@@ -178,11 +179,11 @@ struct EngagementService {
             context.insert(achievement)
         }
 
-        // Fix unlocked achievements with incorrect progress
-        for achievement in user.achievements where achievement.isUnlocked {
-            if achievement.progress < achievement.target {
-                achievement.progress = achievement.target
-            }
+        // Fix perfect10: was incorrectly unlocked with progress=1, reset to track properly
+        if let perfect10 = user.achievements.first(where: { $0.type == .perfect10 }),
+           perfect10.isUnlocked, perfect10.progress <= 1 {
+            perfect10.progress = 1
+            perfect10.unlockedAt = nil
         }
     }
 }

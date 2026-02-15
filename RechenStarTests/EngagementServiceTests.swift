@@ -114,21 +114,34 @@ final class EngagementServiceTests: XCTestCase {
     }
 
     @MainActor
-    func testAchievementPerfect10() throws {
+    func testAchievementPerfect10Incremental() throws {
         let container = try makeContainer()
         let context = container.mainContext
         let user = makeUser(container: container)
 
-        let session = makeSession()
-        context.insert(session)
-        let results = makeResults(count: 10, allCorrect: true)
+        let perfect10 = user.achievements.first { $0.type == .perfect10 }
 
-        let unlocked = EngagementService.checkAchievements(
-            user: user, session: session, results: results, context: context
+        // One perfect session → progress 1/10, not yet unlocked
+        let session1 = makeSession()
+        context.insert(session1)
+        let results1 = makeResults(count: 10, allCorrect: true)
+        let unlocked1 = EngagementService.checkAchievements(
+            user: user, session: session1, results: results1, context: context
         )
+        XCTAssertFalse(unlocked1.compactMap(\.type).contains(.perfect10))
+        XCTAssertEqual(perfect10?.progress, 1)
 
-        let types = unlocked.compactMap(\.type)
-        XCTAssertTrue(types.contains(.perfect10))
+        // After 9 more perfect sessions → unlocked at 10/10
+        for i in 2...10 {
+            let session = makeSession()
+            context.insert(session)
+            let results = makeResults(count: 10, allCorrect: true)
+            _ = EngagementService.checkAchievements(
+                user: user, session: session, results: results, context: context
+            )
+            XCTAssertEqual(perfect10?.progress, i)
+        }
+        XCTAssertTrue(perfect10?.isUnlocked ?? false)
     }
 
     @MainActor

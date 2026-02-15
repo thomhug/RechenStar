@@ -73,7 +73,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: "Übe 3 Tage hintereinander"
         case .streak7: "Übe 7 Tage hintereinander"
         case .streak30: "Übe 30 Tage hintereinander"
-        case .perfect10: "10 Aufgaben ohne Fehler"
+        case .perfect10: "10 perfekte Runden spielen"
         case .allStars: "Sammle 100 Sterne"
         case .speedDemon: "10 Aufgaben in 2 Minuten"
         case .earlyBird: "Übe vor 8 Uhr morgens"
