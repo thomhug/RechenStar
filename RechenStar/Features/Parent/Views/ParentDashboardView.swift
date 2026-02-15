@@ -222,5 +222,7 @@ struct StatCard: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.appCardBackground)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value)")
     }
 }

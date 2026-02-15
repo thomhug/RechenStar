@@ -56,7 +56,7 @@ struct HomeView: View {
         .fullScreenCover(item: $exerciseFlowState) { state in
             switch state {
             case .exercising:
-                ExerciseView { results in
+                ExerciseView(sessionLength: appState.currentUser?.preferences?.sessionLength ?? 10) { results in
                     let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(
                         results: results,

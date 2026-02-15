@@ -14,15 +14,24 @@ struct BounceButtonStyle: SwiftUI.ButtonStyle {
 
 // MARK: - Haptic Feedback
 enum HapticFeedback {
+    private static var isEnabled: Bool {
+        UserDefaults.standard.object(forKey: "hapticEnabled") == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: "hapticEnabled")
+    }
+
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        guard isEnabled else { return }
         UIImpactFeedbackGenerator(style: style).impactOccurred()
     }
 
     static func selection() {
+        guard isEnabled else { return }
         UISelectionFeedbackGenerator().selectionChanged()
     }
 
     static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        guard isEnabled else { return }
         UINotificationFeedbackGenerator().notificationOccurred(type)
     }
 }

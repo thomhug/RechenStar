@@ -59,7 +59,7 @@ struct SessionCompleteView: View {
     }
 
     private var showConfetti: Bool {
-        accuracy >= 0.9 || !unlockedAchievements.isEmpty
+        !themeManager.reducedMotion && (accuracy >= 0.9 || !unlockedAchievements.isEmpty)
     }
 
     var body: some View {

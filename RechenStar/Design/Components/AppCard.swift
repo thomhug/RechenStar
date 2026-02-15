@@ -128,6 +128,8 @@ struct ProgressCard: View {
 
                 Spacer()
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title): \(value)")
         }
     }
 }

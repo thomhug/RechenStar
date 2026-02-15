@@ -31,7 +31,10 @@ struct RechenStarApp: App {
             fatalError("Failed to initialize ModelContainer: \(error)")
         }
 
-        UserDefaults.standard.register(defaults: ["soundEnabled": true])
+        UserDefaults.standard.register(defaults: [
+            "soundEnabled": true,
+            "hapticEnabled": true,
+        ])
         configureAppearance()
     }
 
@@ -77,17 +80,30 @@ final class AppState {
 // MARK: - Theme Manager
 @Observable
 final class ThemeManager {
-    var fontSize: FontSize = .normal
-    var reducedMotion = false
-    var highContrast = false
+    var fontSize: FontSize {
+        get { FontSize(rawValue: CGFloat(UserDefaults.standard.float(forKey: "fontSize"))) ?? .normal }
+        set { UserDefaults.standard.set(Float(newValue.rawValue), forKey: "fontSize") }
+    }
+    var reducedMotion: Bool {
+        get { UserDefaults.standard.bool(forKey: "reducedMotion") }
+        set { UserDefaults.standard.set(newValue, forKey: "reducedMotion") }
+    }
+    var highContrast: Bool {
+        get { UserDefaults.standard.bool(forKey: "highContrast") }
+        set { UserDefaults.standard.set(newValue, forKey: "highContrast") }
+    }
     var isParentMode = false
     var soundEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "soundEnabled") }
         set { UserDefaults.standard.set(newValue, forKey: "soundEnabled") }
     }
+    var hapticEnabled: Bool {
+        get { UserDefaults.standard.object(forKey: "hapticEnabled") == nil ? true : UserDefaults.standard.bool(forKey: "hapticEnabled") }
+        set { UserDefaults.standard.set(newValue, forKey: "hapticEnabled") }
+    }
 
     var currentTheme: ColorTheme {
-        isParentMode ? DarkColorTheme() : DefaultColorTheme()
+        highContrast ? DarkColorTheme() : DefaultColorTheme()
     }
 
     enum FontSize: CGFloat, CaseIterable {

@@ -90,6 +90,7 @@ struct ExerciseView: View {
                         .font(.system(size: 22))
                         .foregroundColor(.appTextSecondary.opacity(0.6))
                 }
+                .accessibilityLabel("Abbrechen")
                 .padding(.leading, 8)
             }
             ProgressBarView(
@@ -124,6 +125,7 @@ struct ExerciseView: View {
             .foregroundColor(viewModel.userAnswer.isEmpty ? .appTextSecondary.opacity(0.4) : .appSkyBlue)
             .frame(height: 80)
             .offset(x: shakeOffset)
+            .accessibilityLabel(viewModel.userAnswer.isEmpty ? "Noch keine Antwort" : "Antwort: \(viewModel.userAnswer)")
     }
 
     // MARK: - Feedback
@@ -223,7 +225,7 @@ struct ExerciseView: View {
         viewModel.submitAnswer()
 
         if viewModel.feedbackState == .incorrect {
-            triggerShake()
+            if !themeManager.reducedMotion { triggerShake() }
             HapticFeedback.notification(.error)
             if themeManager.soundEnabled {
                 SoundService.playIncorrect()
