@@ -60,7 +60,9 @@ struct SessionCompleteView: View {
         }
     }
 
-    private var showConfetti: Bool { true }
+    private var showConfetti: Bool {
+        accuracy >= 0.8 || !unlockedAchievements.isEmpty
+    }
 
     var body: some View {
         ZStack {
