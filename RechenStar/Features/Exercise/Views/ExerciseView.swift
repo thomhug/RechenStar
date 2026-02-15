@@ -256,7 +256,7 @@ struct ExerciseView: View {
             viewModel.nextExercise()
         }
         autoAdvanceTask = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: task)
     }
 
     private func cancelAutoAdvance() {
