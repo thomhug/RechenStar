@@ -9,6 +9,7 @@
 
 ## Workflow
 - Nach jeder Aenderung: **committen, pushen, dann auf iPad und iPhone deployen**
+- Build & Deploy: `./scripts/build-and-deploy.sh` (aktualisiert Build-Nummer, baut, installiert auf beiden Geraeten)
 - Deploy-Targets:
   - iPad von Fritz: `00008020-001079801440402E`
   - iPhone von Tom: `00008130-0004446200698D3A`
