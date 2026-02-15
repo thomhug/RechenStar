@@ -9,10 +9,6 @@ struct ExerciseView: View {
     @State private var autoAdvanceTask: DispatchWorkItem?
     @State private var showBreakReminder = false
     @State private var sessionStartTime = Date()
-    @State private var starCounterFrame: CGRect = .zero
-    @State private var feedbackFrame: CGRect = .zero
-    @State private var showStarAnimation = false
-    @State private var animatingStars = 0
 
     private let breakCheckTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
@@ -44,17 +40,7 @@ struct ExerciseView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
-            .coordinateSpace(name: "exercise")
 
-            if showStarAnimation {
-                StarAnimationView(
-                    starCount: animatingStars,
-                    from: feedbackFrame,
-                    to: starCounterFrame
-                ) {
-                    showStarAnimation = false
-                }
-            }
         }
         .background(Color.appBackgroundGradient.ignoresSafeArea())
         .onAppear {
@@ -63,11 +49,6 @@ struct ExerciseView: View {
         .onChange(of: viewModel.sessionState) { _, newState in
             if newState == .completed {
                 onSessionComplete(viewModel.sessionResults)
-            }
-        }
-        .onChange(of: viewModel.feedbackState) { _, newState in
-            if newState == .none {
-                showStarAnimation = false
             }
         }
         .onReceive(breakCheckTimer) { _ in
@@ -105,17 +86,6 @@ struct ExerciseView: View {
                     Text("\(viewModel.totalStars)")
                         .font(AppFonts.subheadline)
                         .foregroundColor(.appTextPrimary)
-                }
-                .background(
-                    GeometryReader { geo in
-                        Color.clear.preference(
-                            key: StarCounterFrameKey.self,
-                            value: geo.frame(in: .named("exercise"))
-                        )
-                    }
-                )
-                .onPreferenceChange(StarCounterFrameKey.self) { frame in
-                    starCounterFrame = frame
                 }
                 Button {
                     onCancel(viewModel.sessionResults)
@@ -184,17 +154,6 @@ struct ExerciseView: View {
                     }
                 }
                 .frame(height: 40)
-                .background(
-                    GeometryReader { geo in
-                        Color.clear.preference(
-                            key: FeedbackFrameKey.self,
-                            value: geo.frame(in: .named("exercise"))
-                        )
-                    }
-                )
-                .onPreferenceChange(FeedbackFrameKey.self) { frame in
-                    feedbackFrame = frame
-                }
                 .transition(.scale.combined(with: .opacity))
 
             case .incorrect:
@@ -287,14 +246,6 @@ struct ExerciseView: View {
                 SoundService.playCorrect()
             }
 
-            if case .correct(let stars) = viewModel.feedbackState,
-               !themeManager.reducedMotion {
-                animatingStars = stars
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    showStarAnimation = true
-                }
-            }
-
             scheduleAutoAdvance()
         }
     }
@@ -327,18 +278,3 @@ struct ExerciseView: View {
     }
 }
 
-// MARK: - Preference Keys
-
-private struct StarCounterFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
-private struct FeedbackFrameKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}

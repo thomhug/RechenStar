@@ -19,7 +19,6 @@
 		524852831B3B3A4F4027B24C /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A8D726BA0823ED2D3A7CCE /* User.swift */; };
 		5B40BAE1A7DEC5BA88118EE5 /* LearningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD13591B21634708F88F0F /* LearningProgressView.swift */; };
 		5E194DD6E6C830DFE736C253 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF8850FE7E9A36244E8F731 /* ParentDashboardView.swift */; };
-		5E8981428EBADB896CF37010 /* StarAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EC6A4670FB2868558B886B /* StarAnimationView.swift */; };
 		6DFDB2133EB0BE39A99B0CD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */; };
 		727684BC20B2B5CF5F569F62 /* ExerciseRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */; };
 		72847DEF620B38691478C5C8 /* SoundService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757E1DAB6B2B2029FC4C0994 /* SoundService.swift */; };
@@ -65,7 +64,6 @@
 		0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F57A79A2599132E39E9EFEF /* ExerciseViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseViewModelTests.swift; sourceTree = "<group>"; };
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
-		13EC6A4670FB2868558B886B /* StarAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarAnimationView.swift; sourceTree = "<group>"; };
 		1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRecord.swift; sourceTree = "<group>"; };
 		1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,7 +178,6 @@
 			isa = PBXGroup;
 			children = (
 				A90D3B3D78C8A0D0BD9D0FE3 /* ConfettiView.swift */,
-				13EC6A4670FB2868558B886B /* StarAnimationView.swift */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -561,7 +558,6 @@
 				B0E762B5F0C8AC00E1E51339 /* SessionCompleteView.swift in Sources */,
 				91A3DE7E82A389E74FB34ABA /* SettingsView.swift in Sources */,
 				72847DEF620B38691478C5C8 /* SoundService.swift in Sources */,
-				5E8981428EBADB896CF37010 /* StarAnimationView.swift in Sources */,
 				524852831B3B3A4F4027B24C /* User.swift in Sources */,
 				1F42BC5756E78A3AAA9C2082 /* UserPreferences.swift in Sources */,
 			);
