@@ -11,49 +11,49 @@ struct HelpView: View {
                         icon: "play.circle.fill",
                         color: .appSkyBlue,
                         title: "Spielen",
-                        text: "Tippe auf \"Spielen\", um eine Runde zu starten. Du bekommst Rechenaufgaben mit Plus und Minus. Tippe die Antwort auf dem Zahlenfeld ein und druecke den gruenen Haken."
+                        text: "Tippe auf \"Spielen\", um eine Runde zu starten. Du bekommst Rechenaufgaben mit Plus und Minus. Tippe die Antwort auf dem Zahlenfeld ein und drücke den grünen Haken."
                     )
 
                     helpSection(
                         icon: "star.fill",
                         color: .appSunYellow,
                         title: "Sterne sammeln",
-                        text: "Fuer jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 3 Sterne, beim zweiten 2 und beim dritten noch 1 Stern."
+                        text: "Für jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 3 Sterne, beim zweiten 2 und beim dritten noch 1 Stern."
                     )
 
                     helpSection(
                         icon: "trophy.fill",
                         color: .appOrange,
                         title: "Erfolge",
-                        text: "Schalte Erfolge frei, indem du viele Aufgaben loest, Serien aufbaust oder besonders schnell rechnest. Schau im Erfolge-Tab nach deinem Fortschritt."
+                        text: "Schalte Erfolge frei, indem du viele Aufgaben löst, Serien aufbaust oder besonders schnell rechnest. Schau im Erfolge-Tab nach deinem Fortschritt."
                     )
 
                     helpSection(
                         icon: "flame.fill",
                         color: .appCoral,
                         title: "Serien",
-                        text: "Spiele jeden Tag eine Runde, um deine Serie zu verlaengern. Je laenger deine Serie, desto besser!"
+                        text: "Spiele jeden Tag eine Runde, um deine Serie zu verlängern. Je länger deine Serie, desto besser!"
                     )
 
                     helpSection(
                         icon: "chart.line.uptrend.xyaxis",
                         color: .appGrassGreen,
                         title: "Fortschritt",
-                        text: "Im Fortschritt-Tab siehst du, wie viele Aufgaben du schon geloest hast und wie lang deine aktuelle Serie ist."
+                        text: "Im Fortschritt-Tab siehst du, wie viele Aufgaben du schon gelöst hast und wie lang deine aktuelle Serie ist."
                     )
 
                     helpSection(
                         icon: "gearshape.fill",
                         color: .appTextSecondary,
                         title: "Einstellungen",
-                        text: "Passe die Schriftgroesse, Toene und die Anzahl der Aufgaben pro Runde an. Du findest die Einstellungen im letzten Tab."
+                        text: "Passe die Schriftgrösse, Töne und die Anzahl der Aufgaben pro Runde an. Du findest die Einstellungen im letzten Tab."
                     )
 
                     helpSection(
                         icon: "person.2.fill",
                         color: .appPurple,
                         title: "Elternbereich",
-                        text: "Eltern koennen oben rechts auf das Personen-Symbol tippen. Nach einer Rechenaufgabe fuer Erwachsene seht ihr detaillierte Statistiken."
+                        text: "Eltern können oben rechts auf das Personen-Symbol tippen. Nach einer Rechenaufgabe für Erwachsene seht ihr detaillierte Statistiken."
                     )
                 }
                 .padding(20)
