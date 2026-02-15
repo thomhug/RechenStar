@@ -9,6 +9,8 @@ struct SessionCompleteView: View {
     var isNewStreak: Bool = false
     let onDismiss: () -> Void
 
+    @State private var starsVisible = 0
+
     private var totalStars: Int {
         results.reduce(0) { $0 + $1.stars }
     }
@@ -59,7 +61,7 @@ struct SessionCompleteView: View {
     }
 
     private var showConfetti: Bool {
-        !themeManager.reducedMotion && (accuracy >= 0.9 || !unlockedAchievements.isEmpty)
+        !themeManager.reducedMotion
     }
 
     var body: some View {
@@ -75,10 +77,16 @@ struct SessionCompleteView: View {
                     // Stars
                     VStack(spacing: 12) {
                         HStack(spacing: 4) {
-                            ForEach(0..<min(totalStars, 5), id: \.self) { _ in
+                            ForEach(0..<min(totalStars, 5), id: \.self) { index in
                                 Image(systemName: "star.fill")
                                     .font(.system(size: 32))
                                     .foregroundColor(.appSunYellow)
+                                    .scaleEffect(index < starsVisible ? 1.0 : 0.0)
+                                    .animation(
+                                        .spring(duration: 0.4, bounce: 0.5)
+                                            .delay(Double(index) * 0.15),
+                                        value: starsVisible
+                                    )
                             }
                         }
 
@@ -246,6 +254,13 @@ struct SessionCompleteView: View {
         }
         .accessibilityIdentifier("session-complete")
         .onAppear {
+            if !themeManager.reducedMotion {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    starsVisible = min(totalStars, 5)
+                }
+            } else {
+                starsVisible = min(totalStars, 5)
+            }
             if themeManager.soundEnabled {
                 SoundService.playSessionComplete()
                 if !unlockedAchievements.isEmpty {
