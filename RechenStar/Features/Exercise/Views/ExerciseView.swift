@@ -21,10 +21,11 @@ struct ExerciseView: View {
 
     init(
         sessionLength: Int = 10,
+        difficulty: Difficulty = .easy,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
-        _viewModel = State(initialValue: ExerciseViewModel(sessionLength: sessionLength))
+        _viewModel = State(initialValue: ExerciseViewModel(sessionLength: sessionLength, difficulty: difficulty))
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel
     }

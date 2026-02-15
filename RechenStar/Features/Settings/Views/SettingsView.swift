@@ -152,17 +152,7 @@ struct SettingsView: View {
                     }
                     .tint(.appSkyBlue)
 
-                    Toggle(isOn: $tm.highContrast) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "circle.lefthalf.filled")
-                                .foregroundColor(.appSkyBlue)
-                                .frame(width: 24)
-                            Text("Hoher Kontrast")
-                                .font(AppFonts.body)
-                                .foregroundColor(.appTextPrimary)
-                        }
-                    }
-                    .tint(.appSkyBlue)
+                    // Hoher Kontrast wird mit Dark Mode (Phase 7) vollstaendig implementiert
                 }
                 .settingsCard()
 

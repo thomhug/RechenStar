@@ -3,29 +3,32 @@ import SwiftUI
 // MARK: - App Fonts
 // Uses the system font with rounded design — NOT a custom font.
 // Font.system(size:weight:design:.rounded) gives us SF Pro Rounded.
+// All fonts scale with the fontScale factor from ThemeManager.
 struct AppFonts {
+    static var fontScale: CGFloat = 1.0
+
     // Display & Titles
-    static let display = Font.system(size: 48, weight: .bold, design: .rounded)
-    static let title = Font.system(size: 32, weight: .bold, design: .rounded)
-    static let headline = Font.system(size: 24, weight: .semibold, design: .rounded)
-    static let subheadline = Font.system(size: 20, weight: .semibold, design: .rounded)
+    static var display: Font { .system(size: 48 * fontScale, weight: .bold, design: .rounded) }
+    static var title: Font { .system(size: 32 * fontScale, weight: .bold, design: .rounded) }
+    static var headline: Font { .system(size: 24 * fontScale, weight: .semibold, design: .rounded) }
+    static var subheadline: Font { .system(size: 20 * fontScale, weight: .semibold, design: .rounded) }
 
     // Body Text
-    static let body = Font.system(size: 18, weight: .medium, design: .rounded)
-    static let bodyLarge = Font.system(size: 20, weight: .medium, design: .rounded)
-    static let caption = Font.system(size: 16, weight: .regular, design: .rounded)
-    static let footnote = Font.system(size: 14, weight: .regular, design: .rounded)
+    static var body: Font { .system(size: 18 * fontScale, weight: .medium, design: .rounded) }
+    static var bodyLarge: Font { .system(size: 20 * fontScale, weight: .medium, design: .rounded) }
+    static var caption: Font { .system(size: 16 * fontScale, weight: .regular, design: .rounded) }
+    static var footnote: Font { .system(size: 14 * fontScale, weight: .regular, design: .rounded) }
 
     // Numbers (extra large for exercises)
-    static let numberHuge = Font.system(size: 64, weight: .bold, design: .rounded)
-    static let numberLarge = Font.system(size: 56, weight: .bold, design: .rounded)
-    static let numberMedium = Font.system(size: 40, weight: .bold, design: .rounded)
-    static let numberSmall = Font.system(size: 28, weight: .semibold, design: .rounded)
+    static var numberHuge: Font { .system(size: 64 * fontScale, weight: .bold, design: .rounded) }
+    static var numberLarge: Font { .system(size: 56 * fontScale, weight: .bold, design: .rounded) }
+    static var numberMedium: Font { .system(size: 40 * fontScale, weight: .bold, design: .rounded) }
+    static var numberSmall: Font { .system(size: 28 * fontScale, weight: .semibold, design: .rounded) }
 
     // Buttons
-    static let buttonLarge = Font.system(size: 24, weight: .semibold, design: .rounded)
-    static let buttonMedium = Font.system(size: 20, weight: .semibold, design: .rounded)
-    static let buttonSmall = Font.system(size: 16, weight: .medium, design: .rounded)
+    static var buttonLarge: Font { .system(size: 24 * fontScale, weight: .semibold, design: .rounded) }
+    static var buttonMedium: Font { .system(size: 20 * fontScale, weight: .semibold, design: .rounded) }
+    static var buttonSmall: Font { .system(size: 16 * fontScale, weight: .medium, design: .rounded) }
 }
 
 // MARK: - Font Modifiers

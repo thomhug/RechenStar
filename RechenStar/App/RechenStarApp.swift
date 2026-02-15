@@ -35,6 +35,7 @@ struct RechenStarApp: App {
             "soundEnabled": true,
             "hapticEnabled": true,
         ])
+        AppFonts.fontScale = themeManager.fontSize.rawValue
         configureAppearance()
     }
 
@@ -82,7 +83,10 @@ final class AppState {
 final class ThemeManager {
     var fontSize: FontSize {
         get { FontSize(rawValue: CGFloat(UserDefaults.standard.float(forKey: "fontSize"))) ?? .normal }
-        set { UserDefaults.standard.set(Float(newValue.rawValue), forKey: "fontSize") }
+        set {
+            UserDefaults.standard.set(Float(newValue.rawValue), forKey: "fontSize")
+            AppFonts.fontScale = newValue.rawValue
+        }
     }
     var reducedMotion: Bool {
         get { UserDefaults.standard.bool(forKey: "reducedMotion") }
