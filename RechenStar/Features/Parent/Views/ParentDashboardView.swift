@@ -50,6 +50,7 @@ struct ParentDashboardView: View {
                     accuracyChart
                     summaryCards
                     strengthsWeaknesses
+                    exerciseDetails
                     overallStats
                     sessionsHistory
                     parentSettings
@@ -299,6 +300,127 @@ struct ParentDashboardView: View {
                 color: accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral
             )
         }
+    }
+
+    // MARK: - Exercise Details
+
+    private struct ExerciseStats: Identifiable {
+        let id: String // signature
+        let displayText: String
+        let correctCount: Int
+        let totalCount: Int
+        let avgTime: TimeInterval
+        let lastThreeTimes: [TimeInterval]
+    }
+
+    private var exerciseStatsData: [ExerciseStats] {
+        let descriptor = FetchDescriptor<ExerciseRecord>()
+        guard let allRecords = try? modelContext.fetch(descriptor) else { return [] }
+
+        // Filter to current user's sessions
+        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
+        let userRecords = allRecords.filter { record in
+            guard let session = record.session else { return false }
+            return userSessionIDs.contains(session.id)
+        }
+
+        let grouped = Dictionary(grouping: userRecords, by: \.exerciseSignature)
+
+        return grouped.map { (sig, records) in
+            let correct = records.filter(\.isCorrect).count
+            let total = records.count
+            let avgTime = records.map(\.timeSpent).reduce(0, +) / Double(max(total, 1))
+            let lastThree = records
+                .sorted { $0.date > $1.date }
+                .prefix(3)
+                .map(\.timeSpent)
+            let display = records.first?.displayText ?? sig
+
+            return ExerciseStats(
+                id: sig,
+                displayText: display,
+                correctCount: correct,
+                totalCount: total,
+                avgTime: avgTime,
+                lastThreeTimes: Array(lastThree)
+            )
+        }
+        .sorted { $0.totalCount > $1.totalCount }
+    }
+
+    private var exerciseDetails: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Aufgaben-Details")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            let stats = exerciseStatsData
+            if stats.isEmpty {
+                Text("Noch keine Daten vorhanden")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextSecondary)
+            } else {
+                // Table header
+                HStack(spacing: 0) {
+                    Text("Aufgabe")
+                        .frame(width: 70, alignment: .leading)
+                    Text("Richtig")
+                        .frame(width: 55, alignment: .center)
+                    Text("Falsch")
+                        .frame(width: 50, alignment: .center)
+                    Text("Ø Zeit")
+                        .frame(width: 45, alignment: .center)
+                    Text("Letzte 3")
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .font(AppFonts.caption)
+                .foregroundColor(.appTextSecondary)
+
+                Divider()
+
+                ForEach(stats.prefix(20)) { stat in
+                    HStack(spacing: 0) {
+                        Text(stat.displayText)
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextPrimary)
+                            .frame(width: 70, alignment: .leading)
+
+                        Text("\(stat.correctCount)")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appGrassGreen)
+                            .frame(width: 55, alignment: .center)
+
+                        Text("\(stat.totalCount - stat.correctCount)")
+                            .font(AppFonts.body)
+                            .foregroundColor(stat.totalCount - stat.correctCount > 0 ? .appCoral : .appTextSecondary)
+                            .frame(width: 50, alignment: .center)
+
+                        Text(formatSeconds(stat.avgTime))
+                            .font(AppFonts.caption)
+                            .foregroundColor(.appTextSecondary)
+                            .frame(width: 45, alignment: .center)
+
+                        Text(stat.lastThreeTimes.map { formatSeconds($0) }.joined(separator: ", "))
+                            .font(AppFonts.caption)
+                            .foregroundColor(.appTextSecondary)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+    }
+
+    private func formatSeconds(_ seconds: TimeInterval) -> String {
+        if seconds < 60 {
+            return String(format: "%.0fs", seconds)
+        }
+        return String(format: "%.0fm", seconds / 60)
     }
 
     // MARK: - Overall Stats

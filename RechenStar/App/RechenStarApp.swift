@@ -14,7 +14,8 @@ struct RechenStarApp: App {
                 DailyProgress.self,
                 Session.self,
                 Achievement.self,
-                UserPreferences.self
+                UserPreferences.self,
+                ExerciseRecord.self
             ])
 
             let modelConfiguration = ModelConfiguration(

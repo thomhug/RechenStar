@@ -47,9 +47,12 @@ struct ContentView: View {
     private func loadExistingUser() {
         guard appState.currentUser == nil else { return }
         let descriptor = FetchDescriptor<User>()
-        guard let users = try? modelContext.fetch(descriptor),
-              let user = users.first else { return }
-        appState.currentUser = user
+        guard let users = try? modelContext.fetch(descriptor) else { return }
+        // If exactly one user, auto-select. Otherwise show selection.
+        if users.count == 1 {
+            appState.currentUser = users.first
+        }
+        // If multiple or zero users, UserSelectionView will show
     }
 
     private func ensureUserDataInitialized() {
@@ -74,6 +77,8 @@ struct ContentView: View {
         VStack(spacing: 0) {
             HeaderView(selectedTab: $selectedTab, onParentTap: {
                 showParentSheet = true
+            }, onSwitchProfile: {
+                appState.currentUser = nil
             })
             .padding(.top, 10)
 
@@ -102,12 +107,23 @@ struct HeaderView: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(AppState.self) private var appState
     var onParentTap: () -> Void
+    var onSwitchProfile: () -> Void
 
     var body: some View {
         HStack {
             if let user = appState.currentUser {
-                UserAvatarView(user: user)
-                    .frame(width: 60, height: 60)
+                Button {
+                    onSwitchProfile()
+                } label: {
+                    HStack(spacing: 8) {
+                        UserAvatarView(user: user)
+                            .frame(width: 40, height: 40)
+                        Text(user.name)
+                            .font(AppFonts.caption)
+                            .foregroundColor(.appTextSecondary)
+                    }
+                }
+                .accessibilityLabel("Profil wechseln, aktuell \(user.name)")
             }
 
             Spacer()
@@ -126,7 +142,7 @@ struct HeaderView: View {
                     .foregroundColor(.appTextSecondary)
                     .opacity(0.3)
             }
-            .frame(width: 60, height: 60)
+            .frame(width: 40, height: 40)
             .accessibilityLabel("Elternbereich")
         }
         .padding(.horizontal, 20)
@@ -193,34 +209,88 @@ struct TabBarButton: View {
 struct UserSelectionView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @State private var users: [User] = []
+    @State private var showNewProfile = false
+    @State private var newName = ""
 
     var body: some View {
-        VStack(spacing: 40) {
-            Text("Willkommen bei RechenStar!")
-                .font(AppFonts.title)
-                .multilineTextAlignment(.center)
+        VStack(spacing: 30) {
+            Spacer()
 
-            Text("Wie heisst du?")
-                .font(AppFonts.headline)
+            Text("RechenStar")
+                .font(AppFonts.display)
+                .foregroundColor(.appSkyBlue)
 
-            Button(action: createNewUser) {
-                Text("Los geht's!")
+            if users.isEmpty {
+                Text("Willkommen! Erstelle dein Profil:")
+                    .font(AppFonts.headline)
+                    .foregroundColor(.appTextPrimary)
+            } else {
+                Text("Wer spielt?")
+                    .font(AppFonts.headline)
+                    .foregroundColor(.appTextPrimary)
+
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 16)], spacing: 16) {
+                    ForEach(users, id: \.id) { user in
+                        Button {
+                            appState.currentUser = user
+                        } label: {
+                            VStack(spacing: 8) {
+                                UserAvatarView(user: user)
+                                    .frame(width: 70, height: 70)
+                                Text(user.name)
+                                    .font(AppFonts.body)
+                                    .foregroundColor(.appTextPrimary)
+                            }
+                            .padding(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.appCardBackground)
+                                    .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+
+            Button {
+                showNewProfile = true
+                newName = ""
+            } label: {
+                Label("Neues Profil", systemImage: "plus.circle.fill")
                     .font(AppFonts.buttonLarge)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 20)
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 16)
                     .background(
                         RoundedRectangle(cornerRadius: 25)
                             .fill(Color.appSkyBlue)
                     )
             }
+
+            Spacer()
         }
-        .padding(40)
+        .padding(20)
+        .onAppear { loadUsers() }
+        .alert("Neues Profil", isPresented: $showNewProfile) {
+            TextField("Name eingeben", text: $newName)
+            Button("Erstellen") { createNewUser(name: newName) }
+            Button("Abbrechen", role: .cancel) {}
+        } message: {
+            Text("Wie heisst du?")
+        }
     }
 
-    private func createNewUser() {
-        let newUser = User()
-        newUser.name = "Noah"
+    private func loadUsers() {
+        let descriptor = FetchDescriptor<User>(sortBy: [SortDescriptor(\.createdAt)])
+        users = (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    private func createNewUser(name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let newUser = User(name: trimmed)
         modelContext.insert(newUser)
         let prefs = UserPreferences()
         prefs.user = newUser

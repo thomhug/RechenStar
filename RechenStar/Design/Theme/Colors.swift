@@ -2,12 +2,12 @@ import SwiftUI
 
 // MARK: - App Colors
 extension Color {
-    // Primary Colors
+    // Primary Colors (same in light & dark)
     static let appSkyBlue = Color(hex: "#4A90E2")
     static let appSunYellow = Color(hex: "#F5D547")
     static let appGrassGreen = Color(hex: "#7ED321")
 
-    // Secondary Colors
+    // Secondary Colors (same in light & dark)
     static let appCoral = Color(hex: "#FF6B6B")
     static let appPurple = Color(hex: "#9B59B6")
     static let appOrange = Color(hex: "#FFA500")
@@ -23,13 +23,42 @@ extension Color {
     static let appError = appCoral
     static let appInfo = appSkyBlue
 
-    // UI Elements
-    static let appBackground = Color(hex: "#F7F9FC")
-    static let appBackgroundBottom = Color.white
-    static let appCardBackground = appWhite
-    static let appTextPrimary = appDarkGray
-    static let appTextSecondary = Color(hex: "#7F8C8D")
-    static let appBorder = Color(hex: "#E1E4E8")
+    // Adaptive UI Colors (light/dark)
+    static let appBackground = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#1A1A2E")
+            : UIColor(hex: "#F7F9FC")
+    })
+
+    static let appBackgroundBottom = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#16213E")
+            : UIColor.white
+    })
+
+    static let appCardBackground = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#1E2A45")
+            : UIColor.white
+    })
+
+    static let appTextPrimary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#E8E8E8")
+            : UIColor(hex: "#2C3E50")
+    })
+
+    static let appTextSecondary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#A0A0B0")
+            : UIColor(hex: "#7F8C8D")
+    })
+
+    static let appBorder = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#2E3A52")
+            : UIColor(hex: "#E1E4E8")
+    })
 
     // Gradients
     static let appPrimaryGradient = LinearGradient(
@@ -75,6 +104,28 @@ extension Color {
             green: Double(g) / 255,
             blue:  Double(b) / 255,
             opacity: Double(a) / 255
+        )
+    }
+}
+
+// MARK: - UIColor Extension for Hex
+extension UIColor {
+    convenience init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: UInt64
+        switch hex.count {
+        case 6:
+            (r, g, b) = (int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (r, g, b) = (0, 0, 0)
+        }
+        self.init(
+            red: CGFloat(r) / 255,
+            green: CGFloat(g) / 255,
+            blue: CGFloat(b) / 255,
+            alpha: 1
         )
     }
 }

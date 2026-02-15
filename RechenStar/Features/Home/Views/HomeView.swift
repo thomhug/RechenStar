@@ -106,6 +106,12 @@ struct HomeView: View {
 
         modelContext.insert(session)
 
+        for result in results {
+            let record = ExerciseRecord(exercise: result.exercise, result: result)
+            record.session = session
+            modelContext.insert(record)
+        }
+
         if let user = appState.currentUser {
             user.totalExercises += results.count
             user.totalStars += session.starsEarned

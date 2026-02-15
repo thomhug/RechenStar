@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @State private var showHelp = false
 
     private var prefs: UserPreferences? {
         appState.currentUser?.preferences
@@ -156,6 +157,25 @@ struct SettingsView: View {
                 }
                 .settingsCard()
 
+                // MARK: - Help
+                Button {
+                    showHelp = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "questionmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.appSkyBlue)
+                        Text("So funktioniert's")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextPrimary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.body)
+                            .foregroundColor(.appTextSecondary)
+                    }
+                }
+                .settingsCard()
+
                 // MARK: - Version
                 Text("Version \(Bundle.main.appVersionString)")
                     .font(AppFonts.footnote)
@@ -164,6 +184,9 @@ struct SettingsView: View {
                     .padding(.top, 8)
             }
             .padding(20)
+        }
+        .sheet(isPresented: $showHelp) {
+            HelpView()
         }
     }
 

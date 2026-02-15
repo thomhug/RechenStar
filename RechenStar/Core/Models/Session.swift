@@ -19,6 +19,9 @@ final class Session {
     @Relationship(inverse: \DailyProgress.sessions)
     var dailyProgress: DailyProgress?
 
+    @Relationship(deleteRule: .cascade, inverse: \ExerciseRecord.session)
+    var exerciseRecords: [ExerciseRecord] = []
+
     var duration: TimeInterval? {
         guard let endTime else { return nil }
         return endTime.timeIntervalSince(startTime)

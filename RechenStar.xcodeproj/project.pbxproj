@@ -21,6 +21,7 @@
 		5E194DD6E6C830DFE736C253 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF8850FE7E9A36244E8F731 /* ParentDashboardView.swift */; };
 		5E8981428EBADB896CF37010 /* StarAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EC6A4670FB2868558B886B /* StarAnimationView.swift */; };
 		6DFDB2133EB0BE39A99B0CD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */; };
+		727684BC20B2B5CF5F569F62 /* ExerciseRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */; };
 		72847DEF620B38691478C5C8 /* SoundService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757E1DAB6B2B2029FC4C0994 /* SoundService.swift */; };
 		73099763D78DBA2199817C40 /* ExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4A0C97C2C8146B57AAAEFC /* ExerciseView.swift */; };
 		74B1771F3C55A8CB8438694C /* EngagementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E53CA3C1009E44E1CEF8DF /* EngagementService.swift */; };
@@ -30,6 +31,7 @@
 		B0E762B5F0C8AC00E1E51339 /* SessionCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B974D51C0159D70FBE06C0 /* SessionCompleteView.swift */; };
 		B5D4C9E87B37D127733A70A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C12B2673C9A375F251DE14 /* ContentView.swift */; };
 		CA4BE74C5CCAB29505739E11 /* ExerciseGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5975FA0336EE8479A3236D33 /* ExerciseGeneratorTests.swift */; };
+		CD61E505E59CBE45780F108A /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361391139FD486C94E8BA40E /* HelpView.swift */; };
 		CF7A8A8646288D4506550402 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */; };
 		D08A7A682177FB1E8BABA861 /* ExerciseFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B0B07E21243DCD9C6BB22E /* ExerciseFlowUITests.swift */; };
 		D8D7D35E4AA8F4DA43EBFDAF /* DailyProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C624BF870DA45D04D32A388F /* DailyProgress.swift */; };
@@ -64,11 +66,13 @@
 		0F57A79A2599132E39E9EFEF /* ExerciseViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseViewModelTests.swift; sourceTree = "<group>"; };
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		13EC6A4670FB2868558B886B /* StarAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarAnimationView.swift; sourceTree = "<group>"; };
+		1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRecord.swift; sourceTree = "<group>"; };
 		1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		299E1653F5C2F1EF6117A17F /* ExerciseGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseGenerator.swift; sourceTree = "<group>"; };
 		2A80DB39F65231DBC960C839 /* ExerciseResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseResult.swift; sourceTree = "<group>"; };
 		2CB8C72E39F96B902703ED33 /* BuildNumber.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildNumber.xcconfig; sourceTree = "<group>"; };
+		361391139FD486C94E8BA40E /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		36B0B07E21243DCD9C6BB22E /* ExerciseFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseFlowUITests.swift; sourceTree = "<group>"; };
 		41E53CA3C1009E44E1CEF8DF /* EngagementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementService.swift; sourceTree = "<group>"; };
 		44C32CCB2BB312C22575E96C /* RechenStarUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RechenStarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -193,6 +197,7 @@
 		570EA2CCA5187DDA08EF9A6C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				361391139FD486C94E8BA40E /* HelpView.swift */,
 				59955A829110357DBF3DFF6D /* SettingsView.swift */,
 			);
 			path = Views;
@@ -221,6 +226,7 @@
 				B02B8622AE612BA76FAD6F4A /* Achievement.swift */,
 				C624BF870DA45D04D32A388F /* DailyProgress.swift */,
 				1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */,
+				1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */,
 				2A80DB39F65231DBC960C839 /* ExerciseResult.swift */,
 				5CE68F3C7F066F700482C4D1 /* Session.swift */,
 				99A8D726BA0823ED2D3A7CCE /* User.swift */,
@@ -541,10 +547,12 @@
 				74B1771F3C55A8CB8438694C /* EngagementService.swift in Sources */,
 				3C4328F3ACFE4B7E08F763C8 /* Exercise.swift in Sources */,
 				0B33C51776D4568F9391FEA7 /* ExerciseGenerator.swift in Sources */,
+				727684BC20B2B5CF5F569F62 /* ExerciseRecord.swift in Sources */,
 				E25160EDBEE60E9F524E4C5F /* ExerciseResult.swift in Sources */,
 				73099763D78DBA2199817C40 /* ExerciseView.swift in Sources */,
 				76656AA4C4D6FAEDBD3EEF0F /* ExerciseViewModel.swift in Sources */,
 				10F4F1D2722A7E33FE3BF0A5 /* Fonts.swift in Sources */,
+				CD61E505E59CBE45780F108A /* HelpView.swift in Sources */,
 				FAEFA78D734E67258F26E660 /* HomeView.swift in Sources */,
 				5B40BAE1A7DEC5BA88118EE5 /* LearningProgressView.swift in Sources */,
 				5E194DD6E6C830DFE736C253 /* ParentDashboardView.swift in Sources */,
