@@ -26,6 +26,20 @@ struct SessionCompleteView: View {
         return Double(correctCount) / Double(results.count)
     }
 
+    private var totalTime: TimeInterval {
+        results.reduce(0) { $0 + $1.timeSpent }
+    }
+
+    private var formattedTime: String {
+        let seconds = Int(totalTime)
+        let minutes = seconds / 60
+        let secs = seconds % 60
+        if minutes > 0 {
+            return String(format: "%d:%02d Min", minutes, secs)
+        }
+        return "\(secs) Sek"
+    }
+
     private var motivationText: String {
         switch accuracy {
         case 0.9...: return "Fantastisch!"
@@ -74,11 +88,11 @@ struct SessionCompleteView: View {
                     }
 
                     // Stats
-                    HStack(spacing: 16) {
-                        AppCard(padding: 16) {
-                            VStack(spacing: 8) {
+                    HStack(spacing: 12) {
+                        AppCard(padding: 12) {
+                            VStack(spacing: 6) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 28))
+                                    .font(.system(size: 24))
                                     .foregroundColor(.appSuccess)
                                 Text("\(correctCount)/\(results.count)")
                                     .font(AppFonts.headline)
@@ -90,15 +104,30 @@ struct SessionCompleteView: View {
                             .frame(maxWidth: .infinity)
                         }
 
-                        AppCard(padding: 16) {
-                            VStack(spacing: 8) {
+                        AppCard(padding: 12) {
+                            VStack(spacing: 6) {
                                 Image(systemName: "percent")
-                                    .font(.system(size: 28))
+                                    .font(.system(size: 24))
                                     .foregroundColor(.appSkyBlue)
                                 Text("\(Int(accuracy * 100))%")
                                     .font(AppFonts.headline)
                                     .foregroundColor(.appTextPrimary)
                                 Text("Genauigkeit")
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(.appTextSecondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+
+                        AppCard(padding: 12) {
+                            VStack(spacing: 6) {
+                                Image(systemName: "timer")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.appSunYellow)
+                                Text(formattedTime)
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(.appTextPrimary)
+                                Text("Zeit")
                                     .font(AppFonts.caption)
                                     .foregroundColor(.appTextSecondary)
                             }
