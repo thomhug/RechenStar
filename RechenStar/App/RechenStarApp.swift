@@ -108,9 +108,8 @@ final class ThemeManager {
         set { UserDefaults.standard.set(newValue, forKey: "hapticEnabled") }
     }
 
-    var appearanceMode: AppearanceMode {
-        get { AppearanceMode(rawValue: UserDefaults.standard.string(forKey: "appearanceMode") ?? "system") ?? .system }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "appearanceMode") }
+    var appearanceMode: AppearanceMode = .system {
+        didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: "appearanceMode") }
     }
 
     var preferredColorScheme: ColorScheme? {
@@ -119,6 +118,11 @@ final class ThemeManager {
         case .light: .light
         case .dark: .dark
         }
+    }
+
+    init() {
+        let saved = UserDefaults.standard.string(forKey: "appearanceMode") ?? "system"
+        self.appearanceMode = AppearanceMode(rawValue: saved) ?? .system
     }
 
     var currentTheme: ColorTheme {
