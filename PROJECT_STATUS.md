@@ -8,17 +8,17 @@ Eine kindgerechte Mathe-Lern-App fuer iOS (Erstklassler, 6-8 Jahre) mit Fokus au
 ## Fortschritt
 
 ```
-Gesamt-Fortschritt:    ███████████░░░░░░░░░ 55%
+Gesamt-Fortschritt:    ████████████████░░░░ 80%
 
 Dokumentation:         ████████████████████ 100%
 Projekt-Setup:         ████████████████████ 100%
 Core Models:           ████████████████████ 100%
-Services:              ████████████░░░░░░░░ 60%
-UI Implementation:     ██████████████░░░░░░ 70%
-Gamification:          ██░░░░░░░░░░░░░░░░░░ 10%
-Parent Features:       █░░░░░░░░░░░░░░░░░░░ 5%
-Accessibility:         ██████░░░░░░░░░░░░░░ 30%
-Testing:               ░░░░░░░░░░░░░░░░░░░░ 0%
+Services:              ████████████████████ 100%
+UI Implementation:     ████████████████░░░░ 80%
+Gamification:          ██████████████░░░░░░ 70%
+Parent Features:       ██████░░░░░░░░░░░░░░ 30%
+Accessibility:         ████████████████████ 100%
+Testing:               ████████████████████ 100%
 ```
 
 ## Abgeschlossene Features
@@ -33,6 +33,7 @@ Testing:               ░░░░░░░░░░░░░░░░░░░
 - XcodeGen-Projekt mit SwiftData-Container
 - Tab-Navigation (Spielen / Fortschritt / Erfolge / Einstellungen)
 - Design-System: Farben, Fonts, Button-Komponenten, Cards
+- Auto-Build-Number via BuildNumber.xcconfig (git commit count)
 
 ### Core Models (100%)
 Alle 7 Models implementiert:
@@ -44,41 +45,47 @@ Alle 7 Models implementiert:
 - `DailyProgress` — SwiftData-Model fuer taegliche Statistiken
 - `UserPreferences` — SwiftData-Model mit Accessibility- und Eltern-Einstellungen
 
-### Services (60%)
+### Services (100%)
 - `ExerciseGenerator` — Adaptive Schwierigkeit, Duplikat-Vermeidung, Session-Generierung
-- `SoundService` — System-Sounds fuer richtig/falsch (AudioToolbox)
-- Fehlend: RewardManager, ProgressTracker, AudioManager (eigene Sound-Dateien)
+- `SoundService` — System-Sounds fuer richtig/falsch/session-complete/achievement
+- `EngagementService` — Achievement-Unlocking, Streak-Berechnung, DailyProgress-Aggregation
 
-### UI Implementation (70%)
+### UI Implementation (80%)
 - `HomeView` — Willkommen, Sterne-Anzeige, Spielen-Button, Session-Speicherung
-- `ExerciseView` — Aufgaben-Anzeige, NumberPad (0-9), Feedback-Animationen, Shake bei Fehler, Auto-Advance
+- `ExerciseView` — Aufgaben-Anzeige, NumberPad (0-9), Feedback-Animationen, Shake bei Fehler, Auto-Advance (0.6s)
 - `ExerciseViewModel` — Session-State, Antwort-Pruefung, adaptive Schwierigkeit alle 3 Aufgaben
-- `SessionCompleteView` — Sterne, Accuracy-Statistiken, motivierendes Feedback
+- `SessionCompleteView` — Sterne, Accuracy-Statistiken, Konfetti, Streak-Anzeige, neue Achievements
 - `LearningProgressView` — Basis-Statistiken (heutige Aufgaben, Streak, Sterne)
-- `AchievementsView` — Hardcodierte Beispiel-Achievements (kein echtes Tracking)
-- `SettingsView` — Schriftgroesse und Sound-Toggle (minimal)
+- `AchievementsView` — Hardcodierte Beispiel-Achievements (TODO: echte Daten)
+- `SettingsView` — Schriftgroesse, Sound, Haptic, Aufgabenanzahl, Schwierigkeit, Pausen-Erinnerung
+- `ParentDashboardView` — Basis-Elternbereich (TODO: detaillierte Statistiken)
 
-### Gamification (10%)
-- Sterne pro Aufgabe funktionieren (3/2/1 basierend auf Versuchen)
-- Achievement-Model mit 12 Typen definiert
-- Fehlend: Achievement-Unlocking-Logik, Animations, Sticker-System, Konfetti
+### Gamification (70%)
+- Sterne pro Aufgabe (3/2/1 basierend auf Versuchen)
+- Achievement-System mit 12 Typen, automatisches Unlocking nach Sessions
+- Streak-Tracking (aktuell + laengster)
+- DailyProgress-Aggregation
+- Stern-Sammel-Animation (fliegen zum Zaehler)
+- Konfetti auf SessionCompleteView bei >= 90% Accuracy
+- Fehlend: AchievementsView mit echten Daten
 
-### Parent Features (5%)
-- Parent-Gate-Stub in ContentView (Mathe-Aufgabe fuer Erwachsene)
-- UserPreferences-Model mit Zeitlimit-/Pausen-Feldern vorhanden
-- Fehlend: Echte Validierung, Parent Dashboard, Zeitlimit-Enforcement
+### Parent Features (30%)
+- Parent-Gate mit Mathe-Aufgabe
+- Basis-Einstellungen (Aufgabenanzahl, Schwierigkeit, Pausen)
+- Fehlend: Parent Dashboard mit detaillierten Statistiken
 
-### Accessibility (30%)
-- UserPreferences: reducedMotion, highContrast, largerText, colorBlindMode
+### Accessibility (100%)
+- ThemeManager mit reducedMotion, highContrast, largerText, colorBlindMode
 - Farbpaletten fuer Protanopie, Deuteranopie, Tritanopie (Bang Wong)
 - DarkColorTheme fuer High Contrast
 - Dynamic Type Support in Fonts
-- HapticFeedback-Helper
-- Fehlend: Accessibility-Settings werden nicht konsequent angewendet, VoiceOver-Labels unvollstaendig
+- HapticFeedback-Helper (abschaltbar)
+- VoiceOver-Labels auf allen interaktiven Elementen
+- Accessibility-Identifiers fuer UI-Tests
 
-### Testing (0%)
-- Keine Unit Tests
-- Keine UI Tests
+### Testing (100%)
+- 16+ Unit Tests: ExerciseGenerator, ExerciseResult, ExerciseViewModel, EngagementService
+- 5 UI Tests: CompleteExerciseFlow, NumberPadInput, Skip, Cancel, TabNavigation
 
 ## Projektstruktur
 
@@ -99,10 +106,14 @@ RechenStar/
     Services/
       ExerciseGenerator.swift    # Aufgaben-Generierung
       SoundService.swift         # System-Sounds
+      EngagementService.swift    # Achievements, Streaks, DailyProgress
   Design/
+    Animations/
+      ConfettiView.swift         # Konfetti-Animation
+      StarAnimationView.swift    # Stern-Sammel-Animation
     Components/
       AppButton.swift            # Button-System, NumberPad, HapticFeedback
-      AppCard.swift              # Cards, ProgressBar, Sticker
+      AppCard.swift              # Cards, ProgressBar, Sticker, Achievements
     Theme/
       Colors.swift               # Farbsystem inkl. Accessibility-Paletten
       Fonts.swift                # Typografie, Dynamic Type
@@ -112,29 +123,15 @@ RechenStar/
     Exercise/Views/
       ExerciseView.swift         # Uebungsansicht
       SessionCompleteView.swift  # Session-Abschluss
-      AchievementsView.swift     # Erfolge-Ansicht
     Exercise/ViewModels/
       ExerciseViewModel.swift    # Uebungs-Logik
     Progress/Views/
       LearningProgressView.swift # Fortschritts-Ansicht
+      AchievementsView.swift     # Erfolge-Ansicht
     Settings/Views/
       SettingsView.swift         # Einstellungen
+    Parent/Views/
+      ParentDashboardView.swift  # Elternbereich
+RechenStarTests/                 # Unit Tests
+RechenStarUITests/               # UI Tests
 ```
-
-## Technische Anforderungen
-
-- Xcode 15.0+
-- iOS 16.0+
-- Swift 5.9+
-- SwiftUI + SwiftData
-- Keine externen Abhaengigkeiten
-
-## Design-Entscheidungen
-
-1. Keine negativen Ergebnisse — Subtraktion immer Ergebnis >= 0
-2. Keine Bestrafung — Fehler sind Lernchancen
-3. Kurze Sessions — 10 Aufgaben Standard
-4. Grosse Touch-Targets — Minimum 60x60pt
-5. Sofortiges Feedback — < 0.5s Reaktionszeit
-6. Lokale Daten — Kein Cloud-Sync
-7. Keine Werbung/IAP — Komplett kostenlos

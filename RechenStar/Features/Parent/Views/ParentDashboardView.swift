@@ -7,10 +7,14 @@ struct ParentDashboardView: View {
     let onDismiss: () -> Void
     @Environment(\.modelContext) private var modelContext
 
+    private var sortedProgress: [DailyProgress] {
+        user.progress.sorted { $0.date < $1.date }
+    }
+
     private var weeklyProgress: [DailyProgress] {
         let calendar = Calendar.current
         let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: Date()))!
-        return user.progress.filter { $0.date >= sevenDaysAgo }
+        return sortedProgress.filter { $0.date >= sevenDaysAgo }
     }
 
     private var weeklyAccuracy: Double {
@@ -32,12 +36,21 @@ struct ParentDashboardView: View {
         weeklyProgress.reduce(0) { $0 + $1.exercisesCompleted }
     }
 
+    private var recentSessions: [Session] {
+        weeklyProgress
+            .flatMap(\.sessions)
+            .sorted { ($0.endTime ?? $0.startTime) > ($1.endTime ?? $1.startTime) }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    weeklyChart
+                    exercisesChart
+                    accuracyChart
                     summaryCards
+                    overallStats
+                    sessionsHistory
                     parentSettings
                 }
                 .padding(20)
@@ -55,12 +68,13 @@ struct ParentDashboardView: View {
         }
     }
 
-    // MARK: - Weekly Chart
+    // MARK: - Exercises Chart
 
     private struct DayData: Identifiable {
         let id = UUID()
         let date: Date
         let exercisesCompleted: Int
+        let accuracy: Double
     }
 
     private var chartData: [DayData] {
@@ -70,13 +84,17 @@ struct ParentDashboardView: View {
         return (0..<7).map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -(6 - daysAgo), to: today)!
             let dayProgress = user.progress.first { calendar.isDate($0.date, inSameDayAs: date) }
-            return DayData(date: date, exercisesCompleted: dayProgress?.exercisesCompleted ?? 0)
+            return DayData(
+                date: date,
+                exercisesCompleted: dayProgress?.exercisesCompleted ?? 0,
+                accuracy: dayProgress?.accuracy ?? 0
+            )
         }
     }
 
-    private var weeklyChart: some View {
+    private var exercisesChart: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Wochenübersicht")
+            Text("Aufgaben pro Tag")
                 .font(AppFonts.headline)
                 .foregroundColor(.appTextPrimary)
 
@@ -93,7 +111,71 @@ struct ParentDashboardView: View {
                     AxisValueLabel(format: .dateTime.weekday(.abbreviated))
                 }
             }
-            .frame(height: 200)
+            .frame(height: 180)
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+    }
+
+    // MARK: - Accuracy Chart
+
+    private var accuracyChart: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Genauigkeit")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            let activeDays = chartData.filter { $0.exercisesCompleted > 0 }
+
+            if activeDays.isEmpty {
+                Text("Noch keine Daten vorhanden")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextSecondary)
+                    .frame(height: 140)
+                    .frame(maxWidth: .infinity)
+            } else {
+                Chart(activeDays) { item in
+                    LineMark(
+                        x: .value("Tag", item.date, unit: .day),
+                        y: .value("Genauigkeit", item.accuracy * 100)
+                    )
+                    .foregroundStyle(Color.appGrassGreen)
+                    .interpolationMethod(.catmullRom)
+
+                    PointMark(
+                        x: .value("Tag", item.date, unit: .day),
+                        y: .value("Genauigkeit", item.accuracy * 100)
+                    )
+                    .foregroundStyle(Color.appGrassGreen)
+
+                    AreaMark(
+                        x: .value("Tag", item.date, unit: .day),
+                        y: .value("Genauigkeit", item.accuracy * 100)
+                    )
+                    .foregroundStyle(Color.appGrassGreen.opacity(0.1))
+                    .interpolationMethod(.catmullRom)
+                }
+                .chartYScale(domain: 0...100)
+                .chartYAxis {
+                    AxisMarks(values: [0, 25, 50, 75, 100]) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let v = value.as(Int.self) {
+                                Text("\(v)%")
+                            }
+                        }
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) { _ in
+                        AxisValueLabel(format: .dateTime.weekday(.abbreviated))
+                    }
+                }
+                .frame(height: 140)
+            }
         }
         .padding(20)
         .background(
@@ -106,6 +188,11 @@ struct ParentDashboardView: View {
 
     private var summaryCards: some View {
         VStack(spacing: 12) {
+            Text("Diese Woche")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             HStack(spacing: 12) {
                 StatCard(
                     title: "Genauigkeit",
@@ -135,6 +222,115 @@ struct ParentDashboardView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Overall Stats
+
+    private var overallStats: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Gesamt")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            VStack(spacing: 12) {
+                statRow(icon: "checkmark.circle.fill", color: .appGrassGreen,
+                        label: "Aufgaben geloest", value: "\(user.totalExercises)")
+                statRow(icon: "star.fill", color: .appSunYellow,
+                        label: "Sterne gesammelt", value: "\(user.totalStars)")
+                statRow(icon: "flame.fill", color: .appOrange,
+                        label: "Laengster Streak", value: "\(user.longestStreak) Tage")
+                statRow(icon: "calendar", color: .appSkyBlue,
+                        label: "Dabei seit", value: formatMemberSince(user.createdAt))
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+    }
+
+    private func statRow(icon: String, color: Color, label: String, value: String) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundColor(color)
+                .frame(width: 28)
+            Text(label)
+                .font(AppFonts.body)
+                .foregroundColor(.appTextSecondary)
+            Spacer()
+            Text(value)
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    // MARK: - Sessions History
+
+    private var sessionsHistory: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Letzte Sessions")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            if recentSessions.isEmpty {
+                Text("Noch keine Sessions gespielt")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextSecondary)
+            } else {
+                ForEach(recentSessions.prefix(10), id: \.id) { session in
+                    sessionRow(session)
+                    if session.id != recentSessions.prefix(10).last?.id {
+                        Divider()
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+    }
+
+    private func sessionRow(_ session: Session) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(formatSessionDate(session.endTime ?? session.startTime))
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextPrimary)
+                Text("\(session.correctCount)/\(session.totalCount) richtig")
+                    .font(AppFonts.caption)
+                    .foregroundColor(.appTextSecondary)
+            }
+            Spacer()
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(.appSunYellow)
+                Text("\(session.starsEarned)")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextPrimary)
+            }
+            accuracyBadge(session.accuracy)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func accuracyBadge(_ accuracy: Double) -> some View {
+        Text(String(format: "%.0f%%", accuracy * 100))
+            .font(AppFonts.footnote)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(
+                Capsule().fill(accuracy >= 0.9 ? Color.appGrassGreen :
+                                accuracy >= 0.7 ? Color.appSkyBlue :
+                                accuracy >= 0.5 ? Color.appSunYellow : Color.appCoral)
+            )
     }
 
     // MARK: - Parent Settings
@@ -194,6 +390,27 @@ struct ParentDashboardView: View {
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
         return "\(hours)h \(remainingMinutes)m"
+    }
+
+    private func formatMemberSince(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.locale = Locale(identifier: "de_DE")
+        return formatter.string(from: date)
+    }
+
+    private func formatSessionDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+
+        if Calendar.current.isDateInToday(date) {
+            formatter.dateFormat = "'Heute,' HH:mm"
+        } else if Calendar.current.isDateInYesterday(date) {
+            formatter.dateFormat = "'Gestern,' HH:mm"
+        } else {
+            formatter.dateFormat = "E, d. MMM HH:mm"
+        }
+        return formatter.string(from: date)
     }
 }
 
