@@ -7,12 +7,12 @@ struct ExerciseView: View {
     @State private var autoAdvanceTask: DispatchWorkItem?
 
     let onSessionComplete: ([ExerciseResult]) -> Void
-    let onCancel: () -> Void
+    let onCancel: ([ExerciseResult]) -> Void
 
     init(
         sessionLength: Int = 10,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
-        onCancel: @escaping () -> Void
+        onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
         _viewModel = State(initialValue: ExerciseViewModel(sessionLength: sessionLength))
         self.onSessionComplete = onSessionComplete
@@ -20,18 +20,18 @@ struct ExerciseView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            Spacer().frame(height: 8)
+        VStack(spacing: 12) {
             progressSection
+                .padding(.top, 10)
             exerciseCardSection
             answerDisplay
             feedbackSection
-            Spacer()
+            Spacer(minLength: 0)
             numberPad
             actionButtons
-            Spacer().frame(height: 8)
         }
-        .padding(20)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 8)
         .background(Color.appBackgroundGradient.ignoresSafeArea())
         .onAppear {
             viewModel.startSession()
@@ -60,7 +60,7 @@ struct ExerciseView: View {
                         .foregroundColor(.appTextPrimary)
                 }
                 Button {
-                    onCancel()
+                    onCancel(viewModel.sessionResults)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 22))

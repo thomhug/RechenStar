@@ -63,7 +63,10 @@ struct HomeView: View {
                         sessionLength: results.count,
                         engagement: engagement
                     )
-                } onCancel: {
+                } onCancel: { partialResults in
+                    if !partialResults.isEmpty {
+                        _ = saveSession(results: partialResults)
+                    }
                     exerciseFlowState = nil
                 }
 
