@@ -142,19 +142,12 @@ struct ExerciseView: View {
             case .none:
                 Color.clear.frame(height: 40)
 
-            case .correct(let stars):
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundColor(.appSuccess)
-                    ForEach(0..<stars, id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.appSunYellow)
-                    }
-                }
-                .frame(height: 40)
-                .transition(.scale.combined(with: .opacity))
+            case .correct:
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.appSuccess)
+                    .frame(height: 40)
+                    .transition(.scale.combined(with: .opacity))
 
             case .incorrect:
                 Text("Versuch es nochmal!")
@@ -256,7 +249,7 @@ struct ExerciseView: View {
             viewModel.nextExercise()
         }
         autoAdvanceTask = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
     }
 
     private func cancelAutoAdvance() {
