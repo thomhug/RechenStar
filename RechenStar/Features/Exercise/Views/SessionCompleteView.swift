@@ -60,9 +60,7 @@ struct SessionCompleteView: View {
         }
     }
 
-    private var showConfetti: Bool {
-        !themeManager.reducedMotion
-    }
+    private var showConfetti: Bool { true }
 
     var body: some View {
         ZStack {
