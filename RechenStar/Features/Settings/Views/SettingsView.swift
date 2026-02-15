@@ -153,7 +153,18 @@ struct SettingsView: View {
                     }
                     .tint(.appSkyBlue)
 
-                    // Hoher Kontrast wird mit Dark Mode (Phase 7) vollstaendig implementiert
+                    HStack {
+                        Text("Erscheinungsbild")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextPrimary)
+                        Spacer()
+                        Picker("", selection: $tm.appearanceMode) {
+                            ForEach(ThemeManager.AppearanceMode.allCases, id: \.self) { mode in
+                                Text(mode.label).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
                 }
                 .settingsCard()
 

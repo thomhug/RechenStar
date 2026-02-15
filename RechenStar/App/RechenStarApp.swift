@@ -46,6 +46,7 @@ struct RechenStarApp: App {
                 .environment(appState)
                 .environment(themeManager)
                 .environment(\.colorTheme, themeManager.currentTheme)
+                .preferredColorScheme(themeManager.preferredColorScheme)
                 .modelContainer(modelContainer)
         }
     }
@@ -107,8 +108,35 @@ final class ThemeManager {
         set { UserDefaults.standard.set(newValue, forKey: "hapticEnabled") }
     }
 
+    var appearanceMode: AppearanceMode {
+        get { AppearanceMode(rawValue: UserDefaults.standard.string(forKey: "appearanceMode") ?? "system") ?? .system }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: "appearanceMode") }
+    }
+
+    var preferredColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+
     var currentTheme: ColorTheme {
         highContrast ? DarkColorTheme() : DefaultColorTheme()
+    }
+
+    enum AppearanceMode: String, CaseIterable {
+        case system
+        case light
+        case dark
+
+        var label: String {
+            switch self {
+            case .system: "Automatisch"
+            case .light: "Hell"
+            case .dark: "Dunkel"
+            }
+        }
     }
 
     enum FontSize: CGFloat, CaseIterable {
