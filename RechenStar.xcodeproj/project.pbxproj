@@ -338,6 +338,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E4F9C5E6FAD181B3B00265CC /* Build configuration list for PBXNativeTarget "RechenStar" */;
 			buildPhases = (
+				F1A2B3C4D5E6F7A8B9C0D1E2 /* Set Build Number */,
 				9E8B0E7325A5E88FD0DCC2FA /* Sources */,
 				A4FC56EAD4D2FA0723BAE4C9 /* Resources */,
 			);
@@ -389,6 +390,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F1A2B3C4D5E6F7A8B9C0D1E2 /* Set Build Number */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Set Build Number";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "BUILD_NUMBER=$(git rev-list --count HEAD)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9E8B0E7325A5E88FD0DCC2FA /* Sources */ = {
