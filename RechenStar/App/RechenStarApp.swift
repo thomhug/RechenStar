@@ -1,0 +1,108 @@
+import SwiftUI
+import SwiftData
+
+@main
+struct RechenStarApp: App {
+    let modelContainer: ModelContainer
+    @State private var appState = AppState()
+    @State private var themeManager = ThemeManager()
+
+    init() {
+        do {
+            let schema = Schema([
+                User.self,
+                DailyProgress.self,
+                Session.self,
+                Achievement.self,
+                UserPreferences.self
+            ])
+
+            let modelConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                allowsSave: true
+            )
+
+            modelContainer = try ModelContainer(
+                for: schema,
+                configurations: [modelConfiguration]
+            )
+        } catch {
+            fatalError("Failed to initialize ModelContainer: \(error)")
+        }
+
+        UserDefaults.standard.register(defaults: ["soundEnabled": true])
+        configureAppearance()
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(appState)
+                .environment(themeManager)
+                .environment(\.colorTheme, themeManager.currentTheme)
+                .modelContainer(modelContainer)
+        }
+    }
+
+    private func configureAppearance() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+            .font: UIFont.rounded(ofSize: 34, weight: .bold)
+        ]
+    }
+}
+
+// MARK: - App State
+@Observable
+final class AppState {
+    var currentUser: User?
+    var isParentMode = false
+    var currentSession: Session?
+    var hasLaunchedBefore: Bool {
+        get { UserDefaults.standard.bool(forKey: "hasLaunchedBefore") }
+        set { UserDefaults.standard.set(newValue, forKey: "hasLaunchedBefore") }
+    }
+
+    func startNewSession() {
+        currentSession = Session()
+    }
+
+    func endSession() {
+        currentSession?.endTime = Date()
+        currentSession?.isCompleted = true
+        currentSession = nil
+    }
+}
+
+// MARK: - Theme Manager
+@Observable
+final class ThemeManager {
+    var fontSize: FontSize = .normal
+    var reducedMotion = false
+    var highContrast = false
+    var isParentMode = false
+    var soundEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "soundEnabled") }
+        set { UserDefaults.standard.set(newValue, forKey: "soundEnabled") }
+    }
+
+    var currentTheme: ColorTheme {
+        isParentMode ? DarkColorTheme() : DefaultColorTheme()
+    }
+
+    enum FontSize: CGFloat, CaseIterable {
+        case small = 0.8
+        case normal = 1.0
+        case large = 1.2
+        case extraLarge = 1.5
+
+        var label: String {
+            switch self {
+            case .small: "Klein"
+            case .normal: "Normal"
+            case .large: "Gross"
+            case .extraLarge: "Sehr gross"
+            }
+        }
+    }
+}
