@@ -83,31 +83,25 @@ final class AppState {
 // MARK: - Theme Manager
 @Observable
 final class ThemeManager {
-    var fontSize: FontSize {
-        get { FontSize(rawValue: CGFloat(UserDefaults.standard.float(forKey: "fontSize"))) ?? .normal }
-        set {
-            UserDefaults.standard.set(Float(newValue.rawValue), forKey: "fontSize")
-            AppFonts.fontScale = newValue.rawValue
+    var fontSize: FontSize = .normal {
+        didSet {
+            UserDefaults.standard.set(Float(fontSize.rawValue), forKey: "fontSize")
+            AppFonts.fontScale = fontSize.rawValue
         }
     }
-    var reducedMotion: Bool {
-        get { UserDefaults.standard.bool(forKey: "reducedMotion") }
-        set { UserDefaults.standard.set(newValue, forKey: "reducedMotion") }
+    var reducedMotion: Bool = false {
+        didSet { UserDefaults.standard.set(reducedMotion, forKey: "reducedMotion") }
     }
-    var highContrast: Bool {
-        get { UserDefaults.standard.bool(forKey: "highContrast") }
-        set { UserDefaults.standard.set(newValue, forKey: "highContrast") }
+    var highContrast: Bool = false {
+        didSet { UserDefaults.standard.set(highContrast, forKey: "highContrast") }
     }
     var isParentMode = false
-    var soundEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "soundEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "soundEnabled") }
+    var soundEnabled: Bool = true {
+        didSet { UserDefaults.standard.set(soundEnabled, forKey: "soundEnabled") }
     }
-    var hapticEnabled: Bool {
-        get { UserDefaults.standard.object(forKey: "hapticEnabled") == nil ? true : UserDefaults.standard.bool(forKey: "hapticEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "hapticEnabled") }
+    var hapticEnabled: Bool = true {
+        didSet { UserDefaults.standard.set(hapticEnabled, forKey: "hapticEnabled") }
     }
-
     var appearanceMode: AppearanceMode = .system {
         didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: "appearanceMode") }
     }
@@ -121,8 +115,16 @@ final class ThemeManager {
     }
 
     init() {
-        let saved = UserDefaults.standard.string(forKey: "appearanceMode") ?? "system"
-        self.appearanceMode = AppearanceMode(rawValue: saved) ?? .system
+        let ud = UserDefaults.standard
+        let savedFontSize = ud.float(forKey: "fontSize")
+        if savedFontSize > 0, let fs = FontSize(rawValue: CGFloat(savedFontSize)) {
+            self.fontSize = fs
+        }
+        self.reducedMotion = ud.bool(forKey: "reducedMotion")
+        self.highContrast = ud.bool(forKey: "highContrast")
+        self.soundEnabled = ud.object(forKey: "soundEnabled") == nil ? true : ud.bool(forKey: "soundEnabled")
+        self.hapticEnabled = ud.object(forKey: "hapticEnabled") == nil ? true : ud.bool(forKey: "hapticEnabled")
+        self.appearanceMode = AppearanceMode(rawValue: ud.string(forKey: "appearanceMode") ?? "system") ?? .system
     }
 
     var currentTheme: ColorTheme {
