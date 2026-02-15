@@ -106,7 +106,7 @@ struct EngagementService {
                 results: results
             )
 
-            achievement.progress = progress
+            achievement.progress = max(achievement.progress, progress)
 
             if met {
                 achievement.unlockedAt = Date()
@@ -143,7 +143,8 @@ struct EngagementService {
         case .perfect10:
             let allCorrect = results.allSatisfy(\.isCorrect)
             let met = allCorrect && results.count >= 10
-            return (met, met ? 1 : 0)
+            let progress = allCorrect ? min(results.count, 10) : 0
+            return (met, progress)
 
         case .allStars:
             return (user.totalStars >= 100, min(user.totalStars, 100))
