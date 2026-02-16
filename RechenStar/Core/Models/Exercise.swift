@@ -115,6 +115,24 @@ enum Difficulty: Int, Codable, CaseIterable {
         }
     }
 
+    var range100: ClosedRange<Int> {
+        switch self {
+        case .veryEasy: 1...20
+        case .easy: 1...40
+        case .medium: 1...70
+        case .hard: 1...99
+        }
+    }
+
+    var maxProduct: Int {
+        switch self {
+        case .veryEasy: 30
+        case .easy: 50
+        case .medium: 75
+        case .hard: 100
+        }
+    }
+
     var label: String {
         switch self {
         case .veryEasy: "Sehr leicht"

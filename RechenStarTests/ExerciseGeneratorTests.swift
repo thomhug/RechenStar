@@ -161,6 +161,44 @@ final class ExerciseGeneratorTests: XCTestCase {
         XCTAssertEqual(result, .veryEasy)
     }
 
+    func testAddition100RespectsEasyDifficulty() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .addition_100)
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 40,
+                "Easy addition_100 first number \(exercise.firstNumber) exceeds 40")
+            XCTAssertLessThanOrEqual(exercise.firstNumber + exercise.secondNumber, 100)
+        }
+    }
+
+    func testSubtraction100RespectsEasyDifficulty() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .subtraction_100)
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 40,
+                "Easy subtraction_100 first number \(exercise.firstNumber) exceeds 40")
+            XCTAssertLessThanOrEqual(exercise.secondNumber, 40)
+        }
+    }
+
+    func testMultiplication100RespectsEasyDifficulty() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .multiplication_100)
+            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 50,
+                "Easy multiplication_100 product \(exercise.firstNumber * exercise.secondNumber) exceeds 50")
+        }
+    }
+
+    func testMultiplication100HardAllowsFullRange() {
+        var hasLargeProduct = false
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(difficulty: .hard, category: .multiplication_100)
+            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 100)
+            if exercise.firstNumber * exercise.secondNumber > 75 {
+                hasLargeProduct = true
+            }
+        }
+        XCTAssertTrue(hasLargeProduct, "Hard multiplication_100 should produce products > 75")
+    }
+
     func testGenerateSessionWithMultipleCategories() {
         let categories: [ExerciseCategory] = [.addition_10, .subtraction_10, .multiplication_10]
         let exercises = ExerciseGenerator.generateSession(count: 30, difficulty: .easy, categories: categories)

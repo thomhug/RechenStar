@@ -248,7 +248,7 @@ struct SessionCompleteView: View {
             }
             .background(Color.appBackgroundGradient.ignoresSafeArea())
 
-            if showConfetti {
+            if showConfetti && !themeManager.reducedMotion {
                 ConfettiView()
             }
         }

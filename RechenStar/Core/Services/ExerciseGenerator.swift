@@ -63,9 +63,10 @@ struct ExerciseGenerator {
             return Exercise(type: .addition, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
 
         case .addition_100:
-            let first = Int.random(in: 1...99)
-            let maxSecond = min(99, 100 - first)
-            let second = Int.random(in: 1...maxSecond)
+            let range100 = difficulty.range100
+            let first = Int.random(in: range100)
+            let maxSecond = min(range100.upperBound, 100 - first)
+            let second = Int.random(in: 1...max(1, maxSecond))
             return Exercise(type: .addition, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
 
         case .subtraction_10:
@@ -75,8 +76,9 @@ struct ExerciseGenerator {
             return Exercise(type: .subtraction, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
 
         case .subtraction_100:
-            let first = Int.random(in: 1...99)
-            let second = Int.random(in: 1...99)
+            let range100 = difficulty.range100
+            let first = Int.random(in: range100)
+            let second = Int.random(in: range100)
             return Exercise(type: .subtraction, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
 
         case .multiplication_10:
@@ -86,9 +88,10 @@ struct ExerciseGenerator {
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
 
         case .multiplication_100:
+            let maxProduct = difficulty.maxProduct
             let first = Int.random(in: 1...10)
-            let maxSecond = 100 / first
-            let second = Int.random(in: 1...maxSecond)
+            let maxSecond = maxProduct / max(first, 1)
+            let second = Int.random(in: 1...max(1, maxSecond))
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
         }
     }

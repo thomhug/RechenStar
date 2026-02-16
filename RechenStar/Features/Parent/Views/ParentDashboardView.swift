@@ -6,6 +6,7 @@ struct ParentDashboardView: View {
     let user: User
     let onDismiss: () -> Void
     @Environment(\.modelContext) private var modelContext
+    @State private var exerciseDetailsPage = 0
 
     private var sortedProgress: [DailyProgress] {
         user.progress.sorted { $0.date < $1.date }
@@ -369,13 +370,29 @@ struct ParentDashboardView: View {
         .sorted { $0.totalCount > $1.totalCount }
     }
 
-    private var exerciseDetails: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Aufgaben-Details")
-                .font(AppFonts.headline)
-                .foregroundColor(.appTextPrimary)
+    private let pageSize = 20
 
-            let stats = exerciseStatsData
+    private var exerciseDetails: some View {
+        let stats = exerciseStatsData
+        let totalPages = max(1, (stats.count + pageSize - 1) / pageSize)
+        let page = min(exerciseDetailsPage, totalPages - 1)
+        let startIndex = page * pageSize
+        let endIndex = min(startIndex + pageSize, stats.count)
+        let pageStats = startIndex < stats.count ? Array(stats[startIndex..<endIndex]) : []
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Aufgaben-Details")
+                    .font(AppFonts.headline)
+                    .foregroundColor(.appTextPrimary)
+                Spacer()
+                if stats.count > pageSize {
+                    Text("\(page + 1)/\(totalPages)")
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                }
+            }
+
             if stats.isEmpty {
                 Text("Noch keine Daten vorhanden")
                     .font(AppFonts.body)
@@ -399,7 +416,7 @@ struct ParentDashboardView: View {
 
                 Divider()
 
-                ForEach(stats.prefix(20)) { stat in
+                ForEach(pageStats) { stat in
                     HStack(spacing: 0) {
                         Text(stat.displayText)
                             .font(AppFonts.body)
@@ -429,6 +446,31 @@ struct ParentDashboardView: View {
                             .frame(width: 80, alignment: .trailing)
                     }
                     .accessibilityElement(children: .combine)
+                }
+
+                if totalPages > 1 {
+                    HStack {
+                        Button {
+                            exerciseDetailsPage = max(0, exerciseDetailsPage - 1)
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(page > 0 ? .appSkyBlue : .appTextSecondary.opacity(0.3))
+                        }
+                        .disabled(page == 0)
+
+                        Spacer()
+
+                        Button {
+                            exerciseDetailsPage = min(totalPages - 1, exerciseDetailsPage + 1)
+                        } label: {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(page < totalPages - 1 ? .appSkyBlue : .appTextSecondary.opacity(0.3))
+                        }
+                        .disabled(page >= totalPages - 1)
+                    }
+                    .padding(.top, 8)
                 }
             }
         }
