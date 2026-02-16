@@ -47,6 +47,10 @@ enum AchievementType: String, Codable, CaseIterable {
     case earlyBird = "early_bird"
     case nightOwl = "night_owl"
 
+    case categoryMaster = "category_master"
+    case variety = "variety"
+    case accuracyStreak = "accuracy_streak"
+
     var title: String {
         switch self {
         case .exercises10: "Erste Schritte"
@@ -61,6 +65,9 @@ enum AchievementType: String, Codable, CaseIterable {
         case .speedDemon: "Blitzrechner"
         case .earlyBird: "Frühaufsteher"
         case .nightOwl: "Nachteule"
+        case .categoryMaster: "Kategorie-Profi"
+        case .variety: "Vielseitig"
+        case .accuracyStreak: "Treffsicher"
         }
     }
 
@@ -78,6 +85,9 @@ enum AchievementType: String, Codable, CaseIterable {
         case .speedDemon: "10 Aufgaben in 2 Minuten"
         case .earlyBird: "Übe vor 8 Uhr morgens"
         case .nightOwl: "Übe nach 20 Uhr abends"
+        case .categoryMaster: "90%+ in einer Kategorie (min 20 Aufgaben)"
+        case .variety: "4+ Kategorien in einer Runde"
+        case .accuracyStreak: "3 Runden mit 80%+ Genauigkeit"
         }
     }
 
@@ -95,6 +105,9 @@ enum AchievementType: String, Codable, CaseIterable {
         case .speedDemon: "bolt.fill"
         case .earlyBird: "sunrise.fill"
         case .nightOwl: "moon.stars.fill"
+        case .categoryMaster: "rosette"
+        case .variety: "square.grid.2x2.fill"
+        case .accuracyStreak: "target"
         }
     }
 
@@ -112,6 +125,9 @@ enum AchievementType: String, Codable, CaseIterable {
         case .speedDemon: 1
         case .earlyBird: 1
         case .nightOwl: 1
+        case .categoryMaster: 1
+        case .variety: 1
+        case .accuracyStreak: 3
         }
     }
 }

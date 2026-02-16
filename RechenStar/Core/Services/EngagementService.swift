@@ -165,6 +165,26 @@ struct EngagementService {
             let hour = Calendar.current.component(.hour, from: session.startTime)
             let met = hour >= 20
             return (met, met ? 1 : 0)
+
+        case .categoryMaster:
+            // 90%+ accuracy in a single category with at least 20 results
+            let grouped = Dictionary(grouping: results) { $0.exercise.category }
+            let met = grouped.contains { (_, catResults) in
+                catResults.count >= 20 && Double(catResults.filter(\.isCorrect).count) / Double(catResults.count) >= 0.9
+            }
+            return (met, met ? 1 : 0)
+
+        case .variety:
+            // 4+ different categories in one session
+            let categories = Set(results.map(\.exercise.category))
+            let met = categories.count >= 4
+            return (met, met ? 1 : 0)
+
+        case .accuracyStreak:
+            // 3 sessions with 80%+ accuracy in a row
+            let sessionAccuracy = results.isEmpty ? 0.0 : Double(results.filter(\.isCorrect).count) / Double(results.count)
+            let newProgress = sessionAccuracy >= 0.8 ? currentProgress + 1 : 0
+            return (newProgress >= 3, newProgress)
         }
     }
 

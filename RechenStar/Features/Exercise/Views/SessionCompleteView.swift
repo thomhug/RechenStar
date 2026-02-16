@@ -51,6 +51,15 @@ struct SessionCompleteView: View {
         }
     }
 
+    private var categoryGroups: [(category: ExerciseCategory, correct: Int, total: Int)] {
+        let grouped = Dictionary(grouping: results) { $0.exercise.category }
+        return grouped.map { (category, catResults) in
+            let correct = catResults.filter(\.isCorrect).count
+            return (category: category, correct: correct, total: catResults.count)
+        }
+        .sorted { $0.category.rawValue < $1.category.rawValue }
+    }
+
     private var motivationIcon: String {
         switch accuracy {
         case 0.9...: return "star.circle.fill"
@@ -157,6 +166,35 @@ struct SessionCompleteView: View {
                         .frame(maxWidth: .infinity)
                     }
                     .padding(.horizontal, 20)
+
+                    // Category Breakdown
+                    if categoryGroups.count > 1 {
+                        AppCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Nach Kategorie")
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(.appTextPrimary)
+
+                                ForEach(categoryGroups, id: \.category) { group in
+                                    HStack(spacing: 10) {
+                                        Image(systemName: group.category.icon)
+                                            .font(.system(size: 18))
+                                            .foregroundColor(categoryColor(correct: group.correct, total: group.total))
+                                            .frame(width: 24)
+                                        Text(group.category.label)
+                                            .font(AppFonts.body)
+                                            .foregroundColor(.appTextPrimary)
+                                        Spacer()
+                                        Text("\(group.correct)/\(group.total) richtig")
+                                            .font(AppFonts.caption)
+                                            .foregroundColor(.appTextSecondary)
+                                        categoryAccuracyBadge(correct: group.correct, total: group.total)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
 
                     // Streak
                     if currentStreak > 1 {
@@ -270,5 +308,23 @@ struct SessionCompleteView: View {
                 }
             }
         }
+    }
+
+    private func categoryColor(correct: Int, total: Int) -> Color {
+        let acc = total > 0 ? Double(correct) / Double(total) : 0
+        return acc >= 0.8 ? .appGrassGreen : acc >= 0.5 ? .appSunYellow : .appCoral
+    }
+
+    private func categoryAccuracyBadge(correct: Int, total: Int) -> some View {
+        let acc = total > 0 ? Double(correct) / Double(total) : 0
+        return Text(String(format: "%.0f%%", acc * 100))
+            .font(AppFonts.footnote)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .background(
+                Capsule().fill(categoryColor(correct: correct, total: total))
+            )
     }
 }

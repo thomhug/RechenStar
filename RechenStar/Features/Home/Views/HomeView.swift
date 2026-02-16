@@ -188,42 +188,18 @@ struct HomeView: View {
             return nil
         }
 
-        // Category accuracy
-        var categoryGroups: [ExerciseCategory: (correct: Int, total: Int)] = [:]
-        for record in records {
-            guard let category = ExerciseCategory(rawValue: record.category) else { continue }
-            var group = categoryGroups[category, default: (correct: 0, total: 0)]
-            group.total += 1
-            if record.isCorrect { group.correct += 1 }
-            categoryGroups[category] = group
+        let recordData = records.compactMap { record -> MetricsService.RecordData? in
+            guard let category = ExerciseCategory(rawValue: record.category) else { return nil }
+            return MetricsService.RecordData(
+                category: category,
+                exerciseSignature: record.exerciseSignature,
+                firstNumber: record.firstNumber,
+                secondNumber: record.secondNumber,
+                isCorrect: record.isCorrect
+            )
         }
 
-        var categoryAccuracy: [ExerciseCategory: Double] = [:]
-        for (category, group) in categoryGroups {
-            categoryAccuracy[category] = Double(group.correct) / Double(group.total)
-        }
-
-        // Weak exercises: accuracy < 0.6 with at least 2 attempts
-        var signatureGroups: [String: (correct: Int, total: Int, category: ExerciseCategory, first: Int, second: Int)] = [:]
-        for record in records {
-            guard let category = ExerciseCategory(rawValue: record.category) else { continue }
-            let sig = record.exerciseSignature
-            var group = signatureGroups[sig, default: (correct: 0, total: 0, category: category, first: record.firstNumber, second: record.secondNumber)]
-            group.total += 1
-            if record.isCorrect { group.correct += 1 }
-            signatureGroups[sig] = group
-        }
-
-        var weakExercises: [ExerciseCategory: [(first: Int, second: Int)]] = [:]
-        for (_, group) in signatureGroups {
-            guard group.total >= 2 else { continue }
-            let accuracy = Double(group.correct) / Double(group.total)
-            if accuracy < 0.6 {
-                weakExercises[group.category, default: []].append((first: group.first, second: group.second))
-            }
-        }
-
-        return ExerciseMetrics(categoryAccuracy: categoryAccuracy, weakExercises: weakExercises)
+        return MetricsService.computeMetrics(from: recordData)
     }
 }
 

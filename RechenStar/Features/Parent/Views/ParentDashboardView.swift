@@ -51,6 +51,7 @@ struct ParentDashboardView: View {
                     accuracyChart
                     summaryCards
                     strengthsWeaknesses
+                    focusExercises
                     exerciseDetails
                     overallStats
                     sessionsHistory
@@ -322,6 +323,83 @@ struct ParentDashboardView: View {
                 color: accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral
             )
         }
+    }
+
+    // MARK: - Focus Exercises
+
+    private var focusExercisesData: [ExerciseCategory: [(first: Int, second: Int)]] {
+        let descriptor = FetchDescriptor<ExerciseRecord>()
+        guard let allRecords = try? modelContext.fetch(descriptor) else { return [:] }
+
+        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
+        let userRecords = allRecords.filter { record in
+            guard let session = record.session else { return false }
+            return userSessionIDs.contains(session.id)
+        }
+
+        let recordData = userRecords.compactMap { record -> MetricsService.RecordData? in
+            guard let category = ExerciseCategory(rawValue: record.category) else { return nil }
+            return MetricsService.RecordData(
+                category: category,
+                exerciseSignature: record.exerciseSignature,
+                firstNumber: record.firstNumber,
+                secondNumber: record.secondNumber,
+                isCorrect: record.isCorrect
+            )
+        }
+
+        return MetricsService.computeMetrics(from: recordData)?.weakExercises ?? [:]
+    }
+
+    private var focusExercises: some View {
+        let weakData = focusExercisesData
+
+        return VStack(alignment: .leading, spacing: 16) {
+            Text("Übungsfokus")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            if weakData.isEmpty {
+                Text("Keine schwachen Aufgaben — toll!")
+                    .font(AppFonts.body)
+                    .foregroundColor(.appTextSecondary)
+            } else {
+                ForEach(Array(weakData.keys.sorted { $0.rawValue < $1.rawValue }), id: \.self) { category in
+                    if let pairs = weakData[category], !pairs.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 8) {
+                                Image(systemName: category.icon)
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.appCoral)
+                                    .frame(width: 24)
+                                Text(category.label)
+                                    .font(AppFonts.body)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.appTextPrimary)
+                            }
+
+                            let displayPairs = pairs.prefix(5).map { pair -> String in
+                                let symbol = category.operationType.symbol
+                                return "\(pair.first) \(symbol) \(pair.second)"
+                            }
+                            Text(displayPairs.joined(separator: ", "))
+                                .font(AppFonts.caption)
+                                .foregroundColor(.appTextSecondary)
+                        }
+                    }
+                }
+
+                Text("Diese Aufgaben werden automatisch haeufiger gestellt")
+                    .font(AppFonts.footnote)
+                    .foregroundColor(.appTextSecondary)
+                    .italic()
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
     }
 
     // MARK: - Exercise Details

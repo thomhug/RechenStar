@@ -12,6 +12,7 @@ final class ExerciseRecord {
     var isCorrect: Bool = false
     var timeSpent: TimeInterval = 0
     var attempts: Int = 1
+    var difficulty: Int = 2
     var date: Date = Date()
 
     var session: Session?
@@ -36,6 +37,7 @@ final class ExerciseRecord {
         self.isCorrect = result.isCorrect
         self.timeSpent = result.timeSpent
         self.attempts = result.attempts
+        self.difficulty = exercise.difficulty.rawValue
         self.date = Date()
     }
 }
