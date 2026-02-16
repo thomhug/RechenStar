@@ -306,7 +306,7 @@ final class ExerciseGeneratorTests: XCTestCase {
     }
 
     func testStartingDifficultyFromNilMetrics() {
-        XCTAssertEqual(ExerciseGenerator.startingDifficulty(from: nil), .easy)
+        XCTAssertEqual(ExerciseGenerator.startingDifficulty(from: nil), .veryEasy)
     }
 
     func testMediumDifficultyExcludesOnes() {

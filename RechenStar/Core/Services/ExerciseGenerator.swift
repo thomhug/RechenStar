@@ -79,7 +79,7 @@ struct ExerciseGenerator {
     /// Determine starting difficulty from historical metrics
     static func startingDifficulty(from metrics: ExerciseMetrics?) -> Difficulty {
         guard let metrics = metrics, !metrics.categoryAccuracy.isEmpty else {
-            return .easy
+            return .veryEasy
         }
         let avgAccuracy = metrics.categoryAccuracy.values.reduce(0, +) / Double(metrics.categoryAccuracy.count)
         if avgAccuracy >= 0.9 { return .hard }
