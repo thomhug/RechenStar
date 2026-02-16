@@ -203,7 +203,7 @@ struct HomeView: View {
         let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
         let userRecords = records.filter { record in
             guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id)
+            return userSessionIDs.contains(session.id) && !record.wasSkipped
         }
 
         guard !userRecords.isEmpty else { return nil }
