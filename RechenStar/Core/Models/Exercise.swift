@@ -126,10 +126,10 @@ enum Difficulty: Int, Codable, CaseIterable {
 
     var maxProduct: Int {
         switch self {
-        case .veryEasy: 30
-        case .easy: 50
-        case .medium: 75
-        case .hard: 100
+        case .veryEasy: 50
+        case .easy: 100
+        case .medium: 200
+        case .hard: 400
         }
     }
 

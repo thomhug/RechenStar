@@ -80,16 +80,18 @@ final class ExerciseGeneratorTests: XCTestCase {
         }
     }
 
-    func testMultiplication100ProductNotExceeds100() {
+    func testMultiplication100ProductNotExceeds400() {
         for _ in 0..<100 {
             let exercise = ExerciseGenerator.generate(
                 difficulty: .hard,
                 category: .multiplication_100
             )
             XCTAssertLessThanOrEqual(
-                exercise.firstNumber * exercise.secondNumber, 100,
-                "Multiplication \(exercise.firstNumber) × \(exercise.secondNumber) exceeds 100"
+                exercise.firstNumber * exercise.secondNumber, 400,
+                "Multiplication \(exercise.firstNumber) × \(exercise.secondNumber) exceeds 400"
             )
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 20)
+            XCTAssertLessThanOrEqual(exercise.secondNumber, 20)
         }
     }
 
@@ -182,8 +184,8 @@ final class ExerciseGeneratorTests: XCTestCase {
     func testMultiplication100RespectsEasyDifficulty() {
         for _ in 0..<100 {
             let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .multiplication_100)
-            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 50,
-                "Easy multiplication_100 product \(exercise.firstNumber * exercise.secondNumber) exceeds 50")
+            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 100,
+                "Easy multiplication_100 product \(exercise.firstNumber * exercise.secondNumber) exceeds 100")
         }
     }
 
@@ -191,12 +193,12 @@ final class ExerciseGeneratorTests: XCTestCase {
         var hasLargeProduct = false
         for _ in 0..<200 {
             let exercise = ExerciseGenerator.generate(difficulty: .hard, category: .multiplication_100)
-            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 100)
-            if exercise.firstNumber * exercise.secondNumber > 75 {
+            XCTAssertLessThanOrEqual(exercise.firstNumber * exercise.secondNumber, 400)
+            if exercise.firstNumber * exercise.secondNumber > 200 {
                 hasLargeProduct = true
             }
         }
-        XCTAssertTrue(hasLargeProduct, "Hard multiplication_100 should produce products > 75")
+        XCTAssertTrue(hasLargeProduct, "Hard multiplication_100 should produce products > 200")
     }
 
     func testGenerateSessionWithMultipleCategories() {

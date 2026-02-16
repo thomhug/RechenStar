@@ -114,8 +114,8 @@ struct ExerciseGenerator {
 
         case .multiplication_100:
             let maxProduct = difficulty.maxProduct
-            let first = Int.random(in: 1...10)
-            let maxSecond = maxProduct / max(first, 1)
+            let first = Int.random(in: 1...20)
+            let maxSecond = min(20, maxProduct / max(first, 1))
             let second = Int.random(in: 1...max(1, maxSecond))
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
         }
