@@ -9,6 +9,8 @@ final class UserPreferences {
     var sessionLength: Int = 10
     var dailyGoal: Int = 20
     var gapFillEnabled: Bool = true
+    var hideSkipButton: Bool = false
+    var autoShowAnswerSeconds: Int = 0
 
     // Audio & Haptics
     var soundEnabled: Bool = true

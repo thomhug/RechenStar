@@ -55,8 +55,8 @@ final class ExerciseFlowUITests: XCTestCase {
 
         app.buttons["skip-button"].tap()
 
-        // Wait briefly for new exercise to load
-        sleep(1)
+        // Wait for answer display (2.5s) + next exercise load
+        sleep(4)
 
         let labelAfter = exerciseCard.label
         XCTAssertNotEqual(labelBefore, labelAfter, "Exercise should change after skip")

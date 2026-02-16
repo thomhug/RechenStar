@@ -187,6 +187,7 @@ final class ExerciseViewModelTests: XCTestCase {
 
         // Skip exercise 2 (counts as incorrect)
         vm.skipExercise()
+        vm.clearShowAnswer()
 
         XCTAssertEqual(vm.accuracy, 0.5)
     }
@@ -194,10 +195,14 @@ final class ExerciseViewModelTests: XCTestCase {
     func testSkipExercise() {
         let vm = makeSUT(sessionLength: 3)
         vm.startSession()
+        let exercise = vm.currentExercise!
         vm.skipExercise()
 
         XCTAssertEqual(vm.sessionResults.count, 1)
         XCTAssertFalse(vm.sessionResults.first?.isCorrect ?? true)
+        // Skip now shows the answer first
+        XCTAssertEqual(vm.feedbackState, .showAnswer(exercise.correctAnswer))
+        vm.clearShowAnswer()
         XCTAssertEqual(vm.exerciseIndex, 1)
     }
 
@@ -283,8 +288,9 @@ final class ExerciseViewModelTests: XCTestCase {
             if let ex = vm.currentExercise {
                 signatures.append(ex.signature)
             }
-            // Skip to advance without answering
+            // Skip to advance without answering (skip now shows answer first)
             vm.skipExercise()
+            vm.clearShowAnswer()
             idx += 1
         }
 

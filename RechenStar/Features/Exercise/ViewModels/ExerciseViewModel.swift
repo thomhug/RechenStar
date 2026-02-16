@@ -163,7 +163,7 @@ final class ExerciseViewModel {
         currentAttempts += 1
 
         if answer == exercise.correctAnswer {
-            let timeSpent = Date().timeIntervalSince(exerciseStartTime)
+            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
             let result = ExerciseResult(
                 exercise: exercise,
                 userAnswer: answer,
@@ -178,7 +178,7 @@ final class ExerciseViewModel {
             consecutiveErrors = 0
         } else if currentAttempts >= Self.maxAttempts {
             // Show the correct answer after max attempts
-            let timeSpent = Date().timeIntervalSince(exerciseStartTime)
+            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
             let result = ExerciseResult(
                 exercise: exercise,
                 userAnswer: answer,
@@ -282,7 +282,7 @@ final class ExerciseViewModel {
     func skipExercise() {
         guard let exercise = currentExercise else { return }
 
-        let timeSpent = Date().timeIntervalSince(exerciseStartTime)
+        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
         let result = ExerciseResult(
             exercise: exercise,
             userAnswer: 0,
@@ -292,6 +292,22 @@ final class ExerciseViewModel {
             wasSkipped: true
         )
         sessionResults.append(result)
-        nextExercise()
+        feedbackState = .showAnswer(exercise.correctAnswer)
+    }
+
+    func autoRevealAnswer() {
+        guard let exercise = currentExercise else { return }
+
+        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
+        let result = ExerciseResult(
+            exercise: exercise,
+            userAnswer: 0,
+            isCorrect: false,
+            attempts: currentAttempts,
+            timeSpent: timeSpent,
+            wasRevealed: true
+        )
+        sessionResults.append(result)
+        feedbackState = .showAnswer(exercise.correctAnswer)
     }
 }

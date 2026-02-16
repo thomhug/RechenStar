@@ -233,6 +233,7 @@ enum AchievementType: String, Codable, CaseIterable {
     case speedDemon = "speed_demon"      // 10 in 2 Min
     case earlyBird = "early_bird"        // Vor 8 Uhr
     case nightOwl = "night_owl"          // Nach 20 Uhr
+    case dailyChampion = "daily_champion" // Tagesziel 3x erreicht
 
     var title: String {
         // Lokalisierte Titel
@@ -258,6 +259,8 @@ class UserPreferences {
     var adaptiveDifficulty: Bool = true
     var sessionLength: Int = 10
     var dailyGoal: Int = 20
+    var hideSkipButton: Bool = false
+    var autoShowAnswerSeconds: Int = 0  // 0=aus, 5, 10, 20
 
     // Audio & Haptics
     var soundEnabled: Bool = true

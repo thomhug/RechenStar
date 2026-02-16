@@ -66,7 +66,9 @@ struct HomeView: View {
                     categories: categoriesFromPreferences(),
                     metrics: metrics,
                     adaptiveDifficulty: appState.currentUser?.preferences?.adaptiveDifficulty ?? true,
-                    gapFillEnabled: appState.currentUser?.preferences?.gapFillEnabled ?? true
+                    gapFillEnabled: appState.currentUser?.preferences?.gapFillEnabled ?? true,
+                    hideSkipButton: appState.currentUser?.preferences?.hideSkipButton ?? false,
+                    autoShowAnswerSeconds: appState.currentUser?.preferences?.autoShowAnswerSeconds ?? 0
                 ) { results in
                     let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(

@@ -5,6 +5,8 @@ import Charts
 struct LearningProgressView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @State private var showLevelOverview = false
+    @State private var showSkillOverview = false
 
     private var user: User? { appState.currentUser }
 
@@ -83,6 +85,12 @@ struct LearningProgressView: View {
             }
             .padding(20)
         }
+        .sheet(isPresented: $showLevelOverview) {
+            levelOverviewSheet
+        }
+        .sheet(isPresented: $showSkillOverview) {
+            skillOverviewSheet
+        }
     }
 
     // MARK: - Badges
@@ -126,6 +134,7 @@ struct LearningProgressView: View {
                     }
                 }
             }
+            .onTapGesture { showLevelOverview = true }
 
             // Skill badge (quality)
             AppCard {
@@ -154,6 +163,7 @@ struct LearningProgressView: View {
                     Spacer()
                 }
             }
+            .onTapGesture { showSkillOverview = true }
         }
     }
 
@@ -317,6 +327,143 @@ struct LearningProgressView: View {
 
     private func strengthColor(_ accuracy: Double) -> Color {
         accuracy >= 0.8 ? .appGrassGreen : accuracy >= 0.5 ? .appSunYellow : .appCoral
+    }
+
+    // MARK: - Level Overview Sheet
+
+    private var levelOverviewSheet: some View {
+        let total = user?.totalExercises ?? 0
+        let currentLevel = Level.current(for: total)
+
+        return NavigationStack {
+            List {
+                ForEach(Level.allCases, id: \.rawValue) { level in
+                    let isReached = total >= level.requiredExercises
+                    let isCurrent = level == currentLevel
+
+                    HStack(spacing: 14) {
+                        Image(level.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .opacity(isReached ? 1.0 : 0.3)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(level.title)
+                                .font(AppFonts.headline)
+                                .foregroundColor(isReached ? .appTextPrimary : .appTextSecondary)
+                            Text("Ab \(level.requiredExercises) Aufgaben")
+                                .font(AppFonts.footnote)
+                                .foregroundColor(.appTextSecondary)
+                        }
+
+                        Spacer()
+
+                        if isCurrent {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(.appGrassGreen)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    .listRowBackground(
+                        isCurrent
+                            ? RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.appSunYellow.opacity(0.1))
+                                .padding(.horizontal, -4)
+                            : nil
+                    )
+                }
+            }
+            .listStyle(.plain)
+            .navigationTitle("Level-Übersicht")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Fertig") {
+                        showLevelOverview = false
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Skill Overview Sheet
+
+    private var skillOverviewSheet: some View {
+        let currentSkill = currentSkillLevel
+
+        return NavigationStack {
+            VStack(spacing: 0) {
+                List {
+                    ForEach(Difficulty.allCases, id: \.rawValue) { skill in
+                        let isCurrent = skill == currentSkill
+                        let isReached = skill.rawValue <= currentSkill.rawValue
+
+                        HStack(spacing: 14) {
+                            Image(skill.skillImageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .opacity(isReached ? 1.0 : 0.3)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(skill.skillTitle)
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(isReached ? .appTextPrimary : .appTextSecondary)
+                                Text(skill.label)
+                                    .font(AppFonts.footnote)
+                                    .foregroundColor(.appTextSecondary)
+                                Text(skillDescription(skill))
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(.appTextSecondary)
+                            }
+
+                            Spacer()
+
+                            if isCurrent {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(skillColor(skill))
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .listRowBackground(
+                            isCurrent
+                                ? RoundedRectangle(cornerRadius: 12)
+                                    .fill(skillColor(skill).opacity(0.1))
+                                    .padding(.horizontal, -4)
+                                : nil
+                        )
+                    }
+                }
+                .listStyle(.plain)
+
+                Text("Dein Skill wird aus deiner Genauigkeit der letzten 7 Tage berechnet.")
+                    .font(AppFonts.caption)
+                    .foregroundColor(.appTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+            .navigationTitle("Skill-Stufen")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Fertig") {
+                        showSkillOverview = false
+                    }
+                }
+            }
+        }
+    }
+
+    private func skillDescription(_ skill: Difficulty) -> String {
+        switch skill {
+        case .veryEasy: "Genauigkeit unter 50%"
+        case .easy: "Genauigkeit ab 50%"
+        case .medium: "Genauigkeit ab 70%"
+        case .hard: "Genauigkeit ab 90%"
+        }
     }
 }
 

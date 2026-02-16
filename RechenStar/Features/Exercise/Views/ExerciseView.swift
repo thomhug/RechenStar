@@ -7,12 +7,15 @@ struct ExerciseView: View {
     @State private var viewModel: ExerciseViewModel
     @State private var shakeOffset: CGFloat = 0
     @State private var autoAdvanceTask: DispatchWorkItem?
+    @State private var autoRevealTask: DispatchWorkItem?
     @State private var showBreakReminder = false
     @State private var sessionStartTime = Date()
     @State private var revengeStarsVisible = 0
 
     private let breakCheckTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
+    let hideSkipButton: Bool
+    let autoShowAnswerSeconds: Int
     let onSessionComplete: ([ExerciseResult]) -> Void
     let onCancel: ([ExerciseResult]) -> Void
 
@@ -23,6 +26,8 @@ struct ExerciseView: View {
         metrics: ExerciseMetrics? = nil,
         adaptiveDifficulty: Bool = true,
         gapFillEnabled: Bool = true,
+        hideSkipButton: Bool = false,
+        autoShowAnswerSeconds: Int = 0,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
@@ -34,6 +39,8 @@ struct ExerciseView: View {
             adaptiveDifficulty: adaptiveDifficulty,
             gapFillEnabled: gapFillEnabled
         ))
+        self.hideSkipButton = hideSkipButton
+        self.autoShowAnswerSeconds = autoShowAnswerSeconds
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel
     }
@@ -95,11 +102,16 @@ struct ExerciseView: View {
         .background(Color.appBackgroundGradient.ignoresSafeArea())
         .onAppear {
             viewModel.startSession()
+            startAutoRevealTimer()
         }
         .onChange(of: viewModel.sessionState) { _, newState in
             if newState == .completed {
+                cancelAutoReveal()
                 onSessionComplete(viewModel.sessionResults)
             }
+        }
+        .onChange(of: viewModel.exerciseIndex) { _, _ in
+            startAutoRevealTimer()
         }
         .onReceive(breakCheckTimer) { _ in
             guard let prefs = appState.currentUser?.preferences,
@@ -153,6 +165,7 @@ struct ExerciseView: View {
                         .foregroundColor(.appTextPrimary)
                 }
                 Button {
+                    cancelAutoReveal()
                     onCancel(viewModel.sessionResults)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -358,10 +371,14 @@ struct ExerciseView: View {
             case .correct, .revenge:
                 Color.clear.frame(height: btnHeight)
             case .none:
-                SkipButton {
-                    viewModel.skipExercise()
+                if hideSkipButton {
+                    Color.clear.frame(height: btnHeight)
+                } else {
+                    SkipButton {
+                        skipWithFeedback()
+                    }
+                    .accessibilityIdentifier("skip-button")
                 }
-                .accessibilityIdentifier("skip-button")
             case .incorrect:
                 Color.clear.frame(height: btnHeight)
             case .showAnswer:
@@ -373,6 +390,7 @@ struct ExerciseView: View {
     // MARK: - Helpers
 
     private func submitWithFeedback() {
+        cancelAutoReveal()
         viewModel.submitAnswer()
 
         switch viewModel.feedbackState {
@@ -428,6 +446,36 @@ struct ExerciseView: View {
     private func cancelAutoAdvance() {
         autoAdvanceTask?.cancel()
         autoAdvanceTask = nil
+    }
+
+    private func skipWithFeedback() {
+        cancelAutoReveal()
+        viewModel.skipExercise()
+        if themeManager.soundEnabled {
+            SoundService.playIncorrect()
+        }
+        scheduleAutoAdvance(delay: 2.5, action: { viewModel.clearShowAnswer() })
+    }
+
+    private func startAutoRevealTimer() {
+        cancelAutoReveal()
+        guard autoShowAnswerSeconds > 0, viewModel.feedbackState == .none else { return }
+        let task = DispatchWorkItem {
+            viewModel.autoRevealAnswer()
+            if !themeManager.reducedMotion { triggerShake() }
+            HapticFeedback.notification(.error)
+            if themeManager.soundEnabled {
+                SoundService.playIncorrect()
+            }
+            scheduleAutoAdvance(delay: 2.5, action: { viewModel.clearShowAnswer() })
+        }
+        autoRevealTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double(autoShowAnswerSeconds), execute: task)
+    }
+
+    private func cancelAutoReveal() {
+        autoRevealTask?.cancel()
+        autoRevealTask = nil
     }
 
     private func triggerShake() {

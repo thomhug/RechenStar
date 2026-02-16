@@ -83,6 +83,43 @@ struct SettingsView: View {
                             }
                             .pickerStyle(.menu)
                         }
+
+                        Toggle(isOn: Binding(
+                            get: { prefs.hideSkipButton },
+                            set: { prefs.hideSkipButton = $0; save() }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Überspringen ausblenden")
+                                    .font(AppFonts.body)
+                                    .foregroundColor(.appTextPrimary)
+                                Text("Versteckt den Überspringen-Button während der Übung")
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(.appTextSecondary)
+                            }
+                        }
+                        .tint(.appSkyBlue)
+
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Automatisch Lösung zeigen")
+                                    .font(AppFonts.body)
+                                    .foregroundColor(.appTextPrimary)
+                                Text("Zeigt die Lösung nach Ablauf der Zeit")
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(.appTextSecondary)
+                            }
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { prefs.autoShowAnswerSeconds },
+                                set: { prefs.autoShowAnswerSeconds = $0; save() }
+                            )) {
+                                Text("Aus").tag(0)
+                                Text("Nach 5s").tag(5)
+                                Text("Nach 10s").tag(10)
+                                Text("Nach 20s").tag(20)
+                            }
+                            .pickerStyle(.menu)
+                        }
                     }
                 }
                 .settingsCard()
