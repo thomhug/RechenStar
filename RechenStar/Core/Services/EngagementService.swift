@@ -27,7 +27,7 @@ struct EngagementService {
 
         updateDailyProgress(session: session, results: results, user: user, context: context)
 
-        let exercisesAfter = exercisesBefore + results.count
+        let exercisesAfter = exercisesBefore + results.filter { !$0.wasSkipped }.count
         let goalJustReached = !wasAlreadyReached && exercisesAfter >= dailyGoal
 
         let streakResult = updateStreak(user: user)
@@ -58,9 +58,10 @@ struct EngagementService {
         let daily = user.progress.first { calendar.isDate($0.date, inSameDayAs: todayStart) }
             ?? createDailyProgress(date: todayStart, user: user, context: context)
 
-        daily.exercisesCompleted += results.count
-        daily.correctAnswers += results.filter(\.isCorrect).count
-        daily.totalTime += results.reduce(0) { $0 + $1.timeSpent }
+        let attemptedResults = results.filter { !$0.wasSkipped }
+        daily.exercisesCompleted += attemptedResults.count
+        daily.correctAnswers += attemptedResults.filter(\.isCorrect).count
+        daily.totalTime += attemptedResults.reduce(0) { $0 + $1.timeSpent }
         daily.sessionsCount += 1
 
         session.dailyProgress = daily
@@ -141,6 +142,9 @@ struct EngagementService {
         currentProgress: Int = 0,
         context: ModelContext? = nil
     ) -> (met: Bool, progress: Int) {
+        // Exclude skipped exercises from achievement evaluation
+        let attempted = results.filter { !$0.wasSkipped }
+
         switch type {
         case .exercises10:
             return (user.totalExercises >= 10, min(user.totalExercises, 10))
@@ -159,7 +163,7 @@ struct EngagementService {
             return (user.currentStreak >= 30, min(user.currentStreak, 30))
 
         case .perfect10:
-            let isPerfectSession = results.allSatisfy(\.isCorrect) && results.count >= 10
+            let isPerfectSession = attempted.allSatisfy(\.isCorrect) && attempted.count >= 10
             let newProgress = isPerfectSession ? currentProgress + 1 : currentProgress
             return (newProgress >= 10, newProgress)
 
@@ -168,7 +172,7 @@ struct EngagementService {
 
         case .speedDemon:
             let duration = session.duration ?? .infinity
-            let met = results.count >= 10 && duration < 120
+            let met = attempted.count >= 10 && duration < 120
             return (met, met ? 1 : 0)
 
         case .earlyBird:
@@ -194,13 +198,13 @@ struct EngagementService {
 
         case .variety:
             // 4+ different categories in one session
-            let categories = Set(results.map(\.exercise.category))
+            let categories = Set(attempted.map(\.exercise.category))
             let met = categories.count >= 4
             return (met, met ? 1 : 0)
 
         case .accuracyStreak:
             // 3 sessions with 80%+ accuracy in a row
-            let sessionAccuracy = results.isEmpty ? 0.0 : Double(results.filter(\.isCorrect).count) / Double(results.count)
+            let sessionAccuracy = attempted.isEmpty ? 0.0 : Double(attempted.filter(\.isCorrect).count) / Double(attempted.count)
             let newProgress = sessionAccuracy >= 0.8 ? currentProgress + 1 : 0
             return (newProgress >= 3, newProgress)
         }

@@ -3,75 +3,109 @@ import XCTest
 
 final class MetricsServiceTests: XCTestCase {
 
+    private let now = Date()
+
+    private func record(
+        _ category: ExerciseCategory,
+        sig: String,
+        first: Int,
+        second: Int,
+        correct: Bool,
+        minutesAgo: Int = 0
+    ) -> MetricsService.RecordData {
+        .init(
+            category: category,
+            exerciseSignature: sig,
+            firstNumber: first,
+            secondNumber: second,
+            isCorrect: correct,
+            date: now.addingTimeInterval(TimeInterval(-minutesAgo * 60))
+        )
+    }
+
     func testEmptyRecordsReturnsNil() {
         let result = MetricsService.computeMetrics(from: [])
         XCTAssertNil(result)
     }
 
     func testCategoryAccuracyCorrect() {
-        let records: [MetricsService.RecordData] = [
-            .init(category: .addition_10, exerciseSignature: "addition_10_3_4", firstNumber: 3, secondNumber: 4, isCorrect: true),
-            .init(category: .addition_10, exerciseSignature: "addition_10_5_2", firstNumber: 5, secondNumber: 2, isCorrect: true),
-            .init(category: .addition_10, exerciseSignature: "addition_10_1_6", firstNumber: 1, secondNumber: 6, isCorrect: false),
-            .init(category: .subtraction_10, exerciseSignature: "subtraction_10_8_3", firstNumber: 8, secondNumber: 3, isCorrect: true),
-            .init(category: .subtraction_10, exerciseSignature: "subtraction_10_7_2", firstNumber: 7, secondNumber: 2, isCorrect: false),
+        let records = [
+            record(.addition_10, sig: "addition_10_3_4", first: 3, second: 4, correct: true),
+            record(.addition_10, sig: "addition_10_5_2", first: 5, second: 2, correct: true),
+            record(.addition_10, sig: "addition_10_1_6", first: 1, second: 6, correct: false),
+            record(.subtraction_10, sig: "subtraction_10_8_3", first: 8, second: 3, correct: true),
+            record(.subtraction_10, sig: "subtraction_10_7_2", first: 7, second: 2, correct: false),
         ]
 
         let metrics = MetricsService.computeMetrics(from: records)
         XCTAssertNotNil(metrics)
-
-        // addition_10: 2/3 correct = 0.667
         XCTAssertEqual(metrics!.categoryAccuracy[.addition_10]!, 2.0 / 3.0, accuracy: 0.001)
-        // subtraction_10: 1/2 correct = 0.5
         XCTAssertEqual(metrics!.categoryAccuracy[.subtraction_10]!, 0.5, accuracy: 0.001)
     }
 
-    func testWeakExercisesDetected() {
-        // Same signature, mostly wrong -> should be weak
-        let records: [MetricsService.RecordData] = [
-            .init(category: .addition_10, exerciseSignature: "addition_10_3_7", firstNumber: 3, secondNumber: 7, isCorrect: false),
-            .init(category: .addition_10, exerciseSignature: "addition_10_3_7", firstNumber: 3, secondNumber: 7, isCorrect: false),
-            .init(category: .addition_10, exerciseSignature: "addition_10_3_7", firstNumber: 3, secondNumber: 7, isCorrect: true),
+    func testWeakExerciseLastAttemptWrong() {
+        // 2 wrong, then 1 right (most recent) → NOT weak anymore (revenge already earned)
+        let records = [
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: false, minutesAgo: 30),
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: false, minutesAgo: 20),
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: true, minutesAgo: 10),
         ]
 
-        let metrics = MetricsService.computeMetrics(from: records)
-        XCTAssertNotNil(metrics)
+        let metrics = MetricsService.computeMetrics(from: records)!
+        let weak = metrics.weakExercises[.addition_10] ?? []
+        XCTAssertTrue(weak.isEmpty, "Exercise should NOT be weak after most recent attempt was correct")
+    }
 
-        // 1/3 correct = 0.333 < 0.6, total >= 2 -> weak
-        let weak = metrics!.weakExercises[.addition_10] ?? []
-        XCTAssertEqual(weak.count, 1)
-        XCTAssertEqual(weak.first?.first, 3)
-        XCTAssertEqual(weak.first?.second, 7)
+    func testWeakExerciseLastAttemptWrongStillWeak() {
+        // Wrong, right, wrong (most recent wrong) → still weak
+        let records = [
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: false, minutesAgo: 30),
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: true, minutesAgo: 20),
+            record(.addition_10, sig: "addition_10_3_7", first: 3, second: 7, correct: false, minutesAgo: 10),
+        ]
+
+        let metrics = MetricsService.computeMetrics(from: records)!
+        let weak = metrics.weakExercises[.addition_10] ?? []
+        XCTAssertEqual(weak.count, 1, "Exercise should still be weak when most recent attempt is wrong")
     }
 
     func testSingleWrongAttemptIsWeak() {
-        // 1 attempt, wrong -> weak (so revenge triggers next time)
-        let records: [MetricsService.RecordData] = [
-            .init(category: .subtraction_10, exerciseSignature: "subtraction_10_8_5", firstNumber: 8, secondNumber: 5, isCorrect: false),
+        let records = [
+            record(.subtraction_10, sig: "subtraction_10_8_5", first: 8, second: 5, correct: false),
         ]
 
-        let metrics = MetricsService.computeMetrics(from: records)
-        XCTAssertNotNil(metrics)
-
-        let weak = metrics!.weakExercises[.subtraction_10] ?? []
+        let metrics = MetricsService.computeMetrics(from: records)!
+        let weak = metrics.weakExercises[.subtraction_10] ?? []
         XCTAssertEqual(weak.count, 1)
-        XCTAssertEqual(weak.first?.first, 8)
-        XCTAssertEqual(weak.first?.second, 5)
     }
 
     func testStrongExercisesNotInWeakExercises() {
-        // Same signature, mostly correct -> NOT weak
-        let records: [MetricsService.RecordData] = [
-            .init(category: .addition_10, exerciseSignature: "addition_10_2_3", firstNumber: 2, secondNumber: 3, isCorrect: true),
-            .init(category: .addition_10, exerciseSignature: "addition_10_2_3", firstNumber: 2, secondNumber: 3, isCorrect: true),
-            .init(category: .addition_10, exerciseSignature: "addition_10_2_3", firstNumber: 2, secondNumber: 3, isCorrect: false),
+        let records = [
+            record(.addition_10, sig: "addition_10_2_3", first: 2, second: 3, correct: true, minutesAgo: 30),
+            record(.addition_10, sig: "addition_10_2_3", first: 2, second: 3, correct: true, minutesAgo: 20),
+            record(.addition_10, sig: "addition_10_2_3", first: 2, second: 3, correct: false, minutesAgo: 10),
         ]
 
-        let metrics = MetricsService.computeMetrics(from: records)
-        XCTAssertNotNil(metrics)
-
-        // 2/3 correct = 0.667 >= 0.6 -> NOT weak
-        let weak = metrics!.weakExercises[.addition_10] ?? []
+        let metrics = MetricsService.computeMetrics(from: records)!
+        // 2/3 correct = 0.667 >= 0.6 → NOT weak (even though last attempt wrong)
+        let weak = metrics.weakExercises[.addition_10] ?? []
         XCTAssertTrue(weak.isEmpty)
+    }
+
+    func testExerciseDropsFromWeakAfterRevenge() {
+        // Simulates: wrong → weak → revenge (correct) → no longer weak
+        let beforeRevenge = [
+            record(.addition_10, sig: "addition_10_4_5", first: 4, second: 5, correct: false, minutesAgo: 60),
+        ]
+        let metricsB = MetricsService.computeMetrics(from: beforeRevenge)!
+        XCTAssertEqual(metricsB.weakExercises[.addition_10]?.count, 1, "Should be weak before revenge")
+
+        // After revenge: add the correct answer
+        let afterRevenge = beforeRevenge + [
+            record(.addition_10, sig: "addition_10_4_5", first: 4, second: 5, correct: true, minutesAgo: 10),
+        ]
+        let metricsA = MetricsService.computeMetrics(from: afterRevenge)!
+        let weak = metricsA.weakExercises[.addition_10] ?? []
+        XCTAssertTrue(weak.isEmpty, "Should NOT be weak after successful revenge (last attempt correct)")
     }
 }

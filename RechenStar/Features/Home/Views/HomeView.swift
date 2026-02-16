@@ -121,7 +121,8 @@ struct HomeView: View {
         }
 
         if let user = appState.currentUser {
-            user.totalExercises += results.count
+            let attemptedResults = results.filter { !$0.wasSkipped }
+            user.totalExercises += attemptedResults.count
             user.totalStars += session.starsEarned
 
             let engagement = EngagementService.processSession(
@@ -212,7 +213,8 @@ struct HomeView: View {
                 exerciseSignature: record.exerciseSignature,
                 firstNumber: record.firstNumber,
                 secondNumber: record.secondNumber,
-                isCorrect: record.isCorrect
+                isCorrect: record.isCorrect,
+                date: record.date
             )
         }
 

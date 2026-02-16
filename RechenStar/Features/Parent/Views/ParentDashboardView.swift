@@ -344,7 +344,8 @@ struct ParentDashboardView: View {
                 exerciseSignature: record.exerciseSignature,
                 firstNumber: record.firstNumber,
                 secondNumber: record.secondNumber,
-                isCorrect: record.isCorrect
+                isCorrect: record.isCorrect,
+                date: record.date
             )
         }
 

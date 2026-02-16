@@ -294,7 +294,8 @@ final class EngagementServiceTests: XCTestCase {
                 exerciseSignature: record.exerciseSignature,
                 firstNumber: record.firstNumber,
                 secondNumber: record.secondNumber,
-                isCorrect: record.isCorrect
+                isCorrect: record.isCorrect,
+                date: record.date
             )
         }
 
@@ -317,6 +318,49 @@ final class EngagementServiceTests: XCTestCase {
         }
         XCTAssertGreaterThan(retryCount, 0,
             "Should have generated at least some isRetry exercises across 20 sessions (got \(retryCount))")
+    }
+
+    @MainActor
+    func testSkippedExercisesDontCountForAchievements() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let user = makeUser(container: container)
+
+        // 1 solved + 9 skipped = 10 results, but only 1 attempted
+        let solved = ExerciseResult(
+            exercise: Exercise(type: .addition, category: .addition_10, firstNumber: 3, secondNumber: 2),
+            userAnswer: 5, isCorrect: true, attempts: 1, timeSpent: 5.0
+        )
+        let skipped = (0..<9).map { i in
+            ExerciseResult(
+                exercise: Exercise(type: .addition, category: .addition_10, firstNumber: 1 + (i % 5), secondNumber: 1),
+                userAnswer: 0, isCorrect: false, attempts: 0, timeSpent: 0,
+                wasSkipped: true
+            )
+        }
+        let results = [solved] + skipped
+        user.totalExercises = 1  // only the non-skipped one
+
+        let session = makeSession(duration: 30) // fast session
+        context.insert(session)
+
+        let unlocked = EngagementService.checkAchievements(
+            user: user, session: session, results: results, context: context
+        )
+        let types = unlocked.compactMap(\.type)
+
+        // exercises10 should NOT unlock (only 1 real exercise)
+        XCTAssertFalse(types.contains(.exercises10),
+            "exercises10 should NOT unlock when only 1 exercise was actually solved (9 skipped)")
+
+        // speedDemon should NOT unlock (only 1 attempted, not 10)
+        XCTAssertFalse(types.contains(.speedDemon),
+            "speedDemon should NOT unlock when 9 exercises were skipped")
+
+        // perfect10 should NOT unlock (only 1 attempted, not 10)
+        let perfect10 = user.achievements.first { $0.type == .perfect10 }
+        XCTAssertFalse(perfect10?.isUnlocked ?? true,
+            "perfect10 should NOT unlock with skipped exercises")
     }
 
     @MainActor
