@@ -39,6 +39,9 @@ struct ContentView: View {
             loadExistingUser()
             ensureUserDataInitialized()
         }
+        .onChange(of: appState.currentUser?.id) {
+            ensureUserDataInitialized()
+        }
         .fullScreenCover(isPresented: $showParentSheet) {
             ParentFlowView(onDismiss: { showParentSheet = false })
         }
@@ -212,6 +215,7 @@ struct UserSelectionView: View {
     @State private var users: [User] = []
     @State private var showNewProfile = false
     @State private var newName = ""
+    @State private var userToDelete: User?
 
     var body: some View {
         VStack(spacing: 30) {
@@ -249,6 +253,13 @@ struct UserSelectionView: View {
                                     .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
                             )
                         }
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                userToDelete = user
+                            } label: {
+                                Label("Profil löschen", systemImage: "trash")
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -280,11 +291,35 @@ struct UserSelectionView: View {
         } message: {
             Text("Wie heisst du?")
         }
+        .alert("Profil löschen?", isPresented: Binding(
+            get: { userToDelete != nil },
+            set: { if !$0 { userToDelete = nil } }
+        )) {
+            Button("Löschen", role: .destructive) {
+                if let user = userToDelete {
+                    deleteUser(user)
+                }
+            }
+            Button("Abbrechen", role: .cancel) {
+                userToDelete = nil
+            }
+        } message: {
+            if let user = userToDelete {
+                Text("Alle Daten von \(user.name) werden unwiderruflich gelöscht.")
+            }
+        }
     }
 
     private func loadUsers() {
         let descriptor = FetchDescriptor<User>(sortBy: [SortDescriptor(\.createdAt)])
         users = (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    private func deleteUser(_ user: User) {
+        modelContext.delete(user)
+        try? modelContext.save()
+        userToDelete = nil
+        loadUsers()
     }
 
     private func createNewUser(name: String) {
