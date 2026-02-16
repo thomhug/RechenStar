@@ -82,12 +82,27 @@ struct ExerciseView: View {
 
     // MARK: - Progress
 
+    private var difficultyLabel: String {
+        let label = viewModel.currentDifficulty.label
+        return viewModel.adaptiveDifficulty ? "Auto: \(label)" : label
+    }
+
     private var progressSection: some View {
         VStack(spacing: 8) {
             HStack {
                 Text(viewModel.progressText)
                     .font(AppFonts.subheadline)
                     .foregroundColor(.appTextSecondary)
+                Spacer()
+                Text(difficultyLabel)
+                    .font(AppFonts.footnote)
+                    .foregroundColor(.appTextSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(Color.appTextSecondary.opacity(0.1))
+                    )
                 Spacer()
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")

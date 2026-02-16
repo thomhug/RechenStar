@@ -35,7 +35,7 @@ final class ExerciseViewModel {
     private var exercises: [Exercise] = []
     private var currentAttempts: Int = 0
     private var exerciseStartTime: Date = Date()
-    private var currentDifficulty: Difficulty
+    private(set) var currentDifficulty: Difficulty
 
     // MARK: - Computed
 
