@@ -12,6 +12,10 @@ struct SessionCompleteView: View {
 
     @State private var starsVisible = 0
 
+    private var attemptedResults: [ExerciseResult] {
+        results.filter { !$0.wasSkipped }
+    }
+
     private var totalStars: Int {
         results.reduce(0) { $0 + $1.stars }
     }
@@ -21,16 +25,16 @@ struct SessionCompleteView: View {
     }
 
     private var correctCount: Int {
-        results.filter(\.isCorrect).count
+        attemptedResults.filter(\.isCorrect).count
     }
 
     private var accuracy: Double {
-        guard !results.isEmpty else { return 0 }
-        return Double(correctCount) / Double(results.count)
+        guard !attemptedResults.isEmpty else { return 0 }
+        return Double(correctCount) / Double(attemptedResults.count)
     }
 
     private var totalTime: TimeInterval {
-        results.reduce(0) { $0 + $1.timeSpent }
+        attemptedResults.reduce(0) { $0 + $1.timeSpent }
     }
 
     private var formattedTime: String {
@@ -57,7 +61,7 @@ struct SessionCompleteView: View {
     }
 
     private var categoryGroups: [(category: ExerciseCategory, correct: Int, total: Int)] {
-        let grouped = Dictionary(grouping: results) { $0.exercise.category }
+        let grouped = Dictionary(grouping: attemptedResults) { $0.exercise.category }
         return grouped.map { (category, catResults) in
             let correct = catResults.filter(\.isCorrect).count
             return (category: category, correct: correct, total: catResults.count)
@@ -117,7 +121,7 @@ struct SessionCompleteView: View {
                                     .font(.system(size: 24))
                                     .foregroundColor(.appSuccess)
                                 Text(skippedCount > 0
-                                    ? "\(correctCount) richtig"
+                                    ? "\(correctCount)/\(attemptedResults.count)"
                                     : "\(correctCount)/\(results.count)")
                                     .font(AppFonts.headline)
                                     .foregroundColor(.appTextPrimary)
