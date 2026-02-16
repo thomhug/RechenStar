@@ -175,6 +175,40 @@ final class ExerciseFlowUITests: XCTestCase {
         }
     }
 
+    func testRevengeOnSecondAttempt() throws {
+        app.buttons["play-button"].tap()
+
+        let exerciseCard = app.descendants(matching: .any)["exercise-card"].firstMatch
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+
+        let label = exerciseCard.label
+        let correctAnswer = parseAnswer(from: label)
+
+        // Submit a wrong answer first
+        let wrongAnswer = correctAnswer == 0 ? 1 : 0
+        typeOnNumberPad(wrongAnswer)
+        app.buttons["submit-button"].tap()
+
+        // Wait for incorrect feedback to clear (1s auto-clear)
+        sleep(2)
+
+        // Now submit the correct answer
+        typeOnNumberPad(correctAnswer)
+        app.buttons["submit-button"].tap()
+
+        // Verify revenge feedback appears
+        let revengeFeedback = app.descendants(matching: .any)["revenge-feedback"].firstMatch
+        XCTAssertTrue(revengeFeedback.waitForExistence(timeout: 3),
+            "Revenge feedback ('Stark! Du hast es geschafft!') should appear on 2nd attempt success")
+
+        // Wait for auto-advance (1.5s for revenge)
+        sleep(2)
+
+        // Verify session continues to next exercise
+        let newLabel = exerciseCard.label
+        XCTAssertNotEqual(label, newLabel, "Should have advanced to next exercise after revenge")
+    }
+
     // MARK: - Helpers
 
     private func ensureUserExists() {

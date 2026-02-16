@@ -117,7 +117,8 @@ struct EngagementService {
                 user: user,
                 session: session,
                 results: results,
-                currentProgress: achievement.progress
+                currentProgress: achievement.progress,
+                context: context
             )
 
             achievement.progress = max(achievement.progress, progress)
@@ -137,7 +138,8 @@ struct EngagementService {
         user: User,
         session: Session,
         results: [ExerciseResult],
-        currentProgress: Int = 0
+        currentProgress: Int = 0,
+        context: ModelContext? = nil
     ) -> (met: Bool, progress: Int) {
         switch type {
         case .exercises10:
@@ -180,10 +182,13 @@ struct EngagementService {
             return (met, met ? 1 : 0)
 
         case .categoryMaster:
-            // 90%+ accuracy in a single category with at least 20 results
-            let grouped = Dictionary(grouping: results) { $0.exercise.category }
-            let met = grouped.contains { (_, catResults) in
-                catResults.count >= 20 && Double(catResults.filter(\.isCorrect).count) / Double(catResults.count) >= 0.9
+            // 90%+ accuracy in a single category with at least 20 results (cumulative)
+            let allRecords = user.progress
+                .flatMap(\.sessions)
+                .flatMap(\.exerciseRecords)
+            let grouped = Dictionary(grouping: allRecords) { $0.category }
+            let met = grouped.contains { (_, catRecords) in
+                catRecords.count >= 20 && Double(catRecords.filter(\.isCorrect).count) / Double(catRecords.count) >= 0.9
             }
             return (met, met ? 1 : 0)
 

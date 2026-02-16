@@ -232,6 +232,7 @@ struct ExerciseView: View {
                         .foregroundColor(.appSunYellow)
                 }
                 .frame(height: 70)
+                .accessibilityIdentifier("revenge-feedback")
                 .transition(.scale.combined(with: .opacity))
                 .onAppear {
                     revengeStarsVisible = min(stars, 3)
