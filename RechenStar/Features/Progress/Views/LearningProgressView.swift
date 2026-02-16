@@ -34,6 +34,8 @@ struct LearningProgressView: View {
     }
 
     private var categoryStatsData: [(category: ExerciseCategory, accuracy: Double)] {
+        guard let user = user else { return [] }
+
         let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         var descriptor = FetchDescriptor<ExerciseRecord>(
             predicate: #Predicate<ExerciseRecord> { $0.date >= cutoff }
@@ -44,7 +46,14 @@ struct LearningProgressView: View {
             return []
         }
 
-        let recordData = records.compactMap { record -> MetricsService.RecordData? in
+        // Filter to current user's sessions only
+        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
+        let userRecords = records.filter { record in
+            guard let session = record.session else { return false }
+            return userSessionIDs.contains(session.id)
+        }
+
+        let recordData = userRecords.compactMap { record -> MetricsService.RecordData? in
             guard let category = ExerciseCategory(rawValue: record.category) else { return nil }
             return MetricsService.RecordData(
                 category: category,
