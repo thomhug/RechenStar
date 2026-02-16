@@ -28,7 +28,8 @@ struct ExerciseGenerator {
                 firstNumber: pair.first,
                 secondNumber: pair.second,
                 difficulty: difficulty,
-                format: format
+                format: format,
+                isRetry: true
             )
             if !signatures.contains(exercise.signature) {
                 return exercise

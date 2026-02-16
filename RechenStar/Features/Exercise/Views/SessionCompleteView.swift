@@ -7,6 +7,7 @@ struct SessionCompleteView: View {
     var unlockedAchievements: [Achievement] = []
     var currentStreak: Int = 0
     var isNewStreak: Bool = false
+    var dailyGoalReached: Bool = false
     let onDismiss: () -> Void
 
     @State private var starsVisible = 0
@@ -74,7 +75,7 @@ struct SessionCompleteView: View {
     }
 
     private var showConfetti: Bool {
-        accuracy >= 0.6 || !unlockedAchievements.isEmpty
+        accuracy >= 0.6 || !unlockedAchievements.isEmpty || dailyGoalReached
     }
 
     var body: some View {
@@ -187,6 +188,31 @@ struct SessionCompleteView: View {
                         }
                     }
                     .padding(.horizontal, 20)
+
+                    // Daily Goal
+                    if dailyGoalReached {
+                        AppCard(backgroundColor: .appSunYellow.opacity(0.12)) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(.appSunYellow)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Tagesziel geschafft!")
+                                        .font(AppFonts.headline)
+                                        .foregroundColor(.appTextPrimary)
+                                    Text("Du hast dein Ziel für heute erreicht.")
+                                        .font(AppFonts.caption)
+                                        .foregroundColor(.appTextSecondary)
+                                }
+                                Spacer()
+                            }
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.appSunYellow.opacity(0.4), lineWidth: 2)
+                        )
+                        .padding(.horizontal, 20)
+                    }
 
                     // Category Breakdown
                     if categoryGroups.count > 1 {

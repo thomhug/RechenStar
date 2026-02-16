@@ -10,6 +10,7 @@ final class ExerciseViewModel {
     enum FeedbackState: Equatable {
         case none
         case correct(stars: Int)
+        case revenge(stars: Int)
         case incorrect
         case showAnswer(Int)
     }
@@ -59,6 +60,7 @@ final class ExerciseViewModel {
 
     var isInputDisabled: Bool {
         if case .showAnswer = feedbackState { return true }
+        if case .revenge = feedbackState { return true }
         return feedbackState != .none && feedbackState != .incorrect
     }
 
@@ -170,7 +172,7 @@ final class ExerciseViewModel {
                 timeSpent: timeSpent
             )
             sessionResults.append(result)
-            feedbackState = .correct(stars: result.stars)
+            feedbackState = exercise.isRetry ? .revenge(stars: result.stars) : .correct(stars: result.stars)
             consecutiveErrors = 0
         } else if currentAttempts >= Self.maxAttempts {
             // Show the correct answer after max attempts

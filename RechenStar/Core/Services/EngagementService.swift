@@ -5,6 +5,7 @@ struct EngagementResult {
     let newlyUnlockedAchievements: [Achievement]
     let currentStreak: Int
     let isNewStreak: Bool
+    let dailyGoalReached: Bool
 }
 
 struct EngagementService {
@@ -17,7 +18,18 @@ struct EngagementService {
         user: User,
         context: ModelContext
     ) -> EngagementResult {
+        // Check daily progress before updating to detect goal crossing
+        let dailyGoal = user.preferences?.dailyGoal ?? 20
+        let calendar = Calendar.current
+        let todayProgress = user.progress.first { calendar.isDateInToday($0.date) }
+        let exercisesBefore = todayProgress?.exercisesCompleted ?? 0
+        let wasAlreadyReached = exercisesBefore >= dailyGoal
+
         updateDailyProgress(session: session, results: results, user: user, context: context)
+
+        let exercisesAfter = exercisesBefore + results.count
+        let goalJustReached = !wasAlreadyReached && exercisesAfter >= dailyGoal
+
         let streakResult = updateStreak(user: user)
         let unlocked = checkAchievements(user: user, session: session, results: results, context: context)
 
@@ -27,7 +39,8 @@ struct EngagementService {
         return EngagementResult(
             newlyUnlockedAchievements: unlocked,
             currentStreak: streakResult.streak,
-            isNewStreak: streakResult.isNew
+            isNewStreak: streakResult.isNew,
+            dailyGoalReached: goalJustReached
         )
     }
 

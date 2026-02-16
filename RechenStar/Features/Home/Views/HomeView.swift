@@ -87,7 +87,8 @@ struct HomeView: View {
                     sessionLength: sessionLength,
                     unlockedAchievements: engagement.newlyUnlockedAchievements,
                     currentStreak: engagement.currentStreak,
-                    isNewStreak: engagement.isNewStreak
+                    isNewStreak: engagement.isNewStreak,
+                    dailyGoalReached: engagement.dailyGoalReached
                 ) {
                     exerciseFlowState = nil
                 }
@@ -135,7 +136,8 @@ struct HomeView: View {
         return EngagementResult(
             newlyUnlockedAchievements: [],
             currentStreak: 0,
-            isNewStreak: false
+            isNewStreak: false,
+            dailyGoalReached: false
         )
     }
 

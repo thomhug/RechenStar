@@ -14,6 +14,7 @@ struct Exercise: Identifiable, Codable, Hashable {
     let secondNumber: Int
     let difficulty: Difficulty
     let format: ExerciseFormat
+    let isRetry: Bool
     let createdAt: Date
 
     var correctAnswer: Int {
@@ -66,7 +67,8 @@ struct Exercise: Identifiable, Codable, Hashable {
         firstNumber: Int,
         secondNumber: Int,
         difficulty: Difficulty = .easy,
-        format: ExerciseFormat = .standard
+        format: ExerciseFormat = .standard,
+        isRetry: Bool = false
     ) {
         self.id = UUID()
         self.type = type
@@ -75,6 +77,7 @@ struct Exercise: Identifiable, Codable, Hashable {
         self.secondNumber = secondNumber
         self.difficulty = difficulty
         self.format = format
+        self.isRetry = isRetry
         self.createdAt = Date()
     }
 }

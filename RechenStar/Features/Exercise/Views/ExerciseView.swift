@@ -9,6 +9,7 @@ struct ExerciseView: View {
     @State private var autoAdvanceTask: DispatchWorkItem?
     @State private var showBreakReminder = false
     @State private var sessionStartTime = Date()
+    @State private var revengeStarsVisible = 0
 
     private let breakCheckTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
@@ -210,6 +211,32 @@ struct ExerciseView: View {
                     .frame(height: 40)
                     .transition(.scale.combined(with: .opacity))
 
+            case .revenge(let stars):
+                VStack(spacing: 6) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<min(stars, 3), id: \.self) { index in
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.appSunYellow)
+                                .scaleEffect(index < revengeStarsVisible ? 1.0 : 0.0)
+                                .rotationEffect(.degrees(index < revengeStarsVisible ? 0 : -30))
+                                .animation(
+                                    .spring(duration: 0.5, bounce: 0.6)
+                                        .delay(Double(index) * 0.2),
+                                    value: revengeStarsVisible
+                                )
+                        }
+                    }
+                    Text("Stark! Du hast es geschafft!")
+                        .font(AppFonts.headline)
+                        .foregroundColor(.appSunYellow)
+                }
+                .frame(height: 70)
+                .transition(.scale.combined(with: .opacity))
+                .onAppear {
+                    revengeStarsVisible = min(stars, 3)
+                }
+
             case .incorrect:
                 Text("Versuch es nochmal!")
                     .font(AppFonts.headline)
@@ -311,7 +338,7 @@ struct ExerciseView: View {
     private var actionButtons: some View {
         Group {
             switch viewModel.feedbackState {
-            case .correct:
+            case .correct, .revenge:
                 Color.clear.frame(height: 60)
             case .none:
                 SkipButton {
@@ -356,6 +383,16 @@ struct ExerciseView: View {
                 SoundService.playCorrect()
             }
             scheduleAutoAdvance(delay: 0.8, action: { viewModel.nextExercise() })
+
+        case .revenge:
+            HapticFeedback.notification(.success)
+            if themeManager.soundEnabled {
+                SoundService.playCorrect()
+            }
+            scheduleAutoAdvance(delay: 1.5, action: {
+                revengeStarsVisible = 0
+                viewModel.nextExercise()
+            })
 
         case .none:
             break
