@@ -94,4 +94,4 @@ Copyright 2026 anbeda AG. Alle Rechte vorbehalten.
 
 ## Kontakt
 
-anbeda AG — info@anbeda.com
+anbeda AG — rechenstar@tom.li
