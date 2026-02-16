@@ -111,7 +111,7 @@ enum Difficulty: Int, Codable, CaseIterable {
         case .veryEasy: 1...3
         case .easy: 1...5
         case .medium: 2...7
-        case .hard: 2...10
+        case .hard: 2...9
         }
     }
 

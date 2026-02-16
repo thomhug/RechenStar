@@ -73,9 +73,9 @@ final class ExerciseGeneratorTests: XCTestCase {
                 category: .multiplication_10
             )
             XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2)
-            XCTAssertLessThanOrEqual(exercise.firstNumber, 10)
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 9)
             XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2)
-            XCTAssertLessThanOrEqual(exercise.secondNumber, 10)
+            XCTAssertLessThanOrEqual(exercise.secondNumber, 9)
             XCTAssertEqual(exercise.type, .multiplication)
         }
     }
@@ -100,7 +100,7 @@ final class ExerciseGeneratorTests: XCTestCase {
             (.veryEasy, 1, 3),
             (.easy, 1, 5),
             (.medium, 2, 7),
-            (.hard, 2, 10),
+            (.hard, 2, 9),
         ]
 
         for (difficulty, lower, upper) in cases {

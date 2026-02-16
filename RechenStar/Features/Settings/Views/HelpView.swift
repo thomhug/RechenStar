@@ -111,7 +111,7 @@ struct HelpView: View {
                     ("Sehr leicht", "Zahlen 1–3"),
                     ("Leicht", "Zahlen 1–5"),
                     ("Mittel", "Zahlen 2–7"),
-                    ("Schwer", "Zahlen 2–10"),
+                    ("Schwer", "Zahlen 2–9"),
                 ]
             )
 
