@@ -58,9 +58,9 @@ struct SettingsView: View {
                                 }
                             )) {
                                 Text("Automatisch").tag(0)
-                                Text("Leicht").tag(1)
-                                Text("Mittel").tag(2)
-                                Text("Schwer").tag(3)
+                                Text("Leicht").tag(2)
+                                Text("Mittel").tag(3)
+                                Text("Schwer").tag(4)
                             }
                             .pickerStyle(.menu)
                         }

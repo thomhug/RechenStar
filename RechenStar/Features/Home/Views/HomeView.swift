@@ -38,6 +38,8 @@ struct HomeView: View {
                         .font(AppFonts.body)
                         .foregroundColor(.appTextSecondary)
                 }
+
+                dailyGoalSection(user: user)
             }
 
             Spacer()
@@ -137,6 +139,32 @@ struct HomeView: View {
         guard let prefs = appState.currentUser?.preferences else { return .easy }
         if prefs.adaptiveDifficulty { return .easy }
         return Difficulty(rawValue: prefs.difficultyLevel) ?? .easy
+    }
+
+    private func dailyGoalSection(user: User) -> some View {
+        let dailyGoal = user.preferences?.dailyGoal ?? 20
+        let calendar = Calendar.current
+        let todayProgress = user.progress.first { calendar.isDateInToday($0.date) }
+        let completed = todayProgress?.exercisesCompleted ?? 0
+        let fraction = min(Double(completed) / Double(dailyGoal), 1.0)
+        let done = completed >= dailyGoal
+
+        return VStack(spacing: 8) {
+            HStack {
+                Image(systemName: done ? "checkmark.circle.fill" : "target")
+                    .foregroundColor(done ? .appGrassGreen : .appSkyBlue)
+                Text("Tagesziel: \(completed)/\(dailyGoal)")
+                    .font(AppFonts.caption)
+                    .foregroundColor(.appTextSecondary)
+            }
+            ProgressBarView(
+                progress: fraction,
+                color: done ? .appGrassGreen : .appSkyBlue,
+                height: 8
+            )
+            .frame(maxWidth: 200)
+        }
+        .padding(.top, 8)
     }
 
     private func categoriesFromPreferences() -> [ExerciseCategory] {
