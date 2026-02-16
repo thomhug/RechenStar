@@ -21,6 +21,7 @@ struct ExerciseView: View {
         categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
         metrics: ExerciseMetrics? = nil,
         adaptiveDifficulty: Bool = true,
+        gapFillEnabled: Bool = true,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
@@ -29,7 +30,8 @@ struct ExerciseView: View {
             difficulty: difficulty,
             categories: categories,
             metrics: metrics,
-            adaptiveDifficulty: adaptiveDifficulty
+            adaptiveDifficulty: adaptiveDifficulty,
+            gapFillEnabled: gapFillEnabled
         ))
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel
@@ -50,6 +52,31 @@ struct ExerciseView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
 
+            if viewModel.showEncouragement {
+                VStack {
+                    Text("Kein Problem! Wir machen mit leichteren Aufgaben weiter.")
+                        .font(AppFonts.headline)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.appSkyBlue)
+                        )
+                        .padding(.horizontal, 30)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    Spacer()
+                }
+                .padding(.top, 80)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        withAnimation {
+                            viewModel.dismissEncouragement()
+                        }
+                    }
+                }
+                .animation(.spring(duration: 0.4), value: viewModel.showEncouragement)
+            }
         }
         .background(Color.appBackgroundGradient.ignoresSafeArea())
         .onAppear {
@@ -135,12 +162,22 @@ struct ExerciseView: View {
     private var exerciseCardSection: some View {
         Group {
             if let exercise = viewModel.currentExercise {
+                let d = exercise.displayNumbers
+                let isShowingAnswer: Bool = {
+                    if case .showAnswer = viewModel.feedbackState { return true }
+                    return false
+                }()
+                let revealedAnswer: Int? = {
+                    if case .showAnswer(let ans) = viewModel.feedbackState { return ans }
+                    return nil
+                }()
                 ExerciseCard(
-                    firstNumber: exercise.firstNumber,
-                    secondNumber: exercise.secondNumber,
+                    leftText: d.left,
+                    rightText: d.right,
+                    resultText: d.result,
                     operation: exercise.type.symbol,
-                    showResult: false,
-                    result: nil
+                    showResult: isShowingAnswer,
+                    revealedAnswer: revealedAnswer
                 )
             }
         }
@@ -179,6 +216,13 @@ struct ExerciseView: View {
                     .foregroundColor(.appCoral)
                     .frame(height: 40)
                     .transition(.scale.combined(with: .opacity))
+
+            case .showAnswer(let answer):
+                Text("Die Antwort ist \(answer)")
+                    .font(AppFonts.headline)
+                    .foregroundColor(.appGrassGreen)
+                    .frame(height: 40)
+                    .transition(.scale.combined(with: .opacity))
             }
         }
         .animation(.spring(duration: 0.3), value: viewModel.feedbackState)
@@ -187,7 +231,7 @@ struct ExerciseView: View {
     // MARK: - Number Pad
 
     private var numberPad: some View {
-        let padEnabled = viewModel.feedbackState == .none
+        let padEnabled = viewModel.feedbackState == .none && !viewModel.isInputDisabled
 
         return VStack(spacing: 12) {
             ForEach(0..<3, id: \.self) { row in
@@ -276,6 +320,8 @@ struct ExerciseView: View {
                 .accessibilityIdentifier("skip-button")
             case .incorrect:
                 Color.clear.frame(height: 60)
+            case .showAnswer:
+                Color.clear.frame(height: 60)
             }
         }
     }
@@ -285,33 +331,44 @@ struct ExerciseView: View {
     private func submitWithFeedback() {
         viewModel.submitAnswer()
 
-        if viewModel.feedbackState == .incorrect {
+        switch viewModel.feedbackState {
+        case .incorrect:
             if !themeManager.reducedMotion { triggerShake() }
             HapticFeedback.notification(.error)
             if themeManager.soundEnabled {
                 SoundService.playIncorrect()
             }
-
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 viewModel.clearIncorrectFeedback()
             }
-        } else {
+
+        case .showAnswer:
+            if !themeManager.reducedMotion { triggerShake() }
+            HapticFeedback.notification(.error)
+            if themeManager.soundEnabled {
+                SoundService.playIncorrect()
+            }
+            scheduleAutoAdvance(delay: 2.5, action: { viewModel.clearShowAnswer() })
+
+        case .correct:
             HapticFeedback.notification(.success)
             if themeManager.soundEnabled {
                 SoundService.playCorrect()
             }
+            scheduleAutoAdvance(delay: 1.5, action: { viewModel.nextExercise() })
 
-            scheduleAutoAdvance()
+        case .none:
+            break
         }
     }
 
-    private func scheduleAutoAdvance() {
+    private func scheduleAutoAdvance(delay: Double = 1.5, action: @escaping () -> Void) {
         cancelAutoAdvance()
         let task = DispatchWorkItem {
-            viewModel.nextExercise()
+            action()
         }
         autoAdvanceTask = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
     }
 
     private func cancelAutoAdvance() {

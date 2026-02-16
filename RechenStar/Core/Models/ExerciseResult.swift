@@ -7,6 +7,26 @@ struct ExerciseResult: Identifiable {
     let isCorrect: Bool
     let attempts: Int
     let timeSpent: TimeInterval
+    let wasRevealed: Bool
+    let wasSkipped: Bool
+
+    init(
+        exercise: Exercise,
+        userAnswer: Int,
+        isCorrect: Bool,
+        attempts: Int,
+        timeSpent: TimeInterval,
+        wasRevealed: Bool = false,
+        wasSkipped: Bool = false
+    ) {
+        self.exercise = exercise
+        self.userAnswer = userAnswer
+        self.isCorrect = isCorrect
+        self.attempts = attempts
+        self.timeSpent = timeSpent
+        self.wasRevealed = wasRevealed
+        self.wasSkipped = wasSkipped
+    }
 
     var stars: Int {
         guard isCorrect else { return 0 }

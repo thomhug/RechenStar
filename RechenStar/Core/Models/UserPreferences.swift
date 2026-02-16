@@ -8,6 +8,7 @@ final class UserPreferences {
     var adaptiveDifficulty: Bool = true
     var sessionLength: Int = 10
     var dailyGoal: Int = 20
+    var gapFillEnabled: Bool = true
 
     // Audio & Haptics
     var soundEnabled: Bool = true

@@ -40,18 +40,17 @@ struct AppCard<Content: View>: View {
 
 // MARK: - Exercise Card
 struct ExerciseCard: View {
-    let firstNumber: Int
-    let secondNumber: Int
+    let leftText: String
+    let rightText: String
+    let resultText: String
     let operation: String
     let showResult: Bool
-    let result: Int?
+    let revealedAnswer: Int?
 
     var body: some View {
         AppCard(padding: 30) {
             HStack(spacing: 12) {
-                Text("\(firstNumber)")
-                    .font(AppFonts.numberHuge)
-                    .foregroundColor(.appTextPrimary)
+                revealableText(leftText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
@@ -60,9 +59,7 @@ struct ExerciseCard: View {
                     .foregroundColor(.appSkyBlue)
                     .fixedSize()
 
-                Text("\(secondNumber)")
-                    .font(AppFonts.numberHuge)
-                    .foregroundColor(.appTextPrimary)
+                revealableText(rightText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
@@ -71,20 +68,9 @@ struct ExerciseCard: View {
                     .foregroundColor(.appTextSecondary)
                     .fixedSize()
 
-                if showResult, let result {
-                    Text("\(result)")
-                        .font(AppFonts.numberHuge)
-                        .foregroundColor(.appSuccess)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .transition(.scale.combined(with: .opacity))
-                } else {
-                    Text("?")
-                        .font(AppFonts.numberHuge)
-                        .foregroundColor(.appTextSecondary)
-                        .opacity(0.5)
-                        .fixedSize()
-                }
+                revealableText(resultText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(accessibilityDescription)
@@ -93,9 +79,25 @@ struct ExerciseCard: View {
         .animation(.spring(duration: 0.4, bounce: 0.3), value: showResult)
     }
 
+    private func revealableText(_ text: String) -> Text {
+        if text == "?" && showResult, let answer = revealedAnswer {
+            return Text("\(answer)")
+                .font(AppFonts.numberHuge)
+                .foregroundColor(.appSuccess)
+        } else if text == "?" {
+            return Text(text)
+                .font(AppFonts.numberHuge)
+                .foregroundColor(.appSkyBlue)
+        } else {
+            return Text(text)
+                .font(AppFonts.numberHuge)
+                .foregroundColor(.appTextPrimary)
+        }
+    }
+
     private var accessibilityDescription: String {
-        let resultText = showResult && result != nil ? "\(result!)" : "unbekannt"
-        return "\(firstNumber) \(operation) \(secondNumber) gleich \(resultText)"
+        let result = showResult && revealedAnswer != nil ? "\(revealedAnswer!)" : "unbekannt"
+        return "\(leftText) \(operation) \(rightText) gleich \(result)"
     }
 }
 
@@ -371,11 +373,12 @@ struct InfoCard: View {
     ScrollView {
         VStack(spacing: 20) {
             ExerciseCard(
-                firstNumber: 3,
-                secondNumber: 4,
+                leftText: "3",
+                rightText: "4",
+                resultText: "?",
                 operation: "+",
                 showResult: false,
-                result: nil
+                revealedAnswer: nil
             )
 
             ProgressCard(

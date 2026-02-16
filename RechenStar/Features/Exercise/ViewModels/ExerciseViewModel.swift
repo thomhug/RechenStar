@@ -5,10 +5,13 @@ final class ExerciseViewModel {
 
     // MARK: - Enums
 
+    static let maxAttempts = 2
+
     enum FeedbackState: Equatable {
         case none
         case correct(stars: Int)
         case incorrect
+        case showAnswer(Int)
     }
 
     enum SessionState {
@@ -31,11 +34,14 @@ final class ExerciseViewModel {
     let categories: [ExerciseCategory]
     let metrics: ExerciseMetrics?
     let adaptiveDifficulty: Bool
+    let gapFillEnabled: Bool
 
     private var exercises: [Exercise] = []
     private var currentAttempts: Int = 0
     private var exerciseStartTime: Date = Date()
     private(set) var currentDifficulty: Difficulty
+    private(set) var consecutiveErrors: Int = 0
+    private(set) var showEncouragement: Bool = false
 
     // MARK: - Computed
 
@@ -49,6 +55,11 @@ final class ExerciseViewModel {
 
     var canSubmit: Bool {
         !userAnswer.isEmpty && feedbackState == .none
+    }
+
+    var isInputDisabled: Bool {
+        if case .showAnswer = feedbackState { return true }
+        return feedbackState != .none && feedbackState != .incorrect
     }
 
     var totalStars: Int {
@@ -84,13 +95,15 @@ final class ExerciseViewModel {
         difficulty: Difficulty = .easy,
         categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
         metrics: ExerciseMetrics? = nil,
-        adaptiveDifficulty: Bool = true
+        adaptiveDifficulty: Bool = true,
+        gapFillEnabled: Bool = true
     ) {
         self.sessionLength = sessionLength
         self.currentDifficulty = difficulty
         self.categories = categories
         self.metrics = metrics
         self.adaptiveDifficulty = adaptiveDifficulty
+        self.gapFillEnabled = gapFillEnabled
     }
 
     // MARK: - Actions
@@ -100,7 +113,8 @@ final class ExerciseViewModel {
             count: sessionLength,
             difficulty: currentDifficulty,
             categories: categories,
-            metrics: metrics
+            metrics: metrics,
+            allowGapFill: gapFillEnabled
         )
         sessionResults = []
         exerciseIndex = 0
@@ -108,6 +122,8 @@ final class ExerciseViewModel {
         isNegative = false
         feedbackState = .none
         currentAttempts = 0
+        consecutiveErrors = 0
+        showEncouragement = false
         sessionState = .inProgress
         currentExercise = exercises.first
         exerciseStartTime = Date()
@@ -130,6 +146,12 @@ final class ExerciseViewModel {
         isNegative.toggle()
     }
 
+    func clearShowAnswer() {
+        guard case .showAnswer = feedbackState else { return }
+        // Move to next exercise after showing the answer
+        nextExercise()
+    }
+
     func submitAnswer() {
         guard let exercise = currentExercise,
               let absAnswer = Int(userAnswer),
@@ -149,6 +171,21 @@ final class ExerciseViewModel {
             )
             sessionResults.append(result)
             feedbackState = .correct(stars: result.stars)
+            consecutiveErrors = 0
+        } else if currentAttempts >= Self.maxAttempts {
+            // Show the correct answer after max attempts
+            let timeSpent = Date().timeIntervalSince(exerciseStartTime)
+            let result = ExerciseResult(
+                exercise: exercise,
+                userAnswer: answer,
+                isCorrect: false,
+                attempts: currentAttempts,
+                timeSpent: timeSpent,
+                wasRevealed: true
+            )
+            sessionResults.append(result)
+            feedbackState = .showAnswer(exercise.correctAnswer)
+            consecutiveErrors += 1
         } else {
             feedbackState = .incorrect
         }
@@ -169,8 +206,18 @@ final class ExerciseViewModel {
             return
         }
 
-        // Adaptive difficulty every 3 exercises (only when enabled)
-        if adaptiveDifficulty && nextIndex % 3 == 0 {
+        // Frustration detection: 3+ consecutive errors → reduce difficulty immediately
+        if adaptiveDifficulty && consecutiveErrors >= 3 {
+            let lowerDifficulty = lowerDifficultyLevel(currentDifficulty)
+            if lowerDifficulty != currentDifficulty {
+                currentDifficulty = lowerDifficulty
+                regenerateRemaining(from: nextIndex)
+                showEncouragement = true
+            }
+            consecutiveErrors = 0
+        }
+        // Normal adaptive difficulty every 3 exercises
+        else if adaptiveDifficulty && nextIndex % 3 == 0 {
             let recentResults = sessionResults.suffix(3)
             let recentAccuracy = Double(recentResults.filter(\.isCorrect).count) / Double(recentResults.count)
             let avgTime = recentResults.map(\.timeSpent).reduce(0, +) / Double(recentResults.count)
@@ -181,21 +228,7 @@ final class ExerciseViewModel {
             )
             if newDifficulty != currentDifficulty {
                 currentDifficulty = newDifficulty
-                // Regenerate remaining exercises at new difficulty
-                let remaining = sessionLength - nextIndex
-                let usedSignatures = Set(exercises.map(\.signature))
-                var newExercises: [Exercise] = []
-                for _ in 0..<remaining {
-                    let category = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: metrics)
-                    let ex = ExerciseGenerator.generate(
-                        difficulty: currentDifficulty,
-                        category: category,
-                        excluding: usedSignatures,
-                        metrics: metrics
-                    )
-                    newExercises.append(ex)
-                }
-                exercises = Array(exercises.prefix(nextIndex)) + newExercises
+                regenerateRemaining(from: nextIndex)
             }
         }
 
@@ -208,6 +241,39 @@ final class ExerciseViewModel {
         exerciseStartTime = Date()
     }
 
+    func dismissEncouragement() {
+        showEncouragement = false
+    }
+
+    // MARK: - Private Helpers
+
+    private func regenerateRemaining(from nextIndex: Int) {
+        let remaining = sessionLength - nextIndex
+        let usedSignatures = Set(exercises.map(\.signature))
+        var newExercises: [Exercise] = []
+        for _ in 0..<remaining {
+            let category = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: metrics)
+            let ex = ExerciseGenerator.generate(
+                difficulty: currentDifficulty,
+                category: category,
+                excluding: usedSignatures,
+                metrics: metrics,
+                allowGapFill: gapFillEnabled
+            )
+            newExercises.append(ex)
+        }
+        exercises = Array(exercises.prefix(nextIndex)) + newExercises
+    }
+
+    private func lowerDifficultyLevel(_ difficulty: Difficulty) -> Difficulty {
+        switch difficulty {
+        case .veryEasy: return .veryEasy
+        case .easy: return .veryEasy
+        case .medium: return .easy
+        case .hard: return .medium
+        }
+    }
+
     func skipExercise() {
         guard let exercise = currentExercise else { return }
 
@@ -217,7 +283,8 @@ final class ExerciseViewModel {
             userAnswer: 0,
             isCorrect: false,
             attempts: currentAttempts,
-            timeSpent: timeSpent
+            timeSpent: timeSpent,
+            wasSkipped: true
         )
         sessionResults.append(result)
         nextExercise()

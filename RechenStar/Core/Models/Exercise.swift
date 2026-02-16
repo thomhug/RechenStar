@@ -1,5 +1,11 @@
 import Foundation
 
+enum ExerciseFormat: String, Codable {
+    case standard    // "3 + 4 = ?"  → Antwort: Ergebnis
+    case firstGap    // "? + 4 = 7"  → Antwort: erster Operand
+    case secondGap   // "3 + ? = 7"  → Antwort: zweiter Operand
+}
+
 struct Exercise: Identifiable, Codable, Hashable {
     let id: UUID
     let type: OperationType
@@ -7,9 +13,26 @@ struct Exercise: Identifiable, Codable, Hashable {
     let firstNumber: Int
     let secondNumber: Int
     let difficulty: Difficulty
+    let format: ExerciseFormat
     let createdAt: Date
 
     var correctAnswer: Int {
+        switch format {
+        case .standard:
+            switch type {
+            case .addition: firstNumber + secondNumber
+            case .subtraction: firstNumber - secondNumber
+            case .multiplication: firstNumber * secondNumber
+            }
+        case .firstGap:
+            firstNumber
+        case .secondGap:
+            secondNumber
+        }
+    }
+
+    /// The full result of the operation (used for display in gap-fill mode)
+    var operationResult: Int {
         switch type {
         case .addition: firstNumber + secondNumber
         case .subtraction: firstNumber - secondNumber
@@ -17,12 +40,24 @@ struct Exercise: Identifiable, Codable, Hashable {
         }
     }
 
+    var displayNumbers: (left: String, right: String, result: String) {
+        switch format {
+        case .standard:
+            ("\(firstNumber)", "\(secondNumber)", "?")
+        case .firstGap:
+            ("?", "\(secondNumber)", "\(operationResult)")
+        case .secondGap:
+            ("\(firstNumber)", "?", "\(operationResult)")
+        }
+    }
+
     var displayText: String {
-        "\(firstNumber) \(type.symbol) \(secondNumber) = ?"
+        let d = displayNumbers
+        return "\(d.left) \(type.symbol) \(d.right) = \(d.result)"
     }
 
     var signature: String {
-        "\(category.rawValue)_\(firstNumber)_\(secondNumber)"
+        "\(category.rawValue)_\(firstNumber)_\(secondNumber)_\(format.rawValue)"
     }
 
     init(
@@ -30,7 +65,8 @@ struct Exercise: Identifiable, Codable, Hashable {
         category: ExerciseCategory,
         firstNumber: Int,
         secondNumber: Int,
-        difficulty: Difficulty = .easy
+        difficulty: Difficulty = .easy,
+        format: ExerciseFormat = .standard
     ) {
         self.id = UUID()
         self.type = type
@@ -38,6 +74,7 @@ struct Exercise: Identifiable, Codable, Hashable {
         self.firstNumber = firstNumber
         self.secondNumber = secondNumber
         self.difficulty = difficulty
+        self.format = format
         self.createdAt = Date()
     }
 }

@@ -45,10 +45,14 @@ struct SessionCompleteView: View {
     private var motivationText: String {
         switch accuracy {
         case 0.9...: return "Fantastisch!"
-        case 0.7..<0.9: return "Super!"
+        case 0.7..<0.9: return "Super gemacht!"
         case 0.5..<0.7: return "Gut gemacht!"
-        default: return "Nicht aufgeben!"
+        default: return "Toll, dass du geübt hast!"
         }
+    }
+
+    private var skippedCount: Int {
+        results.filter(\.wasSkipped).count
     }
 
     private var categoryGroups: [(category: ExerciseCategory, correct: Int, total: Int)] {
@@ -70,7 +74,7 @@ struct SessionCompleteView: View {
     }
 
     private var showConfetti: Bool {
-        accuracy >= 0.8 || !unlockedAchievements.isEmpty
+        accuracy >= 0.6 || !unlockedAchievements.isEmpty
     }
 
     var body: some View {
@@ -111,12 +115,20 @@ struct SessionCompleteView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 24))
                                     .foregroundColor(.appSuccess)
-                                Text("\(correctCount)/\(results.count)")
+                                Text(skippedCount > 0
+                                    ? "\(correctCount) richtig"
+                                    : "\(correctCount)/\(results.count)")
                                     .font(AppFonts.headline)
                                     .foregroundColor(.appTextPrimary)
-                                Text("Richtig")
-                                    .font(AppFonts.caption)
-                                    .foregroundColor(.appTextSecondary)
+                                if skippedCount > 0 {
+                                    Text("\(skippedCount) übersprungen")
+                                        .font(AppFonts.caption)
+                                        .foregroundColor(.appSunYellow)
+                                } else {
+                                    Text("Richtig")
+                                        .font(AppFonts.caption)
+                                        .foregroundColor(.appTextSecondary)
+                                }
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -154,16 +166,25 @@ struct SessionCompleteView: View {
                     .padding(.horizontal, 20)
 
                     // Motivation
-                    AppCard {
-                        HStack(spacing: 12) {
-                            Image(systemName: motivationIcon)
-                                .font(.system(size: 36))
-                                .foregroundColor(.appSunYellow)
-                            Text(motivationText)
-                                .font(AppFonts.title)
-                                .foregroundColor(.appTextPrimary)
+                    VStack(spacing: 8) {
+                        AppCard {
+                            HStack(spacing: 12) {
+                                Image(systemName: motivationIcon)
+                                    .font(.system(size: 36))
+                                    .foregroundColor(.appSunYellow)
+                                Text(motivationText)
+                                    .font(AppFonts.title)
+                                    .foregroundColor(.appTextPrimary)
+                            }
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: .infinity)
+
+                        if accuracy < 0.7 {
+                            Text("Du hast \(correctCount) Aufgaben richtig gelöst — das ist ein guter Anfang!")
+                                .font(AppFonts.caption)
+                                .foregroundColor(.appTextSecondary)
+                                .multilineTextAlignment(.center)
+                        }
                     }
                     .padding(.horizontal, 20)
 
