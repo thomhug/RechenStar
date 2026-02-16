@@ -105,22 +105,35 @@ struct HelpView: View {
             }
 
             difficultyTable(
-                title: "Addition & Subtraktion",
+                title: "Bis 10 (+ − ×)",
+                subtitle: "Addition, Subtraktion & Kleines 1×1",
                 rows: [
-                    ("Sehr leicht", "bis 3", "bis 20"),
-                    ("Leicht", "bis 5", "bis 40"),
-                    ("Mittel", "bis 7", "bis 70"),
-                    ("Schwer", "bis 10", "bis 99"),
+                    ("Sehr leicht", "Zahlen 1–3"),
+                    ("Leicht", "Zahlen 1–5"),
+                    ("Mittel", "Zahlen 1–7"),
+                    ("Schwer", "Zahlen 1–10"),
+                ]
+            )
+
+            difficultyTable(
+                title: "Bis 100 (+ −)",
+                subtitle: "Addition & Subtraktion",
+                rows: [
+                    ("Sehr leicht", "Zahlen 1–20"),
+                    ("Leicht", "Zahlen 1–40"),
+                    ("Mittel", "Zahlen 1–70"),
+                    ("Schwer", "Zahlen 1–99"),
                 ]
             )
 
             difficultyTable(
                 title: "Grosses 1×1",
+                subtitle: "Faktoren 1–20",
                 rows: [
-                    ("Sehr leicht", "bis 50"),
-                    ("Leicht", "bis 100"),
-                    ("Mittel", "bis 200"),
-                    ("Schwer", "bis 400"),
+                    ("Sehr leicht", "Ergebnis bis 50"),
+                    ("Leicht", "Ergebnis bis 100"),
+                    ("Mittel", "Ergebnis bis 200"),
+                    ("Schwer", "Ergebnis bis 400"),
                 ]
             )
         }
@@ -133,12 +146,15 @@ struct HelpView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func difficultyTable(title: String, rows: [(String, String, String)]) -> some View {
+    private func difficultyTable(title: String, subtitle: String, rows: [(String, String)]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(AppFonts.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(.appTextPrimary)
+            Text(subtitle)
+                .font(AppFonts.footnote)
+                .foregroundColor(.appTextSecondary)
 
             ForEach(rows, id: \.0) { row in
                 HStack {
@@ -146,38 +162,7 @@ struct HelpView: View {
                         .font(AppFonts.caption)
                         .foregroundColor(.appTextSecondary)
                         .frame(width: 80, alignment: .leading)
-                    Text("bis 10: \(row.1)")
-                        .font(AppFonts.caption)
-                        .foregroundColor(.appTextSecondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("bis 100: \(row.2)")
-                        .font(AppFonts.caption)
-                        .foregroundColor(.appTextSecondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.appSunYellow.opacity(0.06))
-        )
-    }
-
-    private func difficultyTable(title: String, rows: [(String, String)]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(AppFonts.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.appTextPrimary)
-
-            ForEach(rows, id: \.0) { row in
-                HStack {
-                    Text(row.0)
-                        .font(AppFonts.caption)
-                        .foregroundColor(.appTextSecondary)
-                        .frame(width: 80, alignment: .leading)
-                    Text("Ergebnis \(row.1)")
+                    Text(row.1)
                         .font(AppFonts.caption)
                         .foregroundColor(.appTextSecondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
