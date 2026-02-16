@@ -26,10 +26,27 @@ final class NavigationUITests: XCTestCase {
     // MARK: - Helpers
 
     private func ensureUserExists() {
-        let losGehts = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Los'")).firstMatch
-        if losGehts.waitForExistence(timeout: 3) {
-            losGehts.tap()
+        if app.buttons["play-button"].waitForExistence(timeout: 3) {
+            return
         }
+
+        let existingUser = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Avatar'")).firstMatch
+        if existingUser.waitForExistence(timeout: 2) {
+            existingUser.tap()
+            _ = app.buttons["play-button"].waitForExistence(timeout: 5)
+            return
+        }
+
+        let newProfile = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Neues Profil'")).firstMatch
+        if newProfile.waitForExistence(timeout: 2) {
+            newProfile.tap()
+            let textField = app.alerts.textFields.firstMatch
+            if textField.waitForExistence(timeout: 3) {
+                textField.typeText("Noah")
+                app.alerts.buttons["Erstellen"].tap()
+            }
+        }
+
         _ = app.buttons["play-button"].waitForExistence(timeout: 5)
     }
 }

@@ -73,14 +73,86 @@ final class ExerciseFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["play-button"].waitForExistence(timeout: 3))
     }
 
+    func testDifficultySettingAffectsExercises() throws {
+        // Navigate to Settings
+        app.buttons["tab-Einstellungen"].firstMatch.tap()
+
+        // Tap the difficulty picker (has accessibilityIdentifier)
+        let difficultyPicker = app.buttons["difficulty-picker"].firstMatch
+        XCTAssertTrue(difficultyPicker.waitForExistence(timeout: 5), "Difficulty picker should exist")
+        difficultyPicker.tap()
+
+        // Select "Schwer" from the popup menu
+        let schwerOption = app.buttons["Schwer"].firstMatch
+        XCTAssertTrue(schwerOption.waitForExistence(timeout: 3), "Schwer option should appear")
+        schwerOption.tap()
+
+        // Small delay to let the picker menu dismiss
+        sleep(1)
+
+        // Navigate back to Home
+        app.buttons["tab-Spielen"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["play-button"].waitForExistence(timeout: 5))
+
+        // Start session
+        app.buttons["play-button"].tap()
+
+        // Check exercises: with hard difficulty (range 1...10), we should
+        // see at least one number > 5 across 10 exercises
+        var sawLargeNumber = false
+
+        for _ in 0..<10 {
+            let exerciseCard = app.descendants(matching: .any)["exercise-card"].firstMatch
+            guard exerciseCard.waitForExistence(timeout: 5) else {
+                XCTFail("Exercise card not found")
+                return
+            }
+
+            let label = exerciseCard.label
+            let parts = label.components(separatedBy: " ")
+            if let first = Int(parts[0]), first > 5 { sawLargeNumber = true }
+            if parts.count >= 3, let second = Int(parts[2]), second > 5 { sawLargeNumber = true }
+
+            solveCurrentExercise()
+        }
+
+        XCTAssertTrue(sawLargeNumber,
+            "With hard difficulty, at least one number should be > 5 (range 1...10)")
+
+        // Dismiss session complete
+        let sessionComplete = app.descendants(matching: .any)["session-complete"].firstMatch
+        if sessionComplete.waitForExistence(timeout: 5) {
+            app.buttons["done-button"].tap()
+        }
+    }
+
     // MARK: - Helpers
 
     private func ensureUserExists() {
-        let losGehts = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Los'")).firstMatch
-        if losGehts.waitForExistence(timeout: 3) {
-            losGehts.tap()
+        // If play button already visible, we're on home screen
+        if app.buttons["play-button"].waitForExistence(timeout: 3) {
+            return
         }
-        // Wait for home screen
+
+        // Check if there's an existing user profile to tap
+        let existingUser = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Avatar'")).firstMatch
+        if existingUser.waitForExistence(timeout: 2) {
+            existingUser.tap()
+            _ = app.buttons["play-button"].waitForExistence(timeout: 5)
+            return
+        }
+
+        // No user exists - create one
+        let newProfile = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Neues Profil'")).firstMatch
+        if newProfile.waitForExistence(timeout: 2) {
+            newProfile.tap()
+            let textField = app.alerts.textFields.firstMatch
+            if textField.waitForExistence(timeout: 3) {
+                textField.typeText("Noah")
+                app.alerts.buttons["Erstellen"].tap()
+            }
+        }
+
         _ = app.buttons["play-button"].waitForExistence(timeout: 5)
     }
 
@@ -115,12 +187,17 @@ final class ExerciseFlowUITests: XCTestCase {
         switch op {
         case "+": return first + second
         case "-": return first - second
+        case "×": return first * second
         default: return 0
         }
     }
 
     private func typeOnNumberPad(_ number: Int) {
-        let digits = String(number)
+        if number < 0 {
+            let negButton = app.buttons["negative-button"]
+            if negButton.exists { negButton.tap() }
+        }
+        let digits = String(abs(number))
         for char in digits {
             let digit = String(char)
             app.buttons["number-pad-\(digit)"].tap()

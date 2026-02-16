@@ -63,6 +63,7 @@ struct SettingsView: View {
                                 Text("Schwer").tag(4)
                             }
                             .pickerStyle(.menu)
+                            .accessibilityIdentifier("difficulty-picker")
                         }
 
                         HStack {
