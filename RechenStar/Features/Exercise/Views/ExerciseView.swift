@@ -38,11 +38,24 @@ struct ExerciseView: View {
         self.onCancel = onCancel
     }
 
+    /// Whether the screen is compact (iPhone SE etc.)
+    private var isCompact: Bool {
+        UIScreen.main.bounds.height < 700
+    }
+
+    private var padButtonSize: CGFloat {
+        isCompact ? 60 : 80
+    }
+
+    private var padSpacing: CGFloat {
+        isCompact ? 8 : 12
+    }
+
     var body: some View {
         ZStack {
-            VStack(spacing: 12) {
+            VStack(spacing: isCompact ? 6 : 12) {
                 progressSection
-                    .padding(.top, 10)
+                    .padding(.top, isCompact ? 4 : 10)
                 exerciseCardSection
                 answerDisplay
                 feedbackSection
@@ -188,9 +201,9 @@ struct ExerciseView: View {
 
     private var answerDisplay: some View {
         Text(viewModel.displayAnswer)
-            .font(AppFonts.numberHuge)
+            .font(isCompact ? AppFonts.numberLarge : AppFonts.numberHuge)
             .foregroundColor(viewModel.userAnswer.isEmpty ? .appTextSecondary.opacity(0.4) : .appSkyBlue)
-            .frame(height: 80)
+            .frame(height: isCompact ? 56 : 80)
             .offset(x: shakeOffset)
             .accessibilityIdentifier("answer-display")
             .accessibilityLabel(viewModel.userAnswer.isEmpty ? "Noch keine Antwort" : "Antwort: \(viewModel.displayAnswer)")
@@ -202,21 +215,21 @@ struct ExerciseView: View {
         Group {
             switch viewModel.feedbackState {
             case .none:
-                Color.clear.frame(height: 40)
+                Color.clear.frame(height: isCompact ? 30 : 40)
 
             case .correct:
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 28))
+                    .font(.system(size: isCompact ? 24 : 28))
                     .foregroundColor(.appSuccess)
-                    .frame(height: 40)
+                    .frame(height: isCompact ? 30 : 40)
                     .transition(.scale.combined(with: .opacity))
 
             case .revenge(let stars):
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     HStack(spacing: 8) {
                         ForEach(0..<min(stars, 3), id: \.self) { index in
                             Image(systemName: "star.fill")
-                                .font(.system(size: 28))
+                                .font(.system(size: isCompact ? 22 : 28))
                                 .foregroundColor(.appSunYellow)
                                 .scaleEffect(index < revengeStarsVisible ? 1.0 : 0.0)
                                 .rotationEffect(.degrees(index < revengeStarsVisible ? 0 : -30))
@@ -228,10 +241,10 @@ struct ExerciseView: View {
                         }
                     }
                     Text("Stark! Du hast es geschafft!")
-                        .font(AppFonts.headline)
+                        .font(isCompact ? AppFonts.subheadline : AppFonts.headline)
                         .foregroundColor(.appSunYellow)
                 }
-                .frame(height: 70)
+                .frame(height: isCompact ? 54 : 70)
                 .accessibilityIdentifier("revenge-feedback")
                 .transition(.scale.combined(with: .opacity))
                 .onAppear {
@@ -240,16 +253,16 @@ struct ExerciseView: View {
 
             case .incorrect:
                 Text("Versuch es nochmal!")
-                    .font(AppFonts.headline)
+                    .font(isCompact ? AppFonts.subheadline : AppFonts.headline)
                     .foregroundColor(.appCoral)
-                    .frame(height: 40)
+                    .frame(height: isCompact ? 30 : 40)
                     .transition(.scale.combined(with: .opacity))
 
             case .showAnswer(let answer):
                 Text("Die Antwort ist \(answer)")
-                    .font(AppFonts.headline)
+                    .font(isCompact ? AppFonts.subheadline : AppFonts.headline)
                     .foregroundColor(.appGrassGreen)
-                    .frame(height: 40)
+                    .frame(height: isCompact ? 30 : 40)
                     .transition(.scale.combined(with: .opacity))
             }
         }
@@ -260,28 +273,30 @@ struct ExerciseView: View {
 
     private var numberPad: some View {
         let padEnabled = viewModel.feedbackState == .none && !viewModel.isInputDisabled
+        let btnSize = padButtonSize
+        let iconSize = isCompact ? 20.0 : 24.0
 
-        return VStack(spacing: 12) {
+        return VStack(spacing: padSpacing) {
             ForEach(0..<3, id: \.self) { row in
-                HStack(spacing: 16) {
+                HStack(spacing: padSpacing + 4) {
                     ForEach(1...3, id: \.self) { col in
                         let digit = row * 3 + col
-                        NumberPadButton(number: digit) { d in
+                        NumberPadButton(number: digit, size: btnSize) { d in
                             viewModel.appendDigit(d)
                         }
                         .disabled(!padEnabled)
                     }
                 }
             }
-            HStack(spacing: 16) {
+            HStack(spacing: padSpacing + 4) {
                 if viewModel.showNegativeToggle {
                     Button {
                         viewModel.toggleNegative()
                     } label: {
                         Text("±")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.system(size: btnSize * 0.35, weight: .bold))
                             .foregroundColor(viewModel.isNegative ? .white : .appSkyBlue)
-                            .frame(width: 80, height: 80)
+                            .frame(width: btnSize, height: btnSize)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
                                     .fill(viewModel.isNegative ? Color.appSkyBlue : Color.appCardBackground)
@@ -290,31 +305,31 @@ struct ExerciseView: View {
                     .disabled(!padEnabled)
                     .accessibilityIdentifier("negative-button")
                 } else {
-                    IconButton(icon: "delete.left", size: 24, color: .appCoral) {
+                    IconButton(icon: "delete.left", size: iconSize, color: .appCoral) {
                         viewModel.deleteLastDigit()
                     }
-                    .frame(width: 80, height: 80)
+                    .frame(width: btnSize, height: btnSize)
                     .disabled(!padEnabled)
                     .accessibilityIdentifier("delete-button")
                 }
 
-                NumberPadButton(number: 0) { d in
+                NumberPadButton(number: 0, size: btnSize) { d in
                     viewModel.appendDigit(d)
                 }
                 .disabled(!padEnabled)
 
                 if viewModel.showNegativeToggle {
-                    IconButton(icon: "delete.left", size: 24, color: .appCoral) {
+                    IconButton(icon: "delete.left", size: iconSize, color: .appCoral) {
                         viewModel.deleteLastDigit()
                     }
-                    .frame(width: 80, height: 80)
+                    .frame(width: btnSize, height: btnSize)
                     .disabled(!padEnabled)
                     .accessibilityIdentifier("delete-button")
                 } else {
-                    IconButton(icon: "checkmark.circle.fill", size: 24, color: .appGrassGreen) {
+                    IconButton(icon: "checkmark.circle.fill", size: iconSize, color: .appGrassGreen) {
                         submitWithFeedback()
                     }
-                    .frame(width: 80, height: 80)
+                    .frame(width: btnSize, height: btnSize)
                     .disabled(!viewModel.canSubmit)
                     .accessibilityIdentifier("submit-button")
                 }
@@ -323,10 +338,10 @@ struct ExerciseView: View {
             if viewModel.showNegativeToggle {
                 HStack {
                     Spacer()
-                    IconButton(icon: "checkmark.circle.fill", size: 24, color: .appGrassGreen) {
+                    IconButton(icon: "checkmark.circle.fill", size: iconSize, color: .appGrassGreen) {
                         submitWithFeedback()
                     }
-                    .frame(width: 80, height: 80)
+                    .frame(width: btnSize, height: btnSize)
                     .disabled(!viewModel.canSubmit)
                     .accessibilityIdentifier("submit-button")
                 }
@@ -337,19 +352,20 @@ struct ExerciseView: View {
     // MARK: - Action Buttons
 
     private var actionButtons: some View {
-        Group {
+        let btnHeight: CGFloat = isCompact ? 44 : 60
+        return Group {
             switch viewModel.feedbackState {
             case .correct, .revenge:
-                Color.clear.frame(height: 60)
+                Color.clear.frame(height: btnHeight)
             case .none:
                 SkipButton {
                     viewModel.skipExercise()
                 }
                 .accessibilityIdentifier("skip-button")
             case .incorrect:
-                Color.clear.frame(height: 60)
+                Color.clear.frame(height: btnHeight)
             case .showAnswer:
-                Color.clear.frame(height: 60)
+                Color.clear.frame(height: btnHeight)
             }
         }
     }

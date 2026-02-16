@@ -207,6 +207,13 @@ struct EngagementService {
             let sessionAccuracy = attempted.isEmpty ? 0.0 : Double(attempted.filter(\.isCorrect).count) / Double(attempted.count)
             let newProgress = sessionAccuracy >= 0.8 ? currentProgress + 1 : 0
             return (newProgress >= 3, newProgress)
+
+        case .dailyChampion:
+            let calendar = Calendar.current
+            let todayExercises = user.progress
+                .first { calendar.isDateInToday($0.date) }?
+                .exercisesCompleted ?? 0
+            return (todayExercises >= 100, min(todayExercises, 100))
         }
     }
 

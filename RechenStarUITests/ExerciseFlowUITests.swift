@@ -209,6 +209,99 @@ final class ExerciseFlowUITests: XCTestCase {
         XCTAssertNotEqual(label, newLabel, "Should have advanced to next exercise after revenge")
     }
 
+    func testRevengeVsNormalFeedbackInSession() throws {
+        // Tests multiple exercises in ONE session:
+        // - First-attempt correct → normal checkmark (no revenge)
+        // - Wrong then correct → revenge stars
+        // - Another first-attempt correct → normal checkmark again
+        app.buttons["play-button"].tap()
+
+        let exerciseCard = app.descendants(matching: .any)["exercise-card"].firstMatch
+        let revengeFeedback = app.descendants(matching: .any)["revenge-feedback"].firstMatch
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+
+        // --- Exercise 1: Solve correctly on first attempt → NO revenge ---
+        let label1 = exerciseCard.label
+        let answer1 = parseAnswer(from: label1)
+        typeOnNumberPad(answer1)
+        app.buttons["submit-button"].tap()
+
+        // Revenge should NOT appear for first-attempt correct
+        XCTAssertFalse(revengeFeedback.waitForExistence(timeout: 1),
+            "Exercise 1: First-attempt correct should NOT show revenge stars (\(label1), answered \(answer1))")
+        sleep(2) // wait for auto-advance
+
+        // --- Exercise 2: Wrong first, correct second → REVENGE ---
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+        let label2 = exerciseCard.label
+        let answer2 = parseAnswer(from: label2)
+
+        // Pick a definitely wrong answer
+        let wrong2 = (answer2 + 1) % 100
+        typeOnNumberPad(wrong2)
+        app.buttons["submit-button"].tap()
+        sleep(2) // wait for incorrect feedback to clear
+
+        typeOnNumberPad(answer2)
+        app.buttons["submit-button"].tap()
+
+        XCTAssertTrue(revengeFeedback.waitForExistence(timeout: 3),
+            "Exercise 2: Second-attempt correct should show revenge stars (\(label2), wrong=\(wrong2), correct=\(answer2))")
+        sleep(3) // wait for revenge auto-advance (1.5s)
+
+        // --- Exercise 3: Solve correctly on first attempt again → NO revenge ---
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+        let label3 = exerciseCard.label
+        let answer3 = parseAnswer(from: label3)
+        typeOnNumberPad(answer3)
+        app.buttons["submit-button"].tap()
+
+        XCTAssertFalse(revengeFeedback.waitForExistence(timeout: 1),
+            "Exercise 3: First-attempt correct should NOT show revenge stars (\(label3), answered \(answer3))")
+    }
+
+    func testRevengeWorksAcrossMultipleSessions() throws {
+        // Session 1: Wrong then correct → revenge
+        app.buttons["play-button"].tap()
+
+        let exerciseCard = app.descendants(matching: .any)["exercise-card"].firstMatch
+        let revengeFeedback = app.descendants(matching: .any)["revenge-feedback"].firstMatch
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+
+        let label1 = exerciseCard.label
+        let answer1 = parseAnswer(from: label1)
+        let wrong1 = (answer1 + 1) % 100
+        typeOnNumberPad(wrong1)
+        app.buttons["submit-button"].tap()
+        sleep(2)
+        typeOnNumberPad(answer1)
+        app.buttons["submit-button"].tap()
+
+        XCTAssertTrue(revengeFeedback.waitForExistence(timeout: 3),
+            "Session 1: Revenge should appear on 2nd attempt (\(label1))")
+        sleep(3)
+
+        // Cancel session 1
+        app.buttons["cancel-button"].tap()
+        XCTAssertTrue(app.buttons["play-button"].waitForExistence(timeout: 5))
+
+        // Session 2: Wrong then correct → revenge should still work
+        app.buttons["play-button"].tap()
+        XCTAssertTrue(exerciseCard.waitForExistence(timeout: 5))
+
+        let label2 = exerciseCard.label
+        let answer2 = parseAnswer(from: label2)
+        let wrong2 = (answer2 + 1) % 100
+        typeOnNumberPad(wrong2)
+        app.buttons["submit-button"].tap()
+        sleep(2)
+        typeOnNumberPad(answer2)
+        app.buttons["submit-button"].tap()
+
+        XCTAssertTrue(revengeFeedback.waitForExistence(timeout: 3),
+            "Session 2: Revenge should still appear on 2nd attempt in a new session (\(label2))")
+    }
+
     // MARK: - Helpers
 
     private func ensureUserExists() {
@@ -258,21 +351,55 @@ final class ExerciseFlowUITests: XCTestCase {
     }
 
     private func parseAnswer(from label: String) -> Int {
-        // Label format: "3 + 4 gleich unbekannt" or "3 - 2 gleich unbekannt"
+        // Label formats:
+        // Standard:   "3 + 4 gleich unbekannt"  → answer = 3+4 = 7
+        // FirstGap:   "? + 4 gleich 7"          → answer = 7-4 = 3
+        // SecondGap:  "3 + ? gleich 7"          → answer = 7-3 = 4
         let parts = label.components(separatedBy: " ")
-        guard parts.count >= 3,
-              let first = Int(parts[0]),
-              let second = Int(parts[2]) else {
-            return 0
+        guard parts.count >= 5 else { return 0 }
+
+        let leftStr = parts[0]
+        let op = parts[1]
+        let rightStr = parts[2]
+        // parts[3] == "gleich"
+        let resultStr = parts[4]
+
+        let left = Int(leftStr)
+        let right = Int(rightStr)
+        let result = Int(resultStr)
+
+        // Standard format: left and right are numbers, result is "unbekannt"
+        if let l = left, let r = right {
+            switch op {
+            case "+": return l + r
+            case "-": return l - r
+            case "×": return l * r
+            default: return 0
+            }
         }
 
-        let op = parts[1]
-        switch op {
-        case "+": return first + second
-        case "-": return first - second
-        case "×": return first * second
-        default: return 0
+        // Gap-fill: one side is "?", result is a number
+        if let r = right, let res = result, leftStr == "?" {
+            // FirstGap: ? op right = result → answer is the missing left
+            switch op {
+            case "+": return res - r
+            case "-": return res + r
+            case "×": return r == 0 ? 0 : res / r
+            default: return 0
+            }
         }
+
+        if let l = left, let res = result, rightStr == "?" {
+            // SecondGap: left op ? = result → answer is the missing right
+            switch op {
+            case "+": return res - l
+            case "-": return l - res
+            case "×": return l == 0 ? 0 : res / l
+            default: return 0
+            }
+        }
+
+        return 0
     }
 
     private func typeOnNumberPad(_ number: Int) {

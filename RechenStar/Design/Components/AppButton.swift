@@ -128,12 +128,14 @@ struct AppButton: View {
 // MARK: - Number Pad Button
 struct NumberPadButton: View {
     let number: Int
+    let size: CGFloat
     let action: (Int) -> Void
 
     @Environment(\.isEnabled) private var isEnabled
 
-    init(number: Int, action: @escaping (Int) -> Void) {
+    init(number: Int, size: CGFloat = 80, action: @escaping (Int) -> Void) {
         self.number = number
+        self.size = size
         self.action = action
     }
 
@@ -143,9 +145,9 @@ struct NumberPadButton: View {
             action(number)
         } label: {
             Text("\(number)")
-                .font(AppFonts.numberMedium)
+                .font(.system(size: size * 0.45, weight: .bold, design: .rounded))
                 .foregroundColor(isEnabled ? .appTextPrimary : .gray)
-                .frame(width: 80, height: 80)
+                .frame(width: size, height: size)
                 .background(
                     Circle()
                         .fill(isEnabled ? Color.appCardBackground : Color.gray.opacity(0.1))

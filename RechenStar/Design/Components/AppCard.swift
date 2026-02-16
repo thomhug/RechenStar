@@ -47,15 +47,27 @@ struct ExerciseCard: View {
     let showResult: Bool
     let revealedAnswer: Int?
 
+    private var isCompact: Bool {
+        UIScreen.main.bounds.height < 700
+    }
+
+    private var numberFont: Font {
+        isCompact ? AppFonts.numberLarge : AppFonts.numberHuge
+    }
+
+    private var operatorFont: Font {
+        isCompact ? AppFonts.numberMedium : AppFonts.numberLarge
+    }
+
     var body: some View {
-        AppCard(padding: 30) {
+        AppCard(padding: isCompact ? 18 : 30) {
             HStack(spacing: 12) {
                 revealableText(leftText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
                 Text(operation)
-                    .font(AppFonts.numberLarge)
+                    .font(operatorFont)
                     .foregroundColor(.appSkyBlue)
                     .fixedSize()
 
@@ -64,7 +76,7 @@ struct ExerciseCard: View {
                     .minimumScaleFactor(0.5)
 
                 Text("=")
-                    .font(AppFonts.numberLarge)
+                    .font(operatorFont)
                     .foregroundColor(.appTextSecondary)
                     .fixedSize()
 
@@ -82,15 +94,15 @@ struct ExerciseCard: View {
     private func revealableText(_ text: String) -> Text {
         if text == "?" && showResult, let answer = revealedAnswer {
             return Text("\(answer)")
-                .font(AppFonts.numberHuge)
+                .font(numberFont)
                 .foregroundColor(.appSuccess)
         } else if text == "?" {
             return Text(text)
-                .font(AppFonts.numberHuge)
+                .font(numberFont)
                 .foregroundColor(.appSkyBlue)
         } else {
             return Text(text)
-                .font(AppFonts.numberHuge)
+                .font(numberFont)
                 .foregroundColor(.appTextPrimary)
         }
     }

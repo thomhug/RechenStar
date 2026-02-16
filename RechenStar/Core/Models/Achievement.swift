@@ -50,6 +50,7 @@ enum AchievementType: String, Codable, CaseIterable {
     case categoryMaster = "category_master"
     case variety = "variety"
     case accuracyStreak = "accuracy_streak"
+    case dailyChampion = "daily_champion"
 
     var title: String {
         switch self {
@@ -68,6 +69,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .categoryMaster: "Kategorie-Profi"
         case .variety: "Vielseitig"
         case .accuracyStreak: "Treffsicher"
+        case .dailyChampion: "Tages-Champion"
         }
     }
 
@@ -88,6 +90,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .categoryMaster: "90%+ in einer Kategorie (min 20 Aufgaben)"
         case .variety: "4+ Kategorien in einer Runde"
         case .accuracyStreak: "3 Runden mit 80%+ Genauigkeit"
+        case .dailyChampion: "Löse 100 Aufgaben an einem Tag"
         }
     }
 
@@ -108,6 +111,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .categoryMaster: "rosette"
         case .variety: "square.grid.2x2.fill"
         case .accuracyStreak: "target"
+        case .dailyChampion: "crown.fill"
         }
     }
 
@@ -128,6 +132,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .categoryMaster: 1
         case .variety: 1
         case .accuracyStreak: 3
+        case .dailyChampion: 100
         }
     }
 }
