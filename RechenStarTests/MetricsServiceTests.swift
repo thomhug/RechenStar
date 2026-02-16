@@ -44,8 +44,8 @@ final class MetricsServiceTests: XCTestCase {
         XCTAssertEqual(weak.first?.second, 7)
     }
 
-    func testExercisesWithLessThan2AttemptsNotInWeakExercises() {
-        // Only 1 attempt, even if wrong -> NOT weak
+    func testSingleWrongAttemptIsWeak() {
+        // 1 attempt, wrong -> weak (so revenge triggers next time)
         let records: [MetricsService.RecordData] = [
             .init(category: .subtraction_10, exerciseSignature: "subtraction_10_8_5", firstNumber: 8, secondNumber: 5, isCorrect: false),
         ]
@@ -54,7 +54,9 @@ final class MetricsServiceTests: XCTestCase {
         XCTAssertNotNil(metrics)
 
         let weak = metrics!.weakExercises[.subtraction_10] ?? []
-        XCTAssertTrue(weak.isEmpty)
+        XCTAssertEqual(weak.count, 1)
+        XCTAssertEqual(weak.first?.first, 8)
+        XCTAssertEqual(weak.first?.second, 5)
     }
 
     func testStrongExercisesNotInWeakExercises() {

@@ -39,7 +39,6 @@ struct MetricsService {
 
         var weakExercises: [ExerciseCategory: [(first: Int, second: Int)]] = [:]
         for (_, group) in signatureGroups {
-            guard group.total >= 2 else { continue }
             let accuracy = Double(group.correct) / Double(group.total)
             if accuracy < 0.6 {
                 weakExercises[group.category, default: []].append((first: group.first, second: group.second))

@@ -29,6 +29,15 @@ enum SoundService {
         ])
     }
 
+    // Triumphaler 3-Ton bei Revenge (Schwäche-Aufgabe gemeistert)
+    static func playRevenge() {
+        playMelody(notes: [
+            (frequency: 659.25, duration: 0.12),  // E5
+            (frequency: 783.99, duration: 0.12),  // G5
+            (frequency: 1046.50, duration: 0.30), // C6
+        ])
+    }
+
     // Aufsteigender Chime bei neuem Achievement
     static func playAchievement() {
         playMelody(notes: [

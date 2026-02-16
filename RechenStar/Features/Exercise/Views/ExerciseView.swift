@@ -387,7 +387,7 @@ struct ExerciseView: View {
         case .revenge:
             HapticFeedback.notification(.success)
             if themeManager.soundEnabled {
-                SoundService.playCorrect()
+                SoundService.playRevenge()
             }
             scheduleAutoAdvance(delay: 1.5, action: {
                 revengeStarsVisible = 0
