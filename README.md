@@ -10,17 +10,22 @@ RechenStar macht Mathematik-Lernen zum Spass! Die App hilft Kindern, Addition, S
 
 ### Für Kinder:
 - **6 Aufgabentypen**: Addition und Subtraktion (bis 10 und bis 100), kleines und grosses Einmaleins
-- **Positive Verstärkung**: Sterne, Erfolge und Konfetti-Animationen
-- **Kindgerechtes Design**: Grosse Buttons, klare Farben
-- **Adaptive Schwierigkeit**: Passt sich dem Lerntempo an
+- **3 Aufgabenformate**: Standard (3 + 4 = ?), Lückenaufgaben (? + 4 = 7, 3 + ? = 7)
+- **Positive Verstärkung**: Sterne, 16 Erfolge und Konfetti-Animationen
+- **Kindgerechtes Design**: Grosse Buttons, klare Farben, kompaktes Layout für kleine Geräte
+- **Adaptive Schwierigkeit**: Passt sich dem Lerntempo an (4 Stufen)
 - **Intelligente Aufgabenauswahl**: Schwache Kategorien und Aufgaben werden gezielt wiederholt
-- **Keine Frustration**: Immer ermutigendes Feedback
+- **Revenge-System**: Falsch gelöste Aufgaben kommen wieder — bei Erfolg gibt es Bonus-Sterne
+- **+/- Verwechslungs-Erkennung**: Hinweis wenn Plus statt Minus gerechnet wird (oder umgekehrt)
+- **Keine Frustration**: Immer ermutigendes Feedback, Lösung wird nach 2 Fehlversuchen gezeigt
 
 ### Für Eltern:
 - **Fortschrittsverfolgung**: Detaillierte Statistiken pro Aufgabentyp
-- **Stärken & Schwächen**: Genauigkeit pro Kategorie auf einen Blick, fliessen in Aufgabenauswahl ein
+- **Stärken & Schwächen**: Genauigkeit pro Kategorie auf einen Blick, fliesst in Aufgabenauswahl ein
 - **Aufgaben-Details**: Einzelne Aufgaben mit Zeiten und Erfolgsquote
+- **Fokus-Aufgaben**: Automatisch erkannte Schwachstellen
 - **Zeitkontrolle**: Einstellbare Session-Längen und Pausen-Erinnerung
+- **Einstellungen**: Kategorien, Schwierigkeit, Lückenaufgaben, Skip-Button, Auto-Lösung-Timer
 - **100% Sicher**: Keine Werbung, keine In-App-Käufe
 - **Datenschutz**: DSGVO-konform, lokale Datenspeicherung
 
@@ -51,18 +56,19 @@ RechenStar/
 ├── RechenStar/
 │   ├── App/           # App Entry Point, ContentView
 │   ├── Core/
-│   │   ├── Models/    # Exercise, ExerciseCategory, User, Session
-│   │   └── Services/  # ExerciseGenerator, EngagementService
+│   │   ├── Models/    # Exercise, ExerciseCategory, User, Session, ExerciseRecord
+│   │   └── Services/  # ExerciseGenerator, MetricsService, EngagementService
 │   ├── Features/
 │   │   ├── Home/      # Startbildschirm
 │   │   ├── Exercise/  # Aufgaben-View und ViewModel
-│   │   ├── Settings/  # Einstellungen und Hilfe
-│   │   ├── Parent/    # Eltern-Dashboard
+│   │   ├── Session/   # Session-Abschluss
 │   │   ├── Progress/  # Fortschritt und Erfolge
-│   │   └── Session/   # Session-Abschluss
-│   ├── Design/        # Theme, Fonts, Components
+│   │   ├── Settings/  # Einstellungen und Hilfe
+│   │   └── Parent/    # Eltern-Dashboard
+│   ├── Design/        # Theme, Fonts, Components, Animations
 │   └── Resources/     # Assets & Sounds
-├── RechenStarTests/    # Unit Tests
+├── RechenStarTests/    # 80 Unit Tests
+├── RechenStarUITests/  # UI Tests
 └── scripts/            # Build & Deploy
 ```
 
@@ -88,6 +94,7 @@ RechenStar ist für ALLE Kinder:
 - Dynamic Type / einstellbare Schriftgrösse
 - Erscheinungsbild (Hell/Dunkel/System)
 - Reduzierte Bewegung (weniger Animationen)
+- Farbenblind-Modi (Protanopie, Deuteranopie, Tritanopie)
 
 ## Lizenz
 

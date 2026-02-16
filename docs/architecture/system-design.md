@@ -2,7 +2,7 @@
 
 ## Überblick
 
-RechenStar ist eine native iOS-Applikation, entwickelt mit Swift und SwiftUI, die eine moderne MVVM-Architektur implementiert.
+RechenStar ist eine native iOS-Applikation, entwickelt mit Swift und SwiftUI, die eine MVVM-Architektur mit @Observable implementiert.
 
 ## Architektur-Diagramm
 
@@ -11,14 +11,17 @@ RechenStar ist eine native iOS-Applikation, entwickelt mit Swift und SwiftUI, di
 │                     Presentation Layer                  │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │                SwiftUI Views                     │   │
-│  │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐          │   │
-│  │  │ Home │ │Exercise│ │Progress│ │Parent│         │   │
-│  │  └──────┘ └──────┘ └──────┘ └──────┘          │   │
+│  │  ┌──────┐ ┌────────┐ ┌────────┐ ┌──────┐      │   │
+│  │  │ Home │ │Exercise │ │Progress│ │Parent│      │   │
+│  │  └──────┘ └────────┘ └────────┘ └──────┘      │   │
+│  │  ┌────────┐ ┌──────────┐ ┌────────┐           │   │
+│  │  │Settings│ │SessionEnd│ │Achievem│           │   │
+│  │  └────────┘ └──────────┘ └────────┘           │   │
 │  └─────────────────────────────────────────────────┘   │
 │  ┌─────────────────────────────────────────────────┐   │
-│  │              View Models (MVVM)                  │   │
+│  │            View Models (@Observable)             │   │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐       │   │
-│  │  │ExerciseVM│ │ProgressVM│ │ ParentVM │       │   │
+│  │  │ExerciseVM│ │ AppState │ │ThemeMgr  │       │   │
 │  │  └──────────┘ └──────────┘ └──────────┘       │   │
 │  └─────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
@@ -28,15 +31,22 @@ RechenStar ist eine native iOS-Applikation, entwickelt mit Swift und SwiftUI, di
 │  ┌─────────────────────────────────────────────────┐   │
 │  │                   Services                       │   │
 │  │  ┌───────────┐ ┌───────────┐ ┌───────────┐    │   │
-│  │  │ Exercise  │ │ Progress  │ │Achievement│    │   │
-│  │  │ Service   │ │ Tracker   │ │ Manager   │    │   │
+│  │  │ Exercise  │ │Engagement │ │  Metrics  │    │   │
+│  │  │ Generator │ │ Service   │ │  Service  │    │   │
 │  │  └───────────┘ └───────────┘ └───────────┘    │   │
+│  │  ┌───────────┐                                 │   │
+│  │  │  Sound    │                                 │   │
+│  │  │  Service  │                                 │   │
+│  │  └───────────┘                                 │   │
 │  └─────────────────────────────────────────────────┘   │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │                Domain Models                     │   │
 │  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐  │   │
-│  │  │Exercise│ │Progress│ │ User   │ │Achievement│ │   │
+│  │  │Exercise│ │  User  │ │Session │ │ Record │  │   │
 │  │  └────────┘ └────────┘ └────────┘ └────────┘  │   │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐             │   │
+│  │  │Achievem│ │Progress│ │  Prefs │             │   │
+│  │  └────────┘ └────────┘ └────────┘             │   │
 │  └─────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
 
@@ -44,75 +54,76 @@ RechenStar ist eine native iOS-Applikation, entwickelt mit Swift und SwiftUI, di
 │                      Data Layer                         │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │              SwiftData Persistence               │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐       │   │
-│  │  │Model     │ │UserDefaults│ │Keychain │       │   │
-│  │  │Container │ │(Settings)  │ │(Secure)  │       │   │
-│  │  └──────────┘ └──────────┘ └──────────┘       │   │
+│  │  ┌──────────┐ ┌──────────┐                      │   │
+│  │  │Model     │ │UserDefaults│                     │   │
+│  │  │Container │ │(Theme)     │                     │   │
+│  │  └──────────┘ └──────────┘                      │   │
 │  └─────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
 │                    Infrastructure                       │
 │  ┌───────────┐ ┌───────────┐ ┌───────────┐           │
-│  │  Audio    │ │  Haptic   │ │ Analytics │           │
-│  │  Manager  │ │  Engine   │ │ (Privacy) │           │
+│  │  Audio    │ │  Haptic   │ │Animations │           │
+│  │  (System) │ │  Feedback │ │(Confetti) │           │
 │  └───────────┘ └───────────┘ └───────────┘           │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ## Architektur-Prinzipien
 
-### 1. MVVM (Model-View-ViewModel)
+### 1. MVVM mit @Observable (iOS 17+)
 
-**Vorteile für RechenStar:**
-- Klare Trennung von UI und Business Logic
-- Testbarkeit der ViewModels
-- SwiftUI-Integration optimal
-- Reactive Programming mit Combine
-
-**Implementierung:**
 ```swift
 // View
 struct ExerciseView: View {
-    @StateObject private var viewModel = ExerciseViewModel()
+    @State private var viewModel: ExerciseViewModel
 }
 
 // ViewModel
+@Observable
 @MainActor
-class ExerciseViewModel: ObservableObject {
-    @Published var exercise: Exercise?
-    private let exerciseService: ExerciseService
+class ExerciseViewModel {
+    var exercise: Exercise?
+    var feedbackState: FeedbackState = .none
 }
 
 // Model
-struct Exercise: Identifiable {
-    let id: UUID
-    // ...
+struct Exercise: Identifiable, Codable, Hashable { ... }
+```
+
+### 2. Environment-based State
+
+```swift
+// App-weiter State via @Observable + @Environment
+@Observable class AppState {
+    var currentUser: User?
+    var selectedTab: ContentTab = .home
+}
+
+@Observable class ThemeManager {
+    var soundEnabled: Bool  // stored property mit didSet
+    var reducedMotion: Bool
 }
 ```
 
-### 2. Dependency Injection
+**Wichtig:** `@Observable` computed properties mit UserDefaults loesen kein SwiftUI Re-Rendering aus. Immer stored properties mit `didSet` verwenden.
 
-**Container-based DI:**
-```swift
-class DIContainer {
-    static let shared = DIContainer()
-
-    lazy var exerciseService = ExerciseService()
-    lazy var progressTracker = ProgressTracker()
-    lazy var audioManager = AudioManager()
-}
-```
-
-### 3. Protocol-Oriented Programming
+### 3. Static Services (kein DI)
 
 ```swift
-protocol ExerciseProviding {
-    func generateExercise() -> Exercise
+// Services sind structs mit static Methoden
+struct ExerciseGenerator {
+    static func generate(category:difficulty:metrics:) -> Exercise
+    static func generateSession(length:categories:difficulty:metrics:) -> [Exercise]
 }
 
-protocol ProgressTracking {
-    func recordResult(_ result: ExerciseResult)
+struct EngagementService {
+    static func processSession(results:session:user:context:) -> EngagementResult
+}
+
+struct MetricsService {
+    static func computeMetrics(from records: [RecordData]) -> ExerciseMetrics?
 }
 ```
 
@@ -121,200 +132,116 @@ protocol ProgressTracking {
 ### Presentation Layer
 
 #### Views (SwiftUI)
-- **Atomic Design**: Kleine, wiederverwendbare Komponenten
-- **Composition**: Views aus kleineren Views aufbauen
-- **State Management**: @State, @StateObject, @EnvironmentObject
+- **ExerciseView**: Aufgaben-Anzeige mit NumberPad, Feedback-Animationen, Auto-Advance, Revenge-Sterne, Skip mit Loesungsanzeige, Auto-Reveal Timer
+- **HomeView**: Startbildschirm mit Tagesziel, berechnet Metriken ueber Relationship-Chain
+- **SessionCompleteView**: Ergebnis-Anzeige mit Konfetti, Achievements, Streak, Tagesziel
+- **LearningProgressView**: Level/Skill-Badges (antippbar mit Detail-Sheets), Tages-Stats
+- **AchievementsView**: 16 Achievements mit Fortschrittsbalken
+- **ParentDashboardView**: Charts, Staerken/Schwaechen, Aufgaben-Details mit Pagination, Fokus-Aufgaben
+- **SettingsView**: Gameplay, Kategorien, Accessibility, Eltern-Kontrolle
 
 #### ViewModels
-- **ObservableObject**: Für SwiftUI-Binding
-- **@Published**: Für reactive Updates
-- **@MainActor**: UI-Thread-Safety
+- **ExerciseViewModel**: Session-State, Antwort-Pruefung, adaptive Schwierigkeit, Revenge-Erkennung, +/- Verwechslungs-Erkennung, timeSpent-Cap (10s), autoRevealAnswer
 
 ### Business Layer
 
-#### Services
-```swift
-// ExerciseService.swift
-class ExerciseService {
-    private let difficultyAdapter = DifficultyAdapter()
+#### ExerciseGenerator
+- Adaptive Schwierigkeit (4 Stufen), Anpassung alle 3 Aufgaben
+- 6 Kategorien: Addition/Subtraktion (bis 10, bis 100), Multiplikation (klein, gross)
+- 3 Formate: Standard, firstGap, secondGap
+- Gewichtete Kategorie-Auswahl (schwache Kategorien bevorzugt)
+- 30% Chance schwache Aufgaben einzustreuen (isRetry)
+- Duplikat-Vermeidung innerhalb einer Session
 
-    func generateExercise(
-        for level: Difficulty
-    ) -> Exercise {
-        // Adaptive Algorithmus
-    }
+#### EngagementService
+- Verarbeitet Session-Ergebnisse: DailyProgress, Streaks, 16 Achievements
+- Erkennt Tagesziel-Erreichung (dailyGoalReached)
+- Inkrementelle Achievement-Pruefung (perfect10, accuracyStreak zaehlen ueber Sessions)
 
-    func validateAnswer(
-        _ answer: Int,
-        for exercise: Exercise
-    ) -> ExerciseResult {
-        // Validation Logic
-    }
-}
-```
-
-#### Domain Models
-- **Value Types**: Structs für Immutability
-- **Codable**: Für Serialization
-- **Identifiable**: Für SwiftUI Lists
+#### MetricsService
+- Berechnet ExerciseMetrics aus letzten 30 Tagen
+- **Format-agnostische Gruppierung**: Standard und Gap-Fill zaehlen zusammen
+- Schwache Aufgaben: Genauigkeit < 60% UND letzter Versuch falsch
+- Nach erfolgreicher Revenge faellt Aufgabe aus der Weak-Liste
 
 ### Data Layer
 
 #### SwiftData (iOS 17+)
-```swift
-@Model
-class ProgressData {
-    var date: Date
-    var exercisesCompleted: Int
-    var correctAnswers: Int
-    var achievements: [Achievement]
-}
-```
+- 6 @Model Klassen: User, DailyProgress, Session, ExerciseRecord, Achievement, UserPreferences
+- Cascade-Delete fuer alle User-Beziehungen
+- **Wichtig**: Daten immer ueber Relationship-Chain traversieren (SwiftData UUID-Bug)
 
 #### UserDefaults
-- App-Einstellungen
-- User-Präferenzen
-- Nicht-sensitive Daten
-
-#### Keychain
-- Eltern-PIN
-- Sensitive Settings
-- Token (falls benötigt)
+- ThemeManager-Einstellungen (soundEnabled, reducedMotion, etc.)
+- Stored properties mit `didSet` fuer SwiftUI-Kompatibilitaet
 
 ## Datenfluss
 
 ```
-User Input → View → ViewModel → Service → Model → Persistence
+User Input → View → ViewModel → Service → Model → SwiftData
                 ↑                                      ↓
-                └──────── State Update ←──────────────┘
+                └──────── @Observable Update ←─────────┘
 ```
 
-## Threading-Strategie
-
-```swift
-// Main Thread: UI Updates
-@MainActor
-class SomeViewModel: ObservableObject {
-    // UI-related code
-}
-
-// Background: Heavy Operations
-Task {
-    await processData()
-    await MainActor.run {
-        updateUI()
-    }
-}
+### Revenge-Flow (Cross-Session):
+```
+Session 1: Fehler → ExerciseRecord gespeichert
+                         ↓
+Session 2 Start: computeMetrics() → MetricsService → weakExercises
+                         ↓
+ExerciseGenerator: 30% Chance weak exercise als isRetry einzustreuen
+                         ↓
+Korrekt geloest: .revenge Feedback + Bonus-Sterne
+                         ↓
+MetricsService: lastCorrect=true → faellt aus Weak-Liste
 ```
 
-## Error Handling
+## Feedback-States
 
 ```swift
-enum AppError: LocalizedError {
-    case networkError
-    case dataCorruption
-    case unknownError
-
-    var errorDescription: String? {
-        switch self {
-        case .networkError:
-            return "Netzwerkfehler"
-        // ...
-        }
-    }
+enum FeedbackState {
+    case none                                    // Warten auf Eingabe
+    case correct(stars: Int)                     // Richtig (1-3 Sterne)
+    case revenge(stars: Int)                     // Revenge-Erfolg + Bonus
+    case incorrect                               // Falsch (nochmal versuchen)
+    case wrongOperation(correct: String, wrong: String)  // +/- Verwechslung
+    case showAnswer(Int)                         // Loesung anzeigen (nach 2 Fehlern/Skip/Auto-Reveal)
 }
 ```
 
 ## Performance-Optimierungen
 
-### Memory Management
-- Weak References für Delegate-Pattern
-- Lazy Loading für große Datensets
-- Image Caching mit NSCache
-
-### UI Performance
-- List mit LazyVStack
-- Drawing Group für komplexe Animationen
-- Async Image Loading
-
-## Security & Privacy
-
-### Daten-Sicherheit
-- Lokale Speicherung only
-- Keine Cloud-Sync
-- Verschlüsselte Sensitive Daten
-
-### Privacy by Design
-- Keine Tracking-Libraries
-- Minimale Datensammlung
-- Transparente Datenschutzerklärung
+- Lazy relationship traversal (nur bei Bedarf)
+- ExerciseRecord statt volles ExerciseResult persistieren
+- Metriken nur bei Session-Start berechnen (nicht bei jedem Aufgabenwechsel)
+- Pagination in Aufgaben-Details (20 pro Seite)
 
 ## Testing-Strategie
 
-### Unit Tests
-```swift
-class ExerciseServiceTests: XCTestCase {
-    func testExerciseGeneration() {
-        // Test implementation
-    }
-}
-```
+### Unit Tests (80 Tests)
+- `ExerciseGeneratorTests` (33) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben
+- `ExerciseViewModelTests` (22) — Session-Flow, Revenge, Cross-Session Integration
+- `EngagementServiceTests` (12) — Achievements, Streaks, CategoryMaster
+- `MetricsServiceTests` (8) — Genauigkeit, Weak Exercises, Format-agnostisch
+- `ExerciseResultTests` (5) — Sterne-Berechnung
 
 ### UI Tests
-```swift
-class ExerciseFlowUITests: XCTestCase {
-    func testCompleteExerciseSession() {
-        // UI test flow
-    }
-}
-```
-
-### Integration Tests
-- Service-Integration
-- Data Persistence
-- State Management
+- `ExerciseFlowUITests` — Kompletter Session-Flow, Cross-Session Revenge
 
 ## Build & Deployment
 
-### Environments
-```swift
-enum Environment {
-    case development
-    case staging
-    case production
-
-    var baseURL: String {
-        // Return appropriate URL
-    }
-}
+### Workflow
+```bash
+# Build-Nummer aktualisieren, bauen, auf alle Geraete deployen
+./scripts/build-and-deploy.sh
 ```
 
-### CI/CD Pipeline
-1. Code Commit → GitHub
-2. GitHub Actions → Build & Test
-3. TestFlight → Beta Testing
-4. App Store → Production
+### Deploy-Targets
+- iPad von Fritz: `00008020-001079801440402E`
+- iPhone von Tom: `00008130-0004446200698D3A`
+- iPhone von Anina: `00008110-001858980229401E`
 
-## Monitoring & Analytics
-
-### Privacy-First Analytics
-- Nur aggregierte Daten
-- Keine User-Identifikation
-- Opt-in only
-
-### Crash Reporting
-- Symbolicated Crash Logs
-- Automatic Bug Tracking
-- Performance Monitoring
-
-## Skalierbarkeit
-
-### Horizontal
-- Feature Modules
-- Lazy Loading
-- Code Splitting
-
-### Vertical
-- Service Layer Abstraction
-- Database Migration Support
-- API Versioning (future)
+### Xcode-Projekt
+- Xcode 15.4 (Build 15F31d)
+- objectVersion 56 (nicht 77)
+- `xcodebuild build` + `xcrun devicectl device install app`

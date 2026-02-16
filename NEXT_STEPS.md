@@ -13,6 +13,23 @@
 - [x] Phase 5: Stern-Animation + UI Tests (StarAnimationView, 5 UI Tests)
 - [x] Phase 6: AchievementsView + Parent Dashboard (Fortschritts-Labels, Charts, Staerken/Schwaechen)
 - [x] Phase 6.5: Intelligente Aufgabenauswahl (gewichtete Kategorien, schwache Aufgaben wiederholen, ExerciseMetrics)
+- [x] Phase 6.6: Revenge-System (Cross-Session Revenge, format-agnostische Erkennung, Revenge-Feedback mit Sterne-Animation)
+- [x] Phase 6.7: UX-Verbesserungen
+  - timeSpent auf max 10s gekappt
+  - Skip zeigt Loesung 2.5s
+  - Einstellung: Ueberspringen ausblenden
+  - Einstellung: Auto-Loesung nach X Sekunden
+  - Level/Skill-Badges antippbar mit Uebersicht-Sheets
+  - +/- Verwechslungs-Erkennung mit speziellem Feedback
+  - Kompaktes Layout fuer iPhone SE
+  - Tagesziel auf HomeView und SessionCompleteView
+  - dailyChampion Achievement (100 Aufgaben/Tag)
+- [x] Phase 6.8: Bug-Fixes
+  - SwiftData UUID-Bug: Relationship-Chain statt Session.id Matching
+  - Format-agnostische MetricsService-Gruppierung (Gap-Fill + Standard zaehlen zusammen)
+  - Nur korrekte Aufgaben zaehlen fuer totalExercises/Achievements
+  - Deterministische Pagination in Aufgaben-Details
+  - Uebersprungene Aufgaben aus Metriken und Statistiken ausgeschlossen
 
 ---
 

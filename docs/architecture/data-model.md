@@ -11,59 +11,53 @@ Das Datenmodell von RechenStar ist optimiert für lokale Speicherung mit SwiftDa
 ```swift
 struct Exercise: Identifiable, Codable, Hashable {
     let id: UUID = UUID()
-    let type: OperationType
+    let type: OperationType      // .addition, .subtraction, .multiplication
+    let category: ExerciseCategory
     let firstNumber: Int
     let secondNumber: Int
     let difficulty: Difficulty
-    let visualHint: VisualHintType?
+    let format: ExerciseFormat   // .standard, .firstGap, .secondGap
+    let isRetry: Bool            // Markiert als Revenge-Aufgabe
     let createdAt: Date = Date()
 
-    // Computed Properties
-    var correctAnswer: Int {
-        switch type {
-        case .addition:
-            return firstNumber + secondNumber
-        case .subtraction:
-            return firstNumber - secondNumber
-        }
-    }
-
-    var displayText: String {
-        switch type {
-        case .addition:
-            return "\(firstNumber) + \(secondNumber) = ?"
-        case .subtraction:
-            return "\(firstNumber) - \(secondNumber) = ?"
-        }
-    }
+    var correctAnswer: Int { ... }
+    var displayText: String { ... }
+    var displayNumbers: (left: String, right: String, result: String) { ... }
+    var signature: String { ... }  // z.B. "addition_10_3_4_standard"
 }
 
 enum OperationType: String, Codable, CaseIterable {
-    case addition = "plus"
-    case subtraction = "minus"
+    case addition, subtraction, multiplication
+    var symbol: String { ... }  // "+", "-", "x"
+}
 
-    var symbol: String {
-        switch self {
-        case .addition: return "+"
-        case .subtraction: return "-"
-        }
-    }
+enum ExerciseFormat: String, Codable {
+    case standard    // 3 + 4 = ?
+    case firstGap    // ? + 4 = 7
+    case secondGap   // 3 + ? = 7
+}
+
+enum ExerciseCategory: String, Codable, CaseIterable {
+    case addition_10        // "Addition bis 10"
+    case addition_100       // "Addition bis 100"
+    case subtraction_10     // "Subtraktion bis 10"
+    case subtraction_100    // "Subtraktion bis 100"
+    case multiplication_10  // "Kleines 1x1"
+    case multiplication_100 // "Grosses 1x1"
+
+    var type: OperationType { ... }
+    var label: String { ... }
+    var icon: String { ... }
 }
 
 enum Difficulty: Int, Codable, CaseIterable {
-    case veryEasy = 1  // 1-3
-    case easy = 2      // 1-5
-    case medium = 3    // 1-7
-    case hard = 4      // 1-10
+    case veryEasy = 0
+    case easy = 1
+    case medium = 2
+    case hard = 3
 
-    var range: ClosedRange<Int> {
-        switch self {
-        case .veryEasy: return 1...3
-        case .easy: return 1...5
-        case .medium: return 1...7
-        case .hard: return 1...10
-        }
-    }
+    var label: String { ... }       // "Sehr leicht" bis "Schwer"
+    var skillTitle: String { ... }  // "Anfänger" bis "Experte"
 }
 ```
 
@@ -72,28 +66,21 @@ enum Difficulty: Int, Codable, CaseIterable {
 ```swift
 struct ExerciseResult: Identifiable, Codable {
     let id: UUID = UUID()
-    let exerciseId: UUID
     let exercise: Exercise
     let userAnswer: Int
     let isCorrect: Bool
     let attempts: Int
-    let timeSpent: TimeInterval
-    let hintsUsed: [HintType]
+    let timeSpent: TimeInterval  // Gekappt auf max 10s
+    let wasSkipped: Bool
+    let wasRevealed: Bool        // Auto-Reveal nach Timer
     let timestamp: Date = Date()
 
     var stars: Int {
         if !isCorrect { return 0 }
-        if attempts == 1 && hintsUsed.isEmpty { return 3 }
-        if attempts <= 2 { return 2 }
+        if attempts == 1 { return 3 }
+        if attempts == 2 { return 2 }
         return 1
     }
-}
-
-enum HintType: String, Codable {
-    case visual = "visual"        // Zeige Objekte
-    case audio = "audio"          // Vorlesen
-    case fingerCount = "finger"   // Finger-Darstellung
-    case numberLine = "line"      // Zahlenstrahl
 }
 ```
 
@@ -104,7 +91,7 @@ enum HintType: String, Codable {
 class User {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String
-    var avatar: Avatar
+    var avatarName: String
     var createdAt: Date = Date()
     var lastActiveAt: Date = Date()
 
@@ -119,22 +106,8 @@ class User {
 
     var currentStreak: Int = 0
     var longestStreak: Int = 0
-    var totalExercises: Int = 0
+    var totalExercises: Int = 0   // Nur korrekt gelöste Aufgaben
     var totalStars: Int = 0
-}
-
-struct Avatar: Codable {
-    let character: CharacterType
-    let color: AvatarColor
-    let accessories: [Accessory]
-}
-
-enum CharacterType: String, Codable, CaseIterable {
-    case star = "star"
-    case rocket = "rocket"
-    case unicorn = "unicorn"
-    case robot = "robot"
-    case dinosaur = "dinosaur"
 }
 ```
 
@@ -144,22 +117,20 @@ enum CharacterType: String, Codable, CaseIterable {
 @Model
 class DailyProgress {
     var date: Date
-    var exercisesCompleted: Int = 0
+    var exercisesCompleted: Int = 0  // Alle versuchten (nicht übersprungene)
     var correctAnswers: Int = 0
     var totalTime: TimeInterval = 0
     var sessionsCount: Int = 0
 
-    @Relationship
+    @Relationship(inverse: \User.progress)
+    var user: User?
+
+    @Relationship(deleteRule: .cascade)
     var sessions: [Session] = []
 
     var accuracy: Double {
         guard exercisesCompleted > 0 else { return 0 }
         return Double(correctAnswers) / Double(exercisesCompleted)
-    }
-
-    var averageTimePerExercise: TimeInterval {
-        guard exercisesCompleted > 0 else { return 0 }
-        return totalTime / Double(exercisesCompleted)
     }
 }
 ```
@@ -172,24 +143,49 @@ class Session {
     var id: UUID = UUID()
     var startTime: Date = Date()
     var endTime: Date?
-    var exercises: [ExerciseResult] = []
     var isCompleted: Bool = false
     var sessionGoal: Int = 10
+    var correctCount: Int = 0
+    var totalCount: Int = 0
+    var starsEarned: Int = 0
 
-    var duration: TimeInterval? {
-        guard let endTime else { return nil }
-        return endTime.timeIntervalSince(startTime)
-    }
+    // Pro Rechenart
+    var additionTotal: Int = 0
+    var additionCorrect: Int = 0
+    var subtractionTotal: Int = 0
+    var subtractionCorrect: Int = 0
 
-    var starsEarned: Int {
-        exercises.reduce(0) { $0 + $1.stars }
-    }
+    @Relationship(inverse: \DailyProgress.sessions)
+    var dailyProgress: DailyProgress?
 
-    var accuracy: Double {
-        let correct = exercises.filter { $0.isCorrect }.count
-        guard !exercises.isEmpty else { return 0 }
-        return Double(correct) / Double(exercises.count)
-    }
+    @Relationship(deleteRule: .cascade)
+    var exerciseRecords: [ExerciseRecord] = []
+
+    var duration: TimeInterval? { ... }
+    var accuracy: Double { ... }
+}
+```
+
+### ExerciseRecord (Aufgaben-Protokoll)
+
+Persistierte Version eines ExerciseResult fuer Langzeit-Analyse.
+
+```swift
+@Model
+class ExerciseRecord {
+    var date: Date
+    var category: String           // ExerciseCategory.rawValue
+    var exerciseSignature: String   // z.B. "addition_10_3_4_standard"
+    var firstNumber: Int
+    var secondNumber: Int
+    var isCorrect: Bool
+    var timeSpent: Double
+    var attempts: Int
+    var wasSkipped: Bool
+    var displayText: String
+
+    @Relationship(inverse: \Session.exerciseRecords)
+    var session: Session?
 }
 ```
 
@@ -199,53 +195,40 @@ class Session {
 @Model
 class Achievement {
     var id: UUID = UUID()
-    var type: AchievementType
+    var typeRawValue: String
     var unlockedAt: Date?
     var progress: Int = 0
     var target: Int
 
-    var isUnlocked: Bool {
-        unlockedAt != nil
-    }
-
-    var progressPercentage: Double {
-        min(Double(progress) / Double(target), 1.0)
-    }
+    var type: AchievementType? { ... }
+    var isUnlocked: Bool { unlockedAt != nil }
+    var progressPercentage: Double { ... }
 }
 
 enum AchievementType: String, Codable, CaseIterable {
     // Anzahl-basiert
-    case exercises10 = "first_10"
-    case exercises50 = "half_century"
-    case exercises100 = "century"
-    case exercises500 = "master_500"
+    case exercises10        // "Erste Schritte" — 10 Aufgaben
+    case exercises50        // "Halbes Hundert" — 50 Aufgaben
+    case exercises100       // "Hunderter-Held" — 100 Aufgaben
+    case exercises500       // "Mathe-Meister" — 500 Aufgaben
 
     // Streak-basiert
-    case streak3 = "streak_3"
-    case streak7 = "week_warrior"
-    case streak30 = "month_master"
+    case streak3            // "3 Tage am Stück"
+    case streak7            // "Wochen-Krieger"
+    case streak30           // "Monats-Meister"
 
     // Perfektions-basiert
-    case perfect10 = "perfect_10"
-    case allStars = "star_collector"
+    case perfect10          // "Perfekte 10" — 10 perfekte Runden (inkrementell)
+    case allStars           // "Sterne-Sammler" — 100 Sterne
+    case accuracyStreak     // "Treffsicher" — 3 Runden mit 80%+ hintereinander
 
     // Spezial
-    case speedDemon = "speed_demon"      // 10 in 2 Min
-    case earlyBird = "early_bird"        // Vor 8 Uhr
-    case nightOwl = "night_owl"          // Nach 20 Uhr
-    case dailyChampion = "daily_champion" // Tagesziel 3x erreicht
-
-    var title: String {
-        // Lokalisierte Titel
-    }
-
-    var description: String {
-        // Lokalisierte Beschreibungen
-    }
-
-    var icon: String {
-        // SF Symbol Namen
-    }
+    case speedDemon         // "Blitzrechner" — 10 Aufgaben in 2 Min
+    case earlyBird          // "Frühaufsteher" — Vor 8 Uhr
+    case nightOwl           // "Nachteule" — Nach 20 Uhr
+    case categoryMaster     // "Kategorie-Profi" — 90%+ in Kategorie (min 20, kumulativ)
+    case variety            // "Vielseitig" — 4+ Kategorien in einer Runde
+    case dailyChampion      // "Tages-Champion" — 100 Aufgaben an einem Tag
 }
 ```
 
@@ -255,78 +238,37 @@ enum AchievementType: String, Codable, CaseIterable {
 @Model
 class UserPreferences {
     // Gameplay
-    var difficulty: Difficulty = .easy
+    var difficultyLevel: Int = 2          // Difficulty.rawValue
     var adaptiveDifficulty: Bool = true
-    var sessionLength: Int = 10
-    var dailyGoal: Int = 20
-    var hideSkipButton: Bool = false
-    var autoShowAnswerSeconds: Int = 0  // 0=aus, 5, 10, 20
+    var sessionLength: Int = 10           // Aufgaben pro Runde
+    var dailyGoal: Int = 20              // Tagesziel
+    var gapFillEnabled: Bool = true       // Lückenaufgaben (? + 4 = 7)
+    var hideSkipButton: Bool = false      // Überspringen-Button ausblenden
+    var autoShowAnswerSeconds: Int = 0    // Auto-Lösung (0=aus, 5, 10, 20)
+
+    // Kategorien
+    var enabledCategoriesRaw: String = "addition_10,subtraction_10"
+    var enabledCategories: [ExerciseCategory] { ... }  // Computed
 
     // Audio & Haptics
     var soundEnabled: Bool = true
     var musicEnabled: Bool = true
     var hapticEnabled: Bool = true
-    var voiceOverEnabled: Bool = false
 
-    // Visual
+    // Visuell / Accessibility
     var reducedMotion: Bool = false
     var highContrast: Bool = false
     var largerText: Bool = false
-    var colorBlindMode: ColorBlindMode = .none
+    var colorBlindMode: ColorBlindMode { ... }  // Computed
 
-    // Parental
-    var parentalPIN: String?
-    var timeLimit: TimeInterval?
+    // Eltern-Kontrolle
+    var timeLimitMinutes: Int = 0
     var timeLimitEnabled: Bool = false
     var breakReminder: Bool = true
-    var breakInterval: TimeInterval = 900 // 15 min
-}
+    var breakIntervalSeconds: Int = 900   // 15 Min Standard
 
-enum ColorBlindMode: String, Codable {
-    case none = "none"
-    case protanopia = "protanopia"
-    case deuteranopia = "deuteranopia"
-    case tritanopia = "tritanopia"
-}
-```
-
-### Sticker (Belohnungen)
-
-```swift
-struct Sticker: Identifiable, Codable {
-    let id: UUID = UUID()
-    let category: StickerCategory
-    let name: String
-    let imageName: String
-    let rarity: Rarity
-    var isUnlocked: Bool = false
-    var unlockedAt: Date?
-
-    enum StickerCategory: String, Codable, CaseIterable {
-        case animals = "animals"
-        case space = "space"
-        case nature = "nature"
-        case fantasy = "fantasy"
-        case special = "special"
-    }
-
-    enum Rarity: Int, Codable, CaseIterable {
-        case common = 1
-        case uncommon = 2
-        case rare = 3
-        case epic = 4
-        case legendary = 5
-
-        var color: Color {
-            switch self {
-            case .common: return .gray
-            case .uncommon: return .green
-            case .rare: return .blue
-            case .epic: return .purple
-            case .legendary: return .orange
-            }
-        }
-    }
+    @Relationship(inverse: \User.preferences)
+    var user: User?
 }
 ```
 
@@ -337,9 +279,33 @@ User (1) ─────> (n) DailyProgress
 User (1) ─────> (n) Achievement
 User (1) ─────> (1) UserPreferences
 DailyProgress (1) ─────> (n) Session
-Session (1) ─────> (n) ExerciseResult
-ExerciseResult (n) ─────> (1) Exercise
+Session (1) ─────> (n) ExerciseRecord
 ```
+
+**Wichtig:** Daten immer über Relationship-Chain traversieren (`user.progress → sessions → exerciseRecords`), nicht über FetchDescriptor + Session.id Matching. SwiftData hat einen Bug bei `UUID = UUID()` Default-Werten — IDs werden beim Laden aus dem Store neu generiert.
+
+## Services
+
+### EngagementService
+- Verarbeitet Session-Ergebnisse nach jeder Runde
+- Aktualisiert DailyProgress (exercisesCompleted, correctAnswers, totalTime)
+- Berechnet Streaks (currentStreak, longestStreak)
+- Prüft alle 16 Achievements und schaltet neue frei
+- Erkennt Tagesziel-Erreichung
+
+### MetricsService
+- Berechnet ExerciseMetrics aus ExerciseRecord-Daten (letzte 30 Tage)
+- Kategorie-Genauigkeit pro ExerciseCategory
+- Schwache Aufgaben: Genauigkeit < 60% UND letzter Versuch falsch
+- **Format-agnostische Gruppierung**: `category_firstNumber_secondNumber` (Standard und Lücken-Formate zählen zusammen)
+- Nach erfolgreicher Revenge fällt Aufgabe aus der Weak-Liste
+
+### ExerciseGenerator
+- Generiert Aufgaben mit adaptiver Schwierigkeit
+- Gewichtete Kategorie-Auswahl basierend auf Performance-Metriken
+- 30% Chance schwache Aufgaben (isRetry) einzustreuen
+- Duplikat-Vermeidung innerhalb einer Session
+- Lückenaufgaben (gap-fill) wenn aktiviert
 
 ## Persistence Strategy
 
@@ -351,112 +317,19 @@ struct RechenStarApp: App {
     let modelContainer: ModelContainer
 
     init() {
-        do {
-            let config = ModelConfiguration(
-                isStoredInMemoryOnly: false,
-                allowsSave: true,
-                groupContainer: .automatic,
-                cloudKitDatabase: .none  // Kein Cloud Sync
-            )
-
-            modelContainer = try ModelContainer(
-                for: User.self,
-                     DailyProgress.self,
-                     Session.self,
-                     Achievement.self,
-                     UserPreferences.self,
-                configurations: config
-            )
-        } catch {
-            fatalError("Failed to configure SwiftData")
-        }
-    }
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(modelContainer)
-    }
-}
-```
-
-### Data Migration
-
-```swift
-enum SchemaVersion: Int, CaseIterable {
-    case v1 = 1
-    case v2 = 2
-
-    var schema: any PersistentModel.Type {
-        switch self {
-        case .v1: return UserV1.self
-        case .v2: return User.self
-        }
-    }
-}
-
-struct MigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] {
-        SchemaVersion.allCases.map { $0.schema }
-    }
-
-    static var stages: [MigrationStage] {
-        [MigrationV1toV2()]
-    }
-}
-```
-
-## Data Validation
-
-```swift
-extension Exercise {
-    func validate() throws {
-        guard (1...10).contains(firstNumber) else {
-            throw ValidationError.invalidNumber
-        }
-        guard (1...10).contains(secondNumber) else {
-            throw ValidationError.invalidNumber
-        }
-        if type == .subtraction {
-            guard firstNumber >= secondNumber else {
-                throw ValidationError.negativeResult
-            }
-        }
-    }
-}
-```
-
-## Analytics Data (Anonymized)
-
-```swift
-struct AnalyticsEvent: Codable {
-    let eventType: EventType
-    let timestamp: Date
-    let properties: [String: Any]
-
-    enum EventType: String {
-        case sessionStart
-        case sessionComplete
-        case exerciseAnswered
-        case achievementUnlocked
-        case stickerEarned
-    }
-}
-```
-
-## Cache Strategy
-
-```swift
-class DataCache {
-    private let cache = NSCache<NSString, CacheEntry>()
-
-    func store<T: Codable>(_ object: T, for key: String) {
-        // Implementation
-    }
-
-    func retrieve<T: Codable>(_ type: T.Type, for key: String) -> T? {
-        // Implementation
+        let config = ModelConfiguration(
+            isStoredInMemoryOnly: false,
+            allowsSave: true
+        )
+        modelContainer = try! ModelContainer(
+            for: User.self,
+                 DailyProgress.self,
+                 Session.self,
+                 ExerciseRecord.self,
+                 Achievement.self,
+                 UserPreferences.self,
+            configurations: config
+        )
     }
 }
 ```
@@ -465,6 +338,6 @@ class DataCache {
 
 - Alle Daten lokal gespeichert
 - Keine Cloud-Synchronisation
-- Eltern-PIN verschlüsselt im Keychain
+- Eltern-Gate mit Rechenaufgabe (kein PIN)
 - Keine persönlichen Daten gesammelt
-- Anonyme Analytics (opt-in)
+- Keine Analytics, kein Tracking
