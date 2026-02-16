@@ -120,6 +120,21 @@ struct SettingsView: View {
                             }
                             .pickerStyle(.menu)
                         }
+
+                        Toggle(isOn: Binding(
+                            get: { prefs.gapFillEnabled },
+                            set: { prefs.gapFillEnabled = $0; save() }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Lückenaufgaben")
+                                    .font(AppFonts.body)
+                                    .foregroundColor(.appTextPrimary)
+                                Text("Auch Aufgaben wie ? + 4 = 7 stellen")
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(.appTextSecondary)
+                            }
+                        }
+                        .tint(.appSkyBlue)
                     }
                 }
                 .settingsCard()
