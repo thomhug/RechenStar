@@ -33,8 +33,8 @@ final class ExerciseGeneratorTests: XCTestCase {
                 exercise.firstNumber + exercise.secondNumber, 100,
                 "Addition \(exercise.firstNumber) + \(exercise.secondNumber) exceeds 100"
             )
-            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 1)
-            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 1)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 1) // second can be capped by sum constraint
         }
     }
 
@@ -72,9 +72,9 @@ final class ExerciseGeneratorTests: XCTestCase {
                 difficulty: .hard,
                 category: .multiplication_10
             )
-            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 1)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2)
             XCTAssertLessThanOrEqual(exercise.firstNumber, 10)
-            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 1)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2)
             XCTAssertLessThanOrEqual(exercise.secondNumber, 10)
             XCTAssertEqual(exercise.type, .multiplication)
         }
@@ -99,16 +99,18 @@ final class ExerciseGeneratorTests: XCTestCase {
         let cases: [(Difficulty, Int, Int)] = [
             (.veryEasy, 1, 3),
             (.easy, 1, 5),
-            (.medium, 1, 7),
-            (.hard, 1, 10),
+            (.medium, 2, 7),
+            (.hard, 2, 10),
         ]
 
         for (difficulty, lower, upper) in cases {
             for _ in 0..<50 {
                 let exercise = ExerciseGenerator.generate(difficulty: difficulty, category: .addition_10)
-                XCTAssertGreaterThanOrEqual(exercise.firstNumber, lower)
+                XCTAssertGreaterThanOrEqual(exercise.firstNumber, lower,
+                    "\(difficulty) firstNumber \(exercise.firstNumber) below min \(lower)")
                 XCTAssertLessThanOrEqual(exercise.firstNumber, upper)
-                XCTAssertGreaterThanOrEqual(exercise.secondNumber, lower)
+                XCTAssertGreaterThanOrEqual(exercise.secondNumber, lower,
+                    "\(difficulty) secondNumber \(exercise.secondNumber) below min \(lower)")
                 XCTAssertLessThanOrEqual(exercise.secondNumber, upper)
             }
         }
@@ -151,6 +153,16 @@ final class ExerciseGeneratorTests: XCTestCase {
     func testAdaptDifficultyStays() {
         let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 0.7)
         XCTAssertEqual(result, .easy)
+    }
+
+    func testAdaptDifficultyFastAndAccurateJumps2Levels() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 1.0, averageTime: 2.0)
+        XCTAssertEqual(result, .hard)
+    }
+
+    func testAdaptDifficultyFastFromVeryEasyToMedium() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .veryEasy, recentAccuracy: 1.0, averageTime: 1.5)
+        XCTAssertEqual(result, .medium)
     }
 
     func testAdaptDifficultyHardCeiling() {
@@ -272,6 +284,48 @@ final class ExerciseGeneratorTests: XCTestCase {
             XCTAssertTrue(
                 exercise.category == .addition_10 || exercise.category == .subtraction_10
             )
+        }
+    }
+
+    // MARK: - Starting Difficulty
+
+    func testStartingDifficultyFromHighAccuracy() {
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [.addition_10: 0.95, .subtraction_10: 0.92],
+            weakExercises: [:]
+        )
+        XCTAssertEqual(ExerciseGenerator.startingDifficulty(from: metrics), .hard)
+    }
+
+    func testStartingDifficultyFromMediumAccuracy() {
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [.addition_10: 0.75, .subtraction_10: 0.8],
+            weakExercises: [:]
+        )
+        XCTAssertEqual(ExerciseGenerator.startingDifficulty(from: metrics), .medium)
+    }
+
+    func testStartingDifficultyFromNilMetrics() {
+        XCTAssertEqual(ExerciseGenerator.startingDifficulty(from: nil), .easy)
+    }
+
+    func testMediumDifficultyExcludesOnes() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .medium, category: .multiplication_10)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
+                "Medium multiplication should not have factor 1, got \(exercise.firstNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "Medium multiplication should not have factor 1, got \(exercise.secondNumber)")
+        }
+    }
+
+    func testHardMultiplication100ExcludesOnes() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .hard, category: .multiplication_100)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
+                "Hard grosses 1x1 should not have factor 1")
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "Hard grosses 1x1 should not have factor 1")
         }
     }
 

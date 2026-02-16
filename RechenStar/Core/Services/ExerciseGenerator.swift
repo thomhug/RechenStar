@@ -62,14 +62,30 @@ struct ExerciseGenerator {
 
     static func adaptDifficulty(
         current: Difficulty,
-        recentAccuracy: Double
+        recentAccuracy: Double,
+        averageTime: TimeInterval = .infinity
     ) -> Difficulty {
-        if recentAccuracy >= 0.9 {
+        if recentAccuracy >= 0.9 && averageTime < 3.0 {
+            // Fast and accurate: jump 2 levels
+            return nextHigher(nextHigher(current))
+        } else if recentAccuracy >= 0.9 {
             return nextHigher(current)
         } else if recentAccuracy < 0.5 {
             return nextLower(current)
         }
         return current
+    }
+
+    /// Determine starting difficulty from historical metrics
+    static func startingDifficulty(from metrics: ExerciseMetrics?) -> Difficulty {
+        guard let metrics = metrics, !metrics.categoryAccuracy.isEmpty else {
+            return .easy
+        }
+        let avgAccuracy = metrics.categoryAccuracy.values.reduce(0, +) / Double(metrics.categoryAccuracy.count)
+        if avgAccuracy >= 0.9 { return .hard }
+        if avgAccuracy >= 0.7 { return .medium }
+        if avgAccuracy >= 0.5 { return .easy }
+        return .veryEasy
     }
 
     // MARK: - Private
@@ -114,9 +130,10 @@ struct ExerciseGenerator {
 
         case .multiplication_100:
             let maxProduct = difficulty.maxProduct
-            let first = Int.random(in: 1...20)
+            let minFactor = difficulty.range.lowerBound
+            let first = Int.random(in: minFactor...20)
             let maxSecond = min(20, maxProduct / max(first, 1))
-            let second = Int.random(in: 1...max(1, maxSecond))
+            let second = Int.random(in: minFactor...max(minFactor, maxSecond))
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty)
         }
     }

@@ -173,9 +173,11 @@ final class ExerciseViewModel {
         if adaptiveDifficulty && nextIndex % 3 == 0 {
             let recentResults = sessionResults.suffix(3)
             let recentAccuracy = Double(recentResults.filter(\.isCorrect).count) / Double(recentResults.count)
+            let avgTime = recentResults.map(\.timeSpent).reduce(0, +) / Double(recentResults.count)
             let newDifficulty = ExerciseGenerator.adaptDifficulty(
                 current: currentDifficulty,
-                recentAccuracy: recentAccuracy
+                recentAccuracy: recentAccuracy,
+                averageTime: avgTime
             )
             if newDifficulty != currentDifficulty {
                 currentDifficulty = newDifficulty

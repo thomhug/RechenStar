@@ -110,8 +110,8 @@ struct HelpView: View {
                 rows: [
                     ("Sehr leicht", "Zahlen 1–3"),
                     ("Leicht", "Zahlen 1–5"),
-                    ("Mittel", "Zahlen 1–7"),
-                    ("Schwer", "Zahlen 1–10"),
+                    ("Mittel", "Zahlen 2–7"),
+                    ("Schwer", "Zahlen 2–10"),
                 ]
             )
 
@@ -121,19 +121,19 @@ struct HelpView: View {
                 rows: [
                     ("Sehr leicht", "Zahlen 1–20"),
                     ("Leicht", "Zahlen 1–40"),
-                    ("Mittel", "Zahlen 1–70"),
-                    ("Schwer", "Zahlen 1–99"),
+                    ("Mittel", "Zahlen 2–70"),
+                    ("Schwer", "Zahlen 2–99"),
                 ]
             )
 
             difficultyTable(
                 title: "Grosses 1×1",
-                subtitle: "Faktoren 1–20",
+                subtitle: "Faktoren bis 20",
                 rows: [
                     ("Sehr leicht", "Ergebnis bis 50"),
                     ("Leicht", "Ergebnis bis 100"),
-                    ("Mittel", "Ergebnis bis 200"),
-                    ("Schwer", "Ergebnis bis 400"),
+                    ("Mittel", "Ergebnis bis 200, ab 2×2"),
+                    ("Schwer", "Ergebnis bis 400, ab 2×2"),
                 ]
             )
         }

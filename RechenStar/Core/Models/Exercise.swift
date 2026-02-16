@@ -110,8 +110,8 @@ enum Difficulty: Int, Codable, CaseIterable {
         switch self {
         case .veryEasy: 1...3
         case .easy: 1...5
-        case .medium: 1...7
-        case .hard: 1...10
+        case .medium: 2...7
+        case .hard: 2...10
         }
     }
 
@@ -119,8 +119,8 @@ enum Difficulty: Int, Codable, CaseIterable {
         switch self {
         case .veryEasy: 1...20
         case .easy: 1...40
-        case .medium: 1...70
-        case .hard: 1...99
+        case .medium: 2...70
+        case .hard: 2...99
         }
     }
 

@@ -59,11 +59,12 @@ struct HomeView: View {
         .fullScreenCover(item: $exerciseFlowState) { state in
             switch state {
             case .exercising:
+                let metrics = computeMetrics()
                 ExerciseView(
                     sessionLength: appState.currentUser?.preferences?.sessionLength ?? 10,
-                    difficulty: difficultyFromPreferences(),
+                    difficulty: difficultyFromPreferences(metrics: metrics),
                     categories: categoriesFromPreferences(),
-                    metrics: computeMetrics(),
+                    metrics: metrics,
                     adaptiveDifficulty: appState.currentUser?.preferences?.adaptiveDifficulty ?? true
                 ) { results in
                     let engagement = saveSession(results: results)
@@ -137,9 +138,11 @@ struct HomeView: View {
         )
     }
 
-    private func difficultyFromPreferences() -> Difficulty {
+    private func difficultyFromPreferences(metrics: ExerciseMetrics? = nil) -> Difficulty {
         guard let prefs = appState.currentUser?.preferences else { return .easy }
-        if prefs.adaptiveDifficulty { return .easy }
+        if prefs.adaptiveDifficulty {
+            return ExerciseGenerator.startingDifficulty(from: metrics)
+        }
         return Difficulty(rawValue: prefs.difficultyLevel) ?? .easy
     }
 
