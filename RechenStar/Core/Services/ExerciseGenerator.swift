@@ -1,12 +1,36 @@
 import Foundation
 
+struct ExerciseMetrics {
+    let categoryAccuracy: [ExerciseCategory: Double]
+    let weakExercises: [ExerciseCategory: [(first: Int, second: Int)]]
+}
+
 struct ExerciseGenerator {
 
     static func generate(
         difficulty: Difficulty = .easy,
         category: ExerciseCategory,
-        excluding signatures: Set<String> = []
+        excluding signatures: Set<String> = [],
+        metrics: ExerciseMetrics? = nil
     ) -> Exercise {
+        // 30% chance to use a weak exercise if available
+        if let metrics = metrics,
+           let weakPairs = metrics.weakExercises[category],
+           !weakPairs.isEmpty,
+           Double.random(in: 0..<1) < 0.3 {
+            let pair = weakPairs.randomElement()!
+            let exercise = Exercise(
+                type: category.operationType,
+                category: category,
+                firstNumber: pair.first,
+                secondNumber: pair.second,
+                difficulty: difficulty
+            )
+            if !signatures.contains(exercise.signature) {
+                return exercise
+            }
+        }
+
         for _ in 0..<50 {
             let exercise = randomExercise(category: category, difficulty: difficulty)
             if !signatures.contains(exercise.signature) {
@@ -20,14 +44,15 @@ struct ExerciseGenerator {
     static func generateSession(
         count: Int = 10,
         difficulty: Difficulty = .easy,
-        categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
+        metrics: ExerciseMetrics? = nil
     ) -> [Exercise] {
         var exercises: [Exercise] = []
         var usedSignatures: Set<String> = []
 
         for _ in 0..<count {
-            let category = categories.randomElement()!
-            let exercise = generate(difficulty: difficulty, category: category, excluding: usedSignatures)
+            let category = weightedRandomCategory(from: categories, metrics: metrics)
+            let exercise = generate(difficulty: difficulty, category: category, excluding: usedSignatures, metrics: metrics)
             exercises.append(exercise)
             usedSignatures.insert(exercise.signature)
         }
@@ -112,5 +137,33 @@ struct ExerciseGenerator {
         case .medium: return .easy
         case .hard: return .medium
         }
+    }
+
+    static func weightedRandomCategory(
+        from categories: [ExerciseCategory],
+        metrics: ExerciseMetrics?
+    ) -> ExerciseCategory {
+        guard let metrics = metrics, !categories.isEmpty else {
+            return categories.randomElement()!
+        }
+
+        let weights = categories.map { category -> Double in
+            if let accuracy = metrics.categoryAccuracy[category] {
+                return 1.0 + (1.0 - accuracy)
+            }
+            return 1.0
+        }
+
+        let totalWeight = weights.reduce(0, +)
+        var random = Double.random(in: 0..<totalWeight)
+
+        for (index, weight) in weights.enumerated() {
+            random -= weight
+            if random <= 0 {
+                return categories[index]
+            }
+        }
+
+        return categories.last!
     }
 }

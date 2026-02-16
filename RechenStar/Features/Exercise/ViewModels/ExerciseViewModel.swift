@@ -29,6 +29,7 @@ final class ExerciseViewModel {
 
     let sessionLength: Int
     let categories: [ExerciseCategory]
+    let metrics: ExerciseMetrics?
 
     private var exercises: [Exercise] = []
     private var currentAttempts: Int = 0
@@ -80,11 +81,13 @@ final class ExerciseViewModel {
     init(
         sessionLength: Int = 10,
         difficulty: Difficulty = .easy,
-        categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
+        metrics: ExerciseMetrics? = nil
     ) {
         self.sessionLength = sessionLength
         self.currentDifficulty = difficulty
         self.categories = categories
+        self.metrics = metrics
     }
 
     // MARK: - Actions
@@ -93,7 +96,8 @@ final class ExerciseViewModel {
         exercises = ExerciseGenerator.generateSession(
             count: sessionLength,
             difficulty: currentDifficulty,
-            categories: categories
+            categories: categories,
+            metrics: metrics
         )
         sessionResults = []
         exerciseIndex = 0
@@ -177,11 +181,12 @@ final class ExerciseViewModel {
                 let usedSignatures = Set(exercises.map(\.signature))
                 var newExercises: [Exercise] = []
                 for _ in 0..<remaining {
-                    let category = categories.randomElement()!
+                    let category = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: metrics)
                     let ex = ExerciseGenerator.generate(
                         difficulty: currentDifficulty,
                         category: category,
-                        excluding: usedSignatures
+                        excluding: usedSignatures,
+                        metrics: metrics
                     )
                     newExercises.append(ex)
                 }

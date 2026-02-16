@@ -62,7 +62,8 @@ struct HomeView: View {
                 ExerciseView(
                     sessionLength: appState.currentUser?.preferences?.sessionLength ?? 10,
                     difficulty: difficultyFromPreferences(),
-                    categories: categoriesFromPreferences()
+                    categories: categoriesFromPreferences(),
+                    metrics: computeMetrics()
                 ) { results in
                     let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(
@@ -173,6 +174,55 @@ struct HomeView: View {
         }
         let cats = prefs.enabledCategories
         return cats.isEmpty ? [.addition_10, .subtraction_10] : cats
+    }
+
+    private func computeMetrics() -> ExerciseMetrics? {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        var descriptor = FetchDescriptor<ExerciseRecord>(
+            predicate: #Predicate<ExerciseRecord> { $0.date >= cutoff }
+        )
+        descriptor.fetchLimit = 500
+
+        guard let records = try? modelContext.fetch(descriptor), !records.isEmpty else {
+            return nil
+        }
+
+        // Category accuracy
+        var categoryGroups: [ExerciseCategory: (correct: Int, total: Int)] = [:]
+        for record in records {
+            guard let category = ExerciseCategory(rawValue: record.category) else { continue }
+            var group = categoryGroups[category, default: (correct: 0, total: 0)]
+            group.total += 1
+            if record.isCorrect { group.correct += 1 }
+            categoryGroups[category] = group
+        }
+
+        var categoryAccuracy: [ExerciseCategory: Double] = [:]
+        for (category, group) in categoryGroups {
+            categoryAccuracy[category] = Double(group.correct) / Double(group.total)
+        }
+
+        // Weak exercises: accuracy < 0.6 with at least 2 attempts
+        var signatureGroups: [String: (correct: Int, total: Int, category: ExerciseCategory, first: Int, second: Int)] = [:]
+        for record in records {
+            guard let category = ExerciseCategory(rawValue: record.category) else { continue }
+            let sig = record.exerciseSignature
+            var group = signatureGroups[sig, default: (correct: 0, total: 0, category: category, first: record.firstNumber, second: record.secondNumber)]
+            group.total += 1
+            if record.isCorrect { group.correct += 1 }
+            signatureGroups[sig] = group
+        }
+
+        var weakExercises: [ExerciseCategory: [(first: Int, second: Int)]] = [:]
+        for (_, group) in signatureGroups {
+            guard group.total >= 2 else { continue }
+            let accuracy = Double(group.correct) / Double(group.total)
+            if accuracy < 0.6 {
+                weakExercises[group.category, default: []].append((first: group.first, second: group.second))
+            }
+        }
+
+        return ExerciseMetrics(categoryAccuracy: categoryAccuracy, weakExercises: weakExercises)
     }
 }
 

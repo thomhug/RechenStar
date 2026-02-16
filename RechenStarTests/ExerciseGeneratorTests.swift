@@ -208,4 +208,77 @@ final class ExerciseGeneratorTests: XCTestCase {
         // With 30 exercises and 3 categories, statistically all should appear
         XCTAssertTrue(categorySet.count >= 2, "Expected at least 2 categories in session")
     }
+
+    // MARK: - Weighted Category Selection
+
+    func testWeightedCategoryPrefersWeakCategories() {
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [
+                .addition_10: 0.9,    // strong → weight 1.1
+                .subtraction_10: 0.3  // weak → weight 1.7
+            ],
+            weakExercises: [:]
+        )
+
+        var counts: [ExerciseCategory: Int] = [.addition_10: 0, .subtraction_10: 0]
+        let categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+
+        for _ in 0..<1000 {
+            let cat = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: metrics)
+            counts[cat, default: 0] += 1
+        }
+
+        // subtraction (weight 1.7) should appear more than addition (weight 1.1)
+        XCTAssertGreaterThan(
+            counts[.subtraction_10]!, counts[.addition_10]!,
+            "Weak category should be chosen more often: sub=\(counts[.subtraction_10]!) add=\(counts[.addition_10]!)"
+        )
+    }
+
+    func testWeakExercisesInjectedWhenAvailable() {
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [:],
+            weakExercises: [.addition_10: [(first: 2, second: 3)]]
+        )
+
+        var weakCount = 0
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(
+                difficulty: .easy,
+                category: .addition_10,
+                metrics: metrics
+            )
+            if exercise.firstNumber == 2 && exercise.secondNumber == 3 {
+                weakCount += 1
+            }
+        }
+
+        // With 30% chance and only one weak pair, expect significantly more than random
+        XCTAssertGreaterThan(weakCount, 10,
+            "Weak exercise (2+3) should appear frequently, got \(weakCount)/200")
+    }
+
+    func testNilMetricsBehavesLikeRandom() {
+        let exercises = ExerciseGenerator.generateSession(
+            count: 10,
+            difficulty: .easy,
+            categories: [.addition_10, .subtraction_10],
+            metrics: nil
+        )
+        XCTAssertEqual(exercises.count, 10)
+        for exercise in exercises {
+            XCTAssertTrue(
+                exercise.category == .addition_10 || exercise.category == .subtraction_10
+            )
+        }
+    }
+
+    func testWeightedCategoryWithoutMetricsUsesUniform() {
+        let categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+        // Should not crash with nil metrics
+        for _ in 0..<100 {
+            let cat = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: nil)
+            XCTAssertTrue(categories.contains(cat))
+        }
+    }
 }

@@ -19,13 +19,15 @@ struct ExerciseView: View {
         sessionLength: Int = 10,
         difficulty: Difficulty = .easy,
         categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
+        metrics: ExerciseMetrics? = nil,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
         _viewModel = State(initialValue: ExerciseViewModel(
             sessionLength: sessionLength,
             difficulty: difficulty,
-            categories: categories
+            categories: categories,
+            metrics: metrics
         ))
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel
