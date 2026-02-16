@@ -84,61 +84,65 @@ struct LearningProgressView: View {
         let nextExercises = level.nextLevelExercises
         let skill = currentSkillLevel
 
-        return HStack(spacing: 12) {
+        return VStack(spacing: 12) {
             // Level badge (quantity)
             AppCard {
-                VStack(spacing: 8) {
+                HStack(spacing: 14) {
                     Image(level.imageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 80, height: 80)
+                        .frame(width: 70, height: 70)
 
-                    Text(level.title)
-                        .font(AppFonts.headline)
-                        .foregroundColor(.appTextPrimary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(level.title)
+                            .font(AppFonts.headline)
+                            .foregroundColor(.appTextPrimary)
 
-                    if let next = nextExercises {
-                        ProgressBarView(
-                            progress: progress,
-                            color: .appSunYellow,
-                            height: 8
-                        )
-                        Text("Noch \(next - total)")
-                            .font(AppFonts.footnote)
-                            .foregroundColor(.appTextSecondary)
-                    } else {
-                        Text("Max!")
-                            .font(AppFonts.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.appSunYellow)
+                        if let next = nextExercises {
+                            ProgressBarView(
+                                progress: progress,
+                                color: .appSunYellow,
+                                height: 8
+                            )
+                            Text("Noch \(next - total) Aufgaben")
+                                .font(AppFonts.footnote)
+                                .foregroundColor(.appTextSecondary)
+                        } else {
+                            Text("Höchstes Level erreicht!")
+                                .font(AppFonts.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.appSunYellow)
+                        }
                     }
                 }
-                .frame(maxWidth: .infinity)
             }
 
             // Skill badge (quality)
             AppCard {
-                VStack(spacing: 8) {
+                HStack(spacing: 14) {
                     Image(skill.skillImageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 80, height: 80)
+                        .frame(width: 70, height: 70)
 
-                    Text(skill.skillTitle)
-                        .font(AppFonts.headline)
-                        .foregroundColor(.appTextPrimary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(skill.skillTitle)
+                            .font(AppFonts.headline)
+                            .foregroundColor(.appTextPrimary)
 
-                    Text(skill.label)
-                        .font(AppFonts.footnote)
-                        .foregroundColor(.appTextSecondary)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 8)
-                        .background(
-                            Capsule()
-                                .fill(skillColor(skill).opacity(0.15))
-                        )
+                        Text(skill.label)
+                            .font(AppFonts.footnote)
+                            .foregroundColor(.appTextSecondary)
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 8)
+                            .background(
+                                Capsule()
+                                    .fill(skillColor(skill).opacity(0.15))
+                            )
+                    }
+
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity)
             }
         }
     }
