@@ -1,6 +1,6 @@
 # RechenStar - Naechste Schritte
 
-## Stand: 15. Februar 2026
+## Stand: 16. Februar 2026
 
 ---
 
@@ -12,6 +12,7 @@
 - [x] Phase 4: Unit Tests (16+ Tests fuer ExerciseGenerator, ExerciseResult, ViewModel, EngagementService)
 - [x] Phase 5: Stern-Animation + UI Tests (StarAnimationView, 5 UI Tests)
 - [x] Phase 6: AchievementsView + Parent Dashboard (Fortschritts-Labels, Charts, Staerken/Schwaechen)
+- [x] Phase 6.5: Intelligente Aufgabenauswahl (gewichtete Kategorien, schwache Aufgaben wiederholen, ExerciseMetrics)
 
 ---
 

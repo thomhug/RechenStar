@@ -1,6 +1,6 @@
 # RechenStar - Projekt Status
 
-## Stand: 15. Februar 2026
+## Stand: 16. Februar 2026
 
 ## Projektziel
 Eine kindgerechte Mathe-Lern-App fuer iOS (Erstklassler, 6-8 Jahre) mit Fokus auf Addition und Subtraktion im Zahlenraum 1-10.
@@ -47,7 +47,7 @@ Alle 7 Models implementiert:
 - `UserPreferences` — SwiftData-Model mit Accessibility- und Eltern-Einstellungen
 
 ### Services (100%)
-- `ExerciseGenerator` — Adaptive Schwierigkeit, Duplikat-Vermeidung, Session-Generierung
+- `ExerciseGenerator` — Adaptive Schwierigkeit, Duplikat-Vermeidung, Session-Generierung, gewichtete Kategorie-Auswahl basierend auf Performance-Metriken, schwache Aufgaben werden gezielt wiederholt
 - `SoundService` — System-Sounds fuer richtig/falsch/session-complete/achievement
 - `EngagementService` — Achievement-Unlocking, Streak-Berechnung, DailyProgress-Aggregation
 
@@ -89,7 +89,7 @@ Alle 7 Models implementiert:
 - Accessibility-Identifiers fuer UI-Tests
 
 ### Testing (100%)
-- 16+ Unit Tests: ExerciseGenerator, ExerciseResult, ExerciseViewModel, EngagementService
+- 25+ Unit Tests: ExerciseGenerator (inkl. gewichtete Auswahl), ExerciseResult, ExerciseViewModel, EngagementService
 - 5 UI Tests: CompleteExerciseFlow, NumberPadInput, Skip, Cancel, TabNavigation
 
 ## Projektstruktur

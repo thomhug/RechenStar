@@ -13,11 +13,12 @@ RechenStar macht Mathematik-Lernen zum Spass! Die App hilft Kindern, Addition, S
 - **Positive Verstärkung**: Sterne, Erfolge und Konfetti-Animationen
 - **Kindgerechtes Design**: Grosse Buttons, klare Farben
 - **Adaptive Schwierigkeit**: Passt sich dem Lerntempo an
+- **Intelligente Aufgabenauswahl**: Schwache Kategorien und Aufgaben werden gezielt wiederholt
 - **Keine Frustration**: Immer ermutigendes Feedback
 
 ### Für Eltern:
 - **Fortschrittsverfolgung**: Detaillierte Statistiken pro Aufgabentyp
-- **Stärken & Schwächen**: Genauigkeit pro Kategorie auf einen Blick
+- **Stärken & Schwächen**: Genauigkeit pro Kategorie auf einen Blick, fliessen in Aufgabenauswahl ein
 - **Aufgaben-Details**: Einzelne Aufgaben mit Zeiten und Erfolgsquote
 - **Zeitkontrolle**: Einstellbare Session-Längen und Pausen-Erinnerung
 - **100% Sicher**: Keine Werbung, keine In-App-Käufe

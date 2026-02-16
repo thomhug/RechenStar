@@ -43,6 +43,13 @@ struct HelpView: View {
                     )
 
                     helpSection(
+                        icon: "brain.head.profile",
+                        color: .appGrassGreen,
+                        title: "Schlaues Üben",
+                        text: "Die App merkt sich, welche Aufgaben dir schwerfallen, und zeigt sie dir öfter. So übst du genau das, was du noch brauchst!"
+                    )
+
+                    helpSection(
                         icon: "chart.line.uptrend.xyaxis",
                         color: .appGrassGreen,
                         title: "Fortschritt",
