@@ -249,7 +249,7 @@ struct ParentDashboardView: View {
 
         let weeklyRecords = allRecords.filter { record in
             guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id) && record.date >= sevenDaysAgo
+            return userSessionIDs.contains(session.id) && record.date >= sevenDaysAgo && !record.wasSkipped
         }
 
         let grouped = Dictionary(grouping: weeklyRecords) { $0.category }
@@ -266,7 +266,7 @@ struct ParentDashboardView: View {
         let stats = categoryStatsData
 
         return VStack(alignment: .leading, spacing: 16) {
-            Text("Staerken & Schwaechen")
+            Text("Stärken & Schwächen")
                 .font(AppFonts.headline)
                 .foregroundColor(.appTextPrimary)
 
@@ -334,7 +334,7 @@ struct ParentDashboardView: View {
         let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
         let userRecords = allRecords.filter { record in
             guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id)
+            return userSessionIDs.contains(session.id) && !record.wasSkipped
         }
 
         let recordData = userRecords.compactMap { record -> MetricsService.RecordData? in
@@ -390,7 +390,7 @@ struct ParentDashboardView: View {
                     }
                 }
 
-                Text("Diese Aufgaben werden automatisch haeufiger gestellt")
+                Text("Diese Aufgaben werden automatisch häufiger gestellt")
                     .font(AppFonts.footnote)
                     .foregroundColor(.appTextSecondary)
                     .italic()
@@ -422,7 +422,7 @@ struct ParentDashboardView: View {
         let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
         let userRecords = allRecords.filter { record in
             guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id)
+            return userSessionIDs.contains(session.id) && !record.wasSkipped
         }
 
         // Group by category + numbers (ignoring format to avoid duplicates
@@ -581,11 +581,11 @@ struct ParentDashboardView: View {
 
             VStack(spacing: 12) {
                 statRow(icon: "checkmark.circle.fill", color: .appGrassGreen,
-                        label: "Aufgaben geloest", value: "\(user.totalExercises)")
+                        label: "Aufgaben gelöst", value: "\(user.totalExercises)")
                 statRow(icon: "star.fill", color: .appSunYellow,
                         label: "Sterne gesammelt", value: "\(user.totalStars)")
                 statRow(icon: "flame.fill", color: .appOrange,
-                        label: "Laengster Streak", value: "\(user.longestStreak) Tage")
+                        label: "Längster Streak", value: "\(user.longestStreak) Tage")
                 statRow(icon: "calendar", color: .appSkyBlue,
                         label: "Dabei seit", value: formatMemberSince(user.createdAt))
             }
