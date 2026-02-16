@@ -141,4 +141,22 @@ enum Difficulty: Int, Codable, CaseIterable {
         case .hard: "Schwer"
         }
     }
+
+    var skillTitle: String {
+        switch self {
+        case .veryEasy: "Entdecker"
+        case .easy: "Kenner"
+        case .medium: "Könner"
+        case .hard: "Meister"
+        }
+    }
+
+    var skillImageName: String {
+        switch self {
+        case .veryEasy: "skill_entdecker"
+        case .easy: "skill_kenner"
+        case .medium: "skill_koenner"
+        case .hard: "skill_meister"
+        }
+    }
 }

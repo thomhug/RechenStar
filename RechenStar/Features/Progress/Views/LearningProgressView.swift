@@ -19,6 +19,20 @@ struct LearningProgressView: View {
         }
     }
 
+    private var currentSkillLevel: Difficulty {
+        guard let prefs = user?.preferences else { return .veryEasy }
+        if prefs.adaptiveDifficulty {
+            let stats = categoryStatsData
+            guard !stats.isEmpty else { return .veryEasy }
+            let avgAccuracy = stats.map(\.accuracy).reduce(0, +) / Double(stats.count)
+            if avgAccuracy >= 0.9 { return .hard }
+            if avgAccuracy >= 0.7 { return .medium }
+            if avgAccuracy >= 0.5 { return .easy }
+            return .veryEasy
+        }
+        return Difficulty(rawValue: prefs.difficultyLevel) ?? .easy
+    }
+
     private var categoryStatsData: [(category: ExerciseCategory, accuracy: Double)] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         var descriptor = FetchDescriptor<ExerciseRecord>(
@@ -51,7 +65,7 @@ struct LearningProgressView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                levelBadgeSection
+                badgeSection
                 dailyGoalSection
                 statsRow
                 weeklyChart
@@ -61,46 +75,80 @@ struct LearningProgressView: View {
         }
     }
 
-    // MARK: - Level Badge
+    // MARK: - Badges
 
-    private var levelBadgeSection: some View {
+    private var badgeSection: some View {
         let total = user?.totalExercises ?? 0
         let level = Level.current(for: total)
         let progress = Level.progress(for: total)
         let nextExercises = level.nextLevelExercises
+        let skill = currentSkillLevel
 
-        return AppCard {
-            VStack(spacing: 12) {
-                Image(level.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
+        return HStack(spacing: 12) {
+            // Level badge (quantity)
+            AppCard {
+                VStack(spacing: 8) {
+                    Image(level.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
 
-                Text(level.title)
-                    .font(AppFonts.title)
-                    .foregroundColor(.appTextPrimary)
+                    Text(level.title)
+                        .font(AppFonts.headline)
+                        .foregroundColor(.appTextPrimary)
 
-                Text("Level \(level.rawValue)")
-                    .font(AppFonts.caption)
-                    .foregroundColor(.appTextSecondary)
+                    if let next = nextExercises {
+                        ProgressBarView(
+                            progress: progress,
+                            color: .appSunYellow,
+                            height: 8
+                        )
+                        Text("Noch \(next - total)")
+                            .font(AppFonts.footnote)
+                            .foregroundColor(.appTextSecondary)
+                    } else {
+                        Text("Max!")
+                            .font(AppFonts.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.appSunYellow)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
 
-                if let next = nextExercises {
-                    ProgressBarView(
-                        progress: progress,
-                        color: .appSunYellow,
-                        height: 10
-                    )
-                    Text("Noch \(next - total) Aufgaben bis \(Level(rawValue: level.rawValue + 1)?.title ?? "")")
+            // Skill badge (quality)
+            AppCard {
+                VStack(spacing: 8) {
+                    Image(skill.skillImageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+
+                    Text(skill.skillTitle)
+                        .font(AppFonts.headline)
+                        .foregroundColor(.appTextPrimary)
+
+                    Text(skill.label)
                         .font(AppFonts.footnote)
                         .foregroundColor(.appTextSecondary)
-                } else {
-                    Text("Höchstes Level erreicht!")
-                        .font(AppFonts.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.appSunYellow)
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 8)
+                        .background(
+                            Capsule()
+                                .fill(skillColor(skill).opacity(0.15))
+                        )
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func skillColor(_ difficulty: Difficulty) -> Color {
+        switch difficulty {
+        case .veryEasy: .appSkyBlue
+        case .easy: .appGrassGreen
+        case .medium: .appOrange
+        case .hard: .purple
         }
     }
 
