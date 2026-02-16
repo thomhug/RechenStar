@@ -35,6 +35,7 @@
 		CD61E505E59CBE45780F108A /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361391139FD486C94E8BA40E /* HelpView.swift */; };
 		CF7A8A8646288D4506550402 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */; };
 		D08A7A682177FB1E8BABA861 /* ExerciseFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B0B07E21243DCD9C6BB22E /* ExerciseFlowUITests.swift */; };
+		D38D9FB67F82AAAB8E71C2A6 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C97F38ACAE0AEF257B82B5D /* Level.swift */; };
 		D8D7D35E4AA8F4DA43EBFDAF /* DailyProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C624BF870DA45D04D32A388F /* DailyProgress.swift */; };
 		E25160EDBEE60E9F524E4C5F /* ExerciseResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A80DB39F65231DBC960C839 /* ExerciseResult.swift */; };
 		EAB8BF769BC66756C8CE5B8E /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE68F3C7F066F700482C4D1 /* Session.swift */; };
@@ -91,6 +92,7 @@
 		9899687E5EA9BFFCAE7C6C2F /* MetricsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsServiceTests.swift; sourceTree = "<group>"; };
 		99A8D726BA0823ED2D3A7CCE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		99AD13591B21634708F88F0F /* LearningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningProgressView.swift; sourceTree = "<group>"; };
+		9C97F38ACAE0AEF257B82B5D /* Level.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 		A67421D387F9B7E9D8567056 /* EngagementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementServiceTests.swift; sourceTree = "<group>"; };
 		A90D3B3D78C8A0D0BD9D0FE3 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		AAC2692687ED098F44AFA231 /* NavigationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationUITests.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 				1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */,
 				1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */,
 				2A80DB39F65231DBC960C839 /* ExerciseResult.swift */,
+				9C97F38ACAE0AEF257B82B5D /* Level.swift */,
 				5CE68F3C7F066F700482C4D1 /* Session.swift */,
 				99A8D726BA0823ED2D3A7CCE /* User.swift */,
 				523F0F1785FA61B9CB83318D /* UserPreferences.swift */,
@@ -560,6 +563,7 @@
 				CD61E505E59CBE45780F108A /* HelpView.swift in Sources */,
 				FAEFA78D734E67258F26E660 /* HomeView.swift in Sources */,
 				5B40BAE1A7DEC5BA88118EE5 /* LearningProgressView.swift in Sources */,
+				D38D9FB67F82AAAB8E71C2A6 /* Level.swift in Sources */,
 				A798DE051BB06E75CAD04B1F /* MetricsService.swift in Sources */,
 				5E194DD6E6C830DFE736C253 /* ParentDashboardView.swift in Sources */,
 				F6E5F2BAC71656237DF35A1E /* RechenStarApp.swift in Sources */,

@@ -51,12 +51,56 @@ struct LearningProgressView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                levelBadgeSection
                 dailyGoalSection
                 statsRow
                 weeklyChart
                 categoryStrengths
             }
             .padding(20)
+        }
+    }
+
+    // MARK: - Level Badge
+
+    private var levelBadgeSection: some View {
+        let total = user?.totalExercises ?? 0
+        let level = Level.current(for: total)
+        let progress = Level.progress(for: total)
+        let nextExercises = level.nextLevelExercises
+
+        return AppCard {
+            VStack(spacing: 12) {
+                Image(level.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+
+                Text(level.title)
+                    .font(AppFonts.title)
+                    .foregroundColor(.appTextPrimary)
+
+                Text("Level \(level.rawValue)")
+                    .font(AppFonts.caption)
+                    .foregroundColor(.appTextSecondary)
+
+                if let next = nextExercises {
+                    ProgressBarView(
+                        progress: progress,
+                        color: .appSunYellow,
+                        height: 10
+                    )
+                    Text("Noch \(next - total) Aufgaben bis \(Level(rawValue: level.rawValue + 1)?.title ?? "")")
+                        .font(AppFonts.footnote)
+                        .foregroundColor(.appTextSecondary)
+                } else {
+                    Text("Höchstes Level erreicht!")
+                        .font(AppFonts.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.appSunYellow)
+                }
+            }
+            .frame(maxWidth: .infinity)
         }
     }
 
