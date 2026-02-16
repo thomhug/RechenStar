@@ -296,7 +296,8 @@ final class ExerciseViewModel {
     }
 
     func autoRevealAnswer() {
-        guard let exercise = currentExercise else { return }
+        guard let exercise = currentExercise,
+              feedbackState == .none else { return }
 
         let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
         let result = ExerciseResult(
@@ -305,7 +306,8 @@ final class ExerciseViewModel {
             isCorrect: false,
             attempts: currentAttempts,
             timeSpent: timeSpent,
-            wasRevealed: true
+            wasRevealed: true,
+            wasSkipped: true
         )
         sessionResults.append(result)
         feedbackState = .showAnswer(exercise.correctAnswer)

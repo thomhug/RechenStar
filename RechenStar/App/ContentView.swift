@@ -340,14 +340,11 @@ struct UserAvatarView: View {
     let user: User
 
     var body: some View {
-        Circle()
-            .fill(Color.appSkyBlue)
-            .overlay(
-                Text(user.name.prefix(1))
-                    .font(AppFonts.headline)
-                    .foregroundColor(.white)
-            )
-            .accessibilityLabel("Avatar von \(user.name)")
+        let level = Level.current(for: user.totalExercises)
+        Image(level.imageName)
+            .resizable()
+            .scaledToFit()
+            .accessibilityLabel("\(level.title) — \(user.name)")
     }
 }
 
