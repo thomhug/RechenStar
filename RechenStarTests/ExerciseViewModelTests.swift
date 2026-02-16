@@ -348,4 +348,44 @@ final class ExerciseViewModelTests: XCTestCase {
         XCTAssertTrue(sawRevenge, "Should have seen .revenge feedback for a retry exercise")
         XCTAssertTrue(sawNormalCorrect, "Should have seen .correct feedback for a normal exercise")
     }
+
+    func testRevengeFeedbackOnWeakExerciseFromMetrics() {
+        // All possible addition_10 pairs with easy difficulty (range 1...5)
+        // so every generated exercise will match the weak list
+        let allPairs = (1...5).flatMap { first in
+            (1...min(5, 10 - first)).map { (first: first, second: $0) }
+        }
+
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [.addition_10: 0.3],
+            weakExercises: [.addition_10: allPairs]
+        )
+
+        let vm = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .easy,
+            categories: [.addition_10],
+            metrics: metrics,
+            adaptiveDifficulty: false,
+            gapFillEnabled: false
+        )
+        vm.startSession()
+
+        // Every exercise should trigger revenge since all pairs are weak
+        guard let exercise = vm.currentExercise else {
+            return XCTFail("No current exercise")
+        }
+
+        let answer = exercise.correctAnswer
+        for digit in String(answer) {
+            vm.appendDigit(Int(String(digit))!)
+        }
+        vm.submitAnswer()
+
+        if case .revenge = vm.feedbackState {
+            // Expected: revenge for weak exercise
+        } else {
+            XCTFail("Exercise matching weak list should give .revenge, got \(vm.feedbackState)")
+        }
+    }
 }

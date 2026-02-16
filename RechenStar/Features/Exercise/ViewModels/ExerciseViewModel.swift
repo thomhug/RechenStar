@@ -174,8 +174,9 @@ final class ExerciseViewModel {
                 timeSpent: timeSpent
             )
             sessionResults.append(result)
-            // Revenge: historically weak exercise mastered, OR struggled but got it on 2nd try
-            let isRevenge = exercise.isRetry || currentAttempts > 1
+            // Revenge: historically weak exercise mastered, struggled but got it on 2nd try,
+            // or exercise was previously failed (from metrics)
+            let isRevenge = exercise.isRetry || currentAttempts > 1 || isWeakExercise(exercise)
             feedbackState = isRevenge ? .revenge(stars: result.stars) : .correct(stars: result.stars)
             consecutiveErrors = 0
         } else if currentAttempts >= Self.maxAttempts {
@@ -292,6 +293,11 @@ final class ExerciseViewModel {
             usedSignatures.insert(ex.signature)
         }
         exercises = Array(exercises.prefix(nextIndex)) + newExercises
+    }
+
+    private func isWeakExercise(_ exercise: Exercise) -> Bool {
+        guard let weakPairs = metrics?.weakExercises[exercise.category] else { return false }
+        return weakPairs.contains { $0.first == exercise.firstNumber && $0.second == exercise.secondNumber }
     }
 
     private func lowerDifficultyLevel(_ difficulty: Difficulty) -> Difficulty {
