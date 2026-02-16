@@ -172,7 +172,9 @@ final class ExerciseViewModel {
                 timeSpent: timeSpent
             )
             sessionResults.append(result)
-            feedbackState = exercise.isRetry ? .revenge(stars: result.stars) : .correct(stars: result.stars)
+            // Revenge: historically weak exercise mastered, OR struggled but got it on 2nd try
+            let isRevenge = exercise.isRetry || currentAttempts > 1
+            feedbackState = isRevenge ? .revenge(stars: result.stars) : .correct(stars: result.stars)
             consecutiveErrors = 0
         } else if currentAttempts >= Self.maxAttempts {
             // Show the correct answer after max attempts

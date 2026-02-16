@@ -86,6 +86,39 @@ final class ExerciseViewModelTests: XCTestCase {
         XCTAssertEqual(vm.feedbackState, .incorrect)
     }
 
+    func testSecondAttemptCorrectGivesRevenge() {
+        let vm = makeSUT()
+        vm.startSession()
+        guard let exercise = vm.currentExercise else {
+            return XCTFail("No current exercise")
+        }
+
+        // First attempt: wrong answer
+        let wrong = (exercise.correctAnswer + 1) % 100
+        for digit in String(wrong) {
+            vm.appendDigit(Int(String(digit))!)
+        }
+        vm.submitAnswer()
+        XCTAssertEqual(vm.feedbackState, .incorrect)
+
+        // Clear incorrect feedback and try again
+        vm.clearIncorrectFeedback()
+
+        // Second attempt: correct answer
+        let correct = exercise.correctAnswer
+        for digit in String(correct) {
+            vm.appendDigit(Int(String(digit))!)
+        }
+        vm.submitAnswer()
+
+        // Should be revenge (not just correct) because it took 2 attempts
+        if case .revenge(let stars) = vm.feedbackState {
+            XCTAssertEqual(stars, 2) // 2nd attempt = 2 stars
+        } else {
+            XCTFail("Expected .revenge feedback on 2nd attempt success, got \(vm.feedbackState)")
+        }
+    }
+
     func testCanSubmit() {
         let vm = makeSUT()
         vm.startSession()
