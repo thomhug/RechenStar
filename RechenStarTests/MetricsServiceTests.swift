@@ -108,4 +108,18 @@ final class MetricsServiceTests: XCTestCase {
         let weak = metricsA.weakExercises[.addition_10] ?? []
         XCTAssertTrue(weak.isEmpty, "Should NOT be weak after successful revenge (last attempt correct)")
     }
+
+    func testRevengeInDifferentFormatClearsWeak() {
+        // Failed in standard format, then solved correctly in gap-fill format
+        // Both should count as the same exercise (format-agnostic grouping)
+        let records = [
+            record(.addition_10, sig: "addition_10_3_2_standard", first: 3, second: 2, correct: false, minutesAgo: 60),
+            record(.addition_10, sig: "addition_10_3_2_firstGap", first: 3, second: 2, correct: true, minutesAgo: 10),
+        ]
+
+        let metrics = MetricsService.computeMetrics(from: records)!
+        let weak = metrics.weakExercises[.addition_10] ?? []
+        XCTAssertTrue(weak.isEmpty,
+            "Exercise solved in different format should clear weak status")
+    }
 }

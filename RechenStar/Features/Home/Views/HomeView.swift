@@ -123,8 +123,8 @@ struct HomeView: View {
         }
 
         if let user = appState.currentUser {
-            let attemptedResults = results.filter { !$0.wasSkipped }
-            user.totalExercises += attemptedResults.count
+            let correctResults = results.filter { $0.isCorrect }
+            user.totalExercises += correctResults.count
             user.totalStars += session.starsEarned
 
             let engagement = EngagementService.processSession(
@@ -189,21 +189,18 @@ struct HomeView: View {
     private func computeMetrics() -> ExerciseMetrics? {
         guard let user = appState.currentUser else { return nil }
 
+        // Collect records directly via user → progress → sessions → exerciseRecords
+        // (avoids unreliable Session.id comparisons due to SwiftData UUID default value bug)
         let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
-        var descriptor = FetchDescriptor<ExerciseRecord>(
-            predicate: #Predicate<ExerciseRecord> { $0.date >= cutoff }
-        )
-        descriptor.fetchLimit = 500
-
-        guard let records = try? modelContext.fetch(descriptor), !records.isEmpty else {
-            return nil
-        }
-
-        // Filter to current user's sessions
-        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
-        let userRecords = records.filter { record in
-            guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id) && !record.wasSkipped
+        var userRecords: [ExerciseRecord] = []
+        for daily in user.progress {
+            for session in daily.sessions {
+                for record in session.exerciseRecords {
+                    if record.date >= cutoff && !record.wasSkipped {
+                        userRecords.append(record)
+                    }
+                }
+            }
         }
 
         guard !userRecords.isEmpty else { return nil }

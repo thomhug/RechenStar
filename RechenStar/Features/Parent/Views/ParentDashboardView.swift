@@ -239,18 +239,25 @@ struct ParentDashboardView: View {
         }
     }
 
-    private var categoryStatsData: [CategoryStats] {
-        let descriptor = FetchDescriptor<ExerciseRecord>()
-        guard let allRecords = try? modelContext.fetch(descriptor) else { return [] }
+    /// Collect user's exercise records via relationship chain (avoids Session.id UUID bug)
+    private func userExerciseRecords(since cutoff: Date? = nil) -> [ExerciseRecord] {
+        var records: [ExerciseRecord] = []
+        for daily in user.progress {
+            for session in daily.sessions {
+                for record in session.exerciseRecords {
+                    if record.wasSkipped { continue }
+                    if let cutoff = cutoff, record.date < cutoff { continue }
+                    records.append(record)
+                }
+            }
+        }
+        return records
+    }
 
+    private var categoryStatsData: [CategoryStats] {
         let calendar = Calendar.current
         let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: Date()))!
-        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
-
-        let weeklyRecords = allRecords.filter { record in
-            guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id) && record.date >= sevenDaysAgo && !record.wasSkipped
-        }
+        let weeklyRecords = userExerciseRecords(since: sevenDaysAgo)
 
         let grouped = Dictionary(grouping: weeklyRecords) { $0.category }
 
@@ -328,14 +335,7 @@ struct ParentDashboardView: View {
     // MARK: - Focus Exercises
 
     private var focusExercisesData: [ExerciseCategory: [(first: Int, second: Int)]] {
-        let descriptor = FetchDescriptor<ExerciseRecord>()
-        guard let allRecords = try? modelContext.fetch(descriptor) else { return [:] }
-
-        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
-        let userRecords = allRecords.filter { record in
-            guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id) && !record.wasSkipped
-        }
+        let userRecords = userExerciseRecords()
 
         let recordData = userRecords.compactMap { record -> MetricsService.RecordData? in
             guard let category = ExerciseCategory(rawValue: record.category) else { return nil }
@@ -415,15 +415,7 @@ struct ParentDashboardView: View {
     }
 
     private var exerciseStatsData: [ExerciseStats] {
-        let descriptor = FetchDescriptor<ExerciseRecord>()
-        guard let allRecords = try? modelContext.fetch(descriptor) else { return [] }
-
-        // Filter to current user's sessions
-        let userSessionIDs = Set(user.progress.flatMap(\.sessions).map(\.id))
-        let userRecords = allRecords.filter { record in
-            guard let session = record.session else { return false }
-            return userSessionIDs.contains(session.id) && !record.wasSkipped
-        }
+        let userRecords = userExerciseRecords()
 
         // Group by category + numbers (ignoring format to avoid duplicates
         // like "1 + 1" appearing for both standard and gap-fill)
@@ -450,7 +442,7 @@ struct ParentDashboardView: View {
                 lastThreeTimes: Array(lastThree)
             )
         }
-        .sorted { $0.totalCount > $1.totalCount }
+        .sorted { $0.totalCount != $1.totalCount ? $0.totalCount > $1.totalCount : $0.displayText < $1.displayText }
     }
 
     private let pageSize = 20

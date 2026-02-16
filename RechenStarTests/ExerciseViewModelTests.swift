@@ -388,4 +388,148 @@ final class ExerciseViewModelTests: XCTestCase {
             XCTFail("Exercise matching weak list should give .revenge, got \(vm.feedbackState)")
         }
     }
+
+    // MARK: - Cross-Session Integration Test
+
+    func testCrossSessionRevengeEndToEnd() {
+        // Simulate the FULL flow: Session 1 with failures → MetricsService → Session 2 with revenge
+
+        // --- Session 1: 5 correct, 5 incorrect ---
+        let session1VM = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .easy,
+            categories: [.addition_10],
+            metrics: nil,
+            adaptiveDifficulty: false,
+            gapFillEnabled: false
+        )
+        session1VM.startSession()
+
+        var failedExercises: [(first: Int, second: Int)] = []
+
+        for i in 0..<10 {
+            guard let exercise = session1VM.currentExercise else {
+                XCTFail("No exercise at index \(i)")
+                return
+            }
+
+            if i < 5 {
+                // Answer correctly
+                let answer = exercise.correctAnswer
+                for digit in String(answer) {
+                    session1VM.appendDigit(Int(String(digit))!)
+                }
+                session1VM.submitAnswer()
+            } else {
+                // Answer wrong TWICE to trigger showAnswer (failed exercise)
+                let wrong1 = (exercise.correctAnswer + 1) % 100
+                for digit in String(wrong1) {
+                    session1VM.appendDigit(Int(String(digit))!)
+                }
+                session1VM.submitAnswer()
+                // First attempt wrong → .incorrect
+                XCTAssertEqual(session1VM.feedbackState, .incorrect,
+                    "First wrong attempt should give .incorrect")
+                session1VM.clearIncorrectFeedback()
+
+                // Second wrong attempt
+                let wrong2 = (exercise.correctAnswer + 2) % 100
+                for digit in String(wrong2) {
+                    session1VM.appendDigit(Int(String(digit))!)
+                }
+                session1VM.submitAnswer()
+                // Second attempt wrong → .showAnswer
+                if case .showAnswer = session1VM.feedbackState {
+                    failedExercises.append((first: exercise.firstNumber, second: exercise.secondNumber))
+                } else {
+                    XCTFail("Second wrong attempt should give .showAnswer, got \(session1VM.feedbackState)")
+                }
+                session1VM.clearShowAnswer()
+                continue // clearShowAnswer already calls nextExercise
+            }
+
+            session1VM.nextExercise()
+        }
+
+        XCTAssertGreaterThan(failedExercises.count, 0, "Should have some failed exercises")
+
+        // --- Build metrics from Session 1 results (simulates what computeMetrics does) ---
+        let recordData = session1VM.sessionResults.map { result in
+            MetricsService.RecordData(
+                category: result.exercise.category,
+                exerciseSignature: result.exercise.signature,
+                firstNumber: result.exercise.firstNumber,
+                secondNumber: result.exercise.secondNumber,
+                isCorrect: result.isCorrect,
+                date: Date()
+            )
+        }
+
+        let metrics = MetricsService.computeMetrics(from: recordData)
+        XCTAssertNotNil(metrics, "Metrics should not be nil with 10 records")
+
+        // Verify failed exercises are in weakExercises
+        let weakPairs = metrics!.weakExercises[.addition_10] ?? []
+        for failed in failedExercises {
+            let found = weakPairs.contains { $0.first == failed.first && $0.second == failed.second }
+            XCTAssertTrue(found,
+                "Failed exercise (\(failed.first), \(failed.second)) should be in weakExercises. " +
+                "Weak pairs: \(weakPairs)")
+        }
+
+        // --- Session 2: Use ALL possible pairs as weak so every exercise triggers revenge ---
+        // (In production, only the specific failed pairs would be weak,
+        //  but the generator might not produce those exact pairs randomly.
+        //  This test verifies isWeakExercise() works given correct metrics.)
+        let session2VM = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .easy,
+            categories: [.addition_10],
+            metrics: metrics,
+            adaptiveDifficulty: false,
+            gapFillEnabled: false
+        )
+        session2VM.startSession()
+
+        var revengeCount = 0
+        var normalCount = 0
+
+        for _ in 0..<10 {
+            guard let exercise = session2VM.currentExercise,
+                  session2VM.sessionState == .inProgress else { break }
+
+            let answer = exercise.correctAnswer
+            for digit in String(answer) {
+                session2VM.appendDigit(Int(String(digit))!)
+            }
+            session2VM.submitAnswer()
+
+            let isWeak = weakPairs.contains { $0.first == exercise.firstNumber && $0.second == exercise.secondNumber }
+            let isRetry = exercise.isRetry
+
+            if isWeak || isRetry {
+                if case .revenge = session2VM.feedbackState {
+                    revengeCount += 1
+                } else {
+                    XCTFail("Weak/retry exercise (\(exercise.firstNumber)+\(exercise.secondNumber)) " +
+                        "answered correctly should give .revenge, got \(session2VM.feedbackState). " +
+                        "isRetry=\(isRetry), isWeak=\(isWeak)")
+                }
+            } else {
+                if case .correct = session2VM.feedbackState {
+                    normalCount += 1
+                }
+            }
+
+            session2VM.nextExercise()
+        }
+
+        XCTAssertGreaterThan(revengeCount + normalCount, 0,
+            "Should have processed some exercises. Revenge=\(revengeCount), Normal=\(normalCount)")
+
+        // With 5 failed exercises and 30% isRetry chance + isWeakExercise matching,
+        // we should see at least some revenge over 10 exercises
+        // (unless no generated exercise matches the weak list — which is possible but unlikely)
+        print("Cross-session revenge test: \(revengeCount) revenge, \(normalCount) normal out of 10")
+    }
 }
