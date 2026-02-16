@@ -5,9 +5,10 @@ final class ExerciseViewModelTests: XCTestCase {
 
     private func makeSUT(
         sessionLength: Int = 10,
-        categories: [ExerciseCategory] = [.addition_10, .subtraction_10]
+        categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
+        metrics: ExerciseMetrics? = nil
     ) -> ExerciseViewModel {
-        ExerciseViewModel(sessionLength: sessionLength, difficulty: .easy, categories: categories)
+        ExerciseViewModel(sessionLength: sessionLength, difficulty: .easy, categories: categories, metrics: metrics)
     }
 
     func testInitialState() {
@@ -216,5 +217,96 @@ final class ExerciseViewModelTests: XCTestCase {
         let vm2 = makeSUT(categories: [.addition_10])
         vm2.startSession()
         XCTAssertFalse(vm2.showNegativeToggle)
+    }
+
+    func testNoDuplicateExercisesAfterDifficultyChange() {
+        // Use a short session so adaptive difficulty triggers at exercise 3
+        let vm = makeSUT(sessionLength: 10, categories: [.addition_10, .subtraction_10])
+        vm.startSession()
+
+        // Answer first 3 exercises correctly to trigger difficulty adaptation
+        for _ in 0..<3 {
+            guard let exercise = vm.currentExercise else {
+                XCTFail("No current exercise")
+                return
+            }
+            let answer = exercise.correctAnswer
+            for digit in String(answer) {
+                vm.appendDigit(Int(String(digit))!)
+            }
+            vm.submitAnswer()
+            vm.nextExercise()
+        }
+
+        // Collect all remaining exercise signatures (after potential regeneration)
+        var signatures: [String] = []
+        // Include already-completed exercises
+        for result in vm.sessionResults {
+            signatures.append(result.exercise.signature)
+        }
+        // Walk remaining exercises
+        var idx = vm.exerciseIndex
+        while idx < vm.sessionLength && vm.sessionState == .inProgress {
+            if let ex = vm.currentExercise {
+                signatures.append(ex.signature)
+            }
+            // Skip to advance without answering
+            vm.skipExercise()
+            idx += 1
+        }
+
+        let unique = Set(signatures)
+        XCTAssertEqual(unique.count, signatures.count,
+            "Duplicate exercises found after difficulty change: \(signatures.filter { s in signatures.filter { $0 == s }.count > 1 })")
+    }
+
+    func testRevengeFeedbackOnRetryExercise() {
+        // Provide metrics with weak exercises so generator produces isRetry exercises
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [:],
+            weakExercises: [
+                .addition_10: [(first: 1, second: 2), (first: 2, second: 3), (first: 3, second: 4)],
+                .subtraction_10: [(first: 5, second: 2), (first: 4, second: 1)]
+            ]
+        )
+
+        // Try multiple sessions since isRetry depends on 30% random chance
+        var sawRevenge = false
+        var sawNormalCorrect = false
+
+        for _ in 0..<20 {
+            let vm = makeSUT(sessionLength: 10, metrics: metrics)
+            vm.startSession()
+
+            for _ in 0..<10 {
+                guard let exercise = vm.currentExercise else { break }
+                guard vm.sessionState == .inProgress else { break }
+
+                let answer = exercise.correctAnswer
+                for digit in String(answer) {
+                    vm.appendDigit(Int(String(digit))!)
+                }
+                vm.submitAnswer()
+
+                if exercise.isRetry {
+                    if case .revenge = vm.feedbackState {
+                        sawRevenge = true
+                    } else {
+                        XCTFail("isRetry exercise answered correctly should give .revenge, got \(vm.feedbackState)")
+                    }
+                } else {
+                    if case .correct = vm.feedbackState {
+                        sawNormalCorrect = true
+                    }
+                }
+
+                vm.nextExercise()
+            }
+
+            if sawRevenge && sawNormalCorrect { break }
+        }
+
+        XCTAssertTrue(sawRevenge, "Should have seen .revenge feedback for a retry exercise")
+        XCTAssertTrue(sawNormalCorrect, "Should have seen .correct feedback for a normal exercise")
     }
 }

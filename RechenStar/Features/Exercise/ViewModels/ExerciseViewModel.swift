@@ -251,7 +251,7 @@ final class ExerciseViewModel {
 
     private func regenerateRemaining(from nextIndex: Int) {
         let remaining = sessionLength - nextIndex
-        let usedSignatures = Set(exercises.map(\.signature))
+        var usedSignatures = Set(exercises.prefix(nextIndex).map(\.signature))
         var newExercises: [Exercise] = []
         for _ in 0..<remaining {
             let category = ExerciseGenerator.weightedRandomCategory(from: categories, metrics: metrics)
@@ -263,6 +263,7 @@ final class ExerciseViewModel {
                 allowGapFill: gapFillEnabled
             )
             newExercises.append(ex)
+            usedSignatures.insert(ex.signature)
         }
         exercises = Array(exercises.prefix(nextIndex)) + newExercises
     }

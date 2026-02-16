@@ -272,6 +272,36 @@ final class ExerciseGeneratorTests: XCTestCase {
             "Weak exercise (2+3) should appear frequently, got \(weakCount)/200")
     }
 
+    func testWeakExercisesMarkedAsRetry() {
+        let metrics = ExerciseMetrics(
+            categoryAccuracy: [:],
+            weakExercises: [.addition_10: [(first: 2, second: 3)]]
+        )
+
+        var retryCount = 0
+        var nonRetryCount = 0
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(
+                difficulty: .easy,
+                category: .addition_10,
+                metrics: metrics
+            )
+            if exercise.isRetry {
+                retryCount += 1
+                // Retry exercises must come from the weak pool
+                XCTAssertEqual(exercise.firstNumber, 2)
+                XCTAssertEqual(exercise.secondNumber, 3)
+            } else {
+                nonRetryCount += 1
+            }
+        }
+
+        XCTAssertGreaterThan(retryCount, 10,
+            "Weak exercises should be marked isRetry, got \(retryCount)/200")
+        XCTAssertGreaterThan(nonRetryCount, 50,
+            "Non-weak exercises should NOT be marked isRetry")
+    }
+
     func testNilMetricsBehavesLikeRandom() {
         let exercises = ExerciseGenerator.generateSession(
             count: 10,
