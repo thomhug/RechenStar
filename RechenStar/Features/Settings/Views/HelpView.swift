@@ -56,6 +56,8 @@ struct HelpView: View {
                         text: "Im Fortschritt-Tab siehst du, wie viele Aufgaben du schon gelöst hast und wie lang deine aktuelle Serie ist."
                     )
 
+                    difficultySection
+
                     helpSection(
                         icon: "gearshape.fill",
                         color: .appTextSecondary,
@@ -81,6 +83,112 @@ struct HelpView: View {
                 }
             }
         }
+    }
+
+    private var difficultySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 28))
+                    .foregroundColor(.appSunYellow)
+                    .frame(width: 36)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Schwierigkeitsstufen")
+                        .font(AppFonts.headline)
+                        .foregroundColor(.appTextPrimary)
+                    Text("Wähle \"Automatisch\" und die App passt sich an. Oder stelle die Schwierigkeit selbst ein:")
+                        .font(AppFonts.body)
+                        .foregroundColor(.appTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            difficultyTable(
+                title: "Addition & Subtraktion",
+                rows: [
+                    ("Sehr leicht", "bis 3", "bis 20"),
+                    ("Leicht", "bis 5", "bis 40"),
+                    ("Mittel", "bis 7", "bis 70"),
+                    ("Schwer", "bis 10", "bis 99"),
+                ]
+            )
+
+            difficultyTable(
+                title: "Grosses 1×1",
+                rows: [
+                    ("Sehr leicht", "bis 50"),
+                    ("Leicht", "bis 100"),
+                    ("Mittel", "bis 200"),
+                    ("Schwer", "bis 400"),
+                ]
+            )
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.appCardBackground)
+        )
+        .accessibilityElement(children: .combine)
+    }
+
+    private func difficultyTable(title: String, rows: [(String, String, String)]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(AppFonts.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.appTextPrimary)
+
+            ForEach(rows, id: \.0) { row in
+                HStack {
+                    Text(row.0)
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .frame(width: 80, alignment: .leading)
+                    Text("bis 10: \(row.1)")
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text("bis 100: \(row.2)")
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.appSunYellow.opacity(0.06))
+        )
+    }
+
+    private func difficultyTable(title: String, rows: [(String, String)]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(AppFonts.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.appTextPrimary)
+
+            ForEach(rows, id: \.0) { row in
+                HStack {
+                    Text(row.0)
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .frame(width: 80, alignment: .leading)
+                    Text("Ergebnis \(row.1)")
+                        .font(AppFonts.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.appSunYellow.opacity(0.06))
+        )
     }
 
     private func helpSection(icon: String, color: Color, title: String, text: String) -> some View {

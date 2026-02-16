@@ -58,6 +58,7 @@ struct SettingsView: View {
                                 }
                             )) {
                                 Text("Automatisch").tag(0)
+                                Text("Sehr leicht").tag(1)
                                 Text("Leicht").tag(2)
                                 Text("Mittel").tag(3)
                                 Text("Schwer").tag(4)
