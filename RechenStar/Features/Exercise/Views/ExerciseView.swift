@@ -355,7 +355,7 @@ struct ExerciseView: View {
             if themeManager.soundEnabled {
                 SoundService.playCorrect()
             }
-            scheduleAutoAdvance(delay: 1.5, action: { viewModel.nextExercise() })
+            scheduleAutoAdvance(delay: 0.8, action: { viewModel.nextExercise() })
 
         case .none:
             break
