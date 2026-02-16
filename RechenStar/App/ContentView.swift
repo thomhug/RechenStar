@@ -319,17 +319,11 @@ struct UserAvatarView: View {
 // MARK: - Parent Flow
 struct ParentFlowView: View {
     let onDismiss: () -> Void
-    @State private var gateUnlocked = false
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        if gateUnlocked, let user = appState.currentUser {
+        if let user = appState.currentUser {
             ParentDashboardView(user: user, onDismiss: onDismiss)
-        } else {
-            ParentGateView(
-                onSuccess: { withAnimation { gateUnlocked = true } },
-                onCancel: onDismiss
-            )
         }
     }
 }

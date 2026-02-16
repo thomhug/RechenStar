@@ -1,144 +1,97 @@
-# RechenStar 🌟
+# RechenStar
 
-Eine kindgerechte Mathe-Lern-App für iOS, speziell entwickelt für Erstklässler (6-8 Jahre).
+Eine kindgerechte Mathe-Lern-App für iOS, speziell entwickelt für Grundschulkinder (6-10 Jahre).
 
-## 🎯 Projektziel
+## Projektziel
 
-RechenStar macht Mathematik-Lernen zum Spaß! Die App hilft Kindern in der ersten Klasse, Addition und Subtraktion im Zahlenraum 1-10 spielerisch zu meistern.
+RechenStar macht Mathematik-Lernen zum Spass! Die App hilft Kindern, Addition, Subtraktion und Multiplikation spielerisch zu meistern.
 
-## ✨ Hauptmerkmale
+## Hauptmerkmale
 
 ### Für Kinder:
-- **Spielerisches Lernen**: Addition und Subtraktion (1-10)
-- **Positive Verstärkung**: Sterne, Sticker und Animationen
-- **Kindgerechtes Design**: Große Buttons, klare Farben
+- **6 Aufgabentypen**: Addition und Subtraktion (bis 10 und bis 100), kleines und grosses Einmaleins
+- **Positive Verstärkung**: Sterne, Erfolge und Konfetti-Animationen
+- **Kindgerechtes Design**: Grosse Buttons, klare Farben
 - **Adaptive Schwierigkeit**: Passt sich dem Lerntempo an
 - **Keine Frustration**: Immer ermutigendes Feedback
 
 ### Für Eltern:
-- **Fortschrittsverfolgung**: Detaillierte Lernstatistiken
-- **Zeitkontrolle**: Einstellbare Session-Längen
+- **Fortschrittsverfolgung**: Detaillierte Statistiken pro Aufgabentyp
+- **Stärken & Schwächen**: Genauigkeit pro Kategorie auf einen Blick
+- **Aufgaben-Details**: Einzelne Aufgaben mit Zeiten und Erfolgsquote
+- **Zeitkontrolle**: Einstellbare Session-Längen und Pausen-Erinnerung
 - **100% Sicher**: Keine Werbung, keine In-App-Käufe
 - **Datenschutz**: DSGVO-konform, lokale Datenspeicherung
 
-## 🛠 Technologie-Stack
+## Aufgabentypen
 
-- **Platform**: iOS 16+
+| Kategorie | Zahlenbereich | Besonderheit |
+|-----------|---------------|-------------|
+| Addition bis 10 | Summe max. 10 | Einstieg |
+| Addition bis 100 | Summe max. 100 | Zweistellig |
+| Subtraktion bis 10 | Ergebnis >= 0 | Einstieg |
+| Subtraktion bis 100 | Negativ erlaubt | Mit +/- Button |
+| Kleines 1x1 | Faktoren 1-10 | Einmaleins |
+| Grosses 1x1 | Produkt max. 100 | Fortgeschritten |
+
+## Technologie-Stack
+
+- **Platform**: iOS 17+
 - **Language**: Swift 5.9+
 - **UI Framework**: SwiftUI
-- **Architecture**: MVVM
+- **Architecture**: MVVM mit @Observable
 - **Persistence**: SwiftData
 - **Min. Target**: iPhone SE, iPad
 
-## 📁 Projektstruktur
+## Projektstruktur
 
 ```
 RechenStar/
-├── docs/
-│   ├── agents/         # 8 Persona-Definitionen
-│   ├── architecture/   # Technische Dokumentation
-│   ├── design/         # Design System & Wireframes
-│   └── pedagogy/       # Pädagogische Konzepte
-├── RechenStar/         # iOS App Source Code
-│   ├── App/           # App Configuration
-│   ├── Core/          # Models & Services
-│   ├── Features/      # UI Features
-│   ├── Design/        # Theme & Components
+├── RechenStar/
+│   ├── App/           # App Entry Point, ContentView
+│   ├── Core/
+│   │   ├── Models/    # Exercise, ExerciseCategory, User, Session
+│   │   └── Services/  # ExerciseGenerator, EngagementService
+│   ├── Features/
+│   │   ├── Home/      # Startbildschirm
+│   │   ├── Exercise/  # Aufgaben-View und ViewModel
+│   │   ├── Settings/  # Einstellungen und Hilfe
+│   │   ├── Parent/    # Eltern-Dashboard
+│   │   ├── Progress/  # Fortschritt und Erfolge
+│   │   └── Session/   # Session-Abschluss
+│   ├── Design/        # Theme, Fonts, Components
 │   └── Resources/     # Assets & Sounds
-└── Tests/             # Unit & UI Tests
+├── RechenStarTests/    # Unit Tests
+└── scripts/            # Build & Deploy
 ```
 
-## 🚀 Setup & Installation
+## Setup & Installation
 
 ### Voraussetzungen:
-- Xcode 15.0+
-- iOS 16.0+ Simulator oder Gerät
+- Xcode 15.4+
+- iOS 17.0+ Simulator oder Gerät
 - macOS Sonoma oder neuer
 
 ### Installation:
 ```bash
-# Repository klonen
-git clone https://github.com/username/RechenStar.git
+git clone https://github.com/thomhug/RechenStar.git
 cd RechenStar
-
-# Xcode-Projekt öffnen
 open RechenStar.xcodeproj
-
-# Build & Run (⌘R)
+# Build & Run (Cmd+R)
 ```
 
-## 🎮 Features (MVP)
-
-### Phase 1: Core
-- [x] 8 Subagenten-Definitionen
-- [ ] Basis UI mit SwiftUI
-- [ ] Addition (1-10)
-- [ ] Subtraktion (1-10, Ergebnis > 0)
-- [ ] Number Pad Eingabe
-
-### Phase 2: Gamification
-- [ ] Sterne-System (1-3 Sterne)
-- [ ] Sound-Effekte
-- [ ] Celebration-Animationen
-- [ ] Sticker-Sammlung
-- [ ] Daily Streak
-
-### Phase 3: Eltern-Features
-- [ ] PIN-geschützter Bereich
-- [ ] Fortschritts-Dashboard
-- [ ] Zeitlimits
-- [ ] Export-Funktionen
-
-## 🎨 Design-Prinzipien
-
-- **Große Touch-Targets**: Min. 60x60pt
-- **Klare Typografie**: SF Rounded, 28-48pt
-- **Fröhliche Farben**: Nicht überstimulierend
-- **Sofortiges Feedback**: < 0.5 Sekunden
-- **Positive Verstärkung**: Keine Bestrafung
-
-## ♿ Barrierefreiheit
+## Barrierefreiheit
 
 RechenStar ist für ALLE Kinder:
-- ✅ VoiceOver Support
-- ✅ Dynamic Type
-- ✅ High Contrast Mode
-- ✅ Switch Control
-- ✅ Reduzierte Bewegung
+- VoiceOver Support
+- Dynamic Type / einstellbare Schriftgrösse
+- Erscheinungsbild (Hell/Dunkel/System)
+- Reduzierte Bewegung (weniger Animationen)
 
-## 👥 Zielgruppe
+## Lizenz
 
-- **Primär**: Kinder 6-8 Jahre (1. Klasse)
-- **Sekundär**: Eltern & Lehrer
-- **Sprachen**: Deutsch (Initial), Englisch (Geplant)
+Copyright 2026 anbeda AG. Alle Rechte vorbehalten.
 
-## 📊 Erfolgsmetriken
+## Kontakt
 
-- Time to First Success: < 30 Sekunden
-- Session-Dauer: 10-15 Minuten
-- Retention Rate: >60% nach 7 Tagen
-- Crash-Free Rate: >99.5%
-- App Store Rating: >4.5 Sterne
-
-## 🤝 Mitwirken
-
-Contributions sind willkommen! Bitte beachte:
-1. Fork das Repository
-2. Erstelle einen Feature Branch
-3. Committe deine Änderungen
-4. Push zum Branch
-5. Öffne einen Pull Request
-
-## 📄 Lizenz
-
-Copyright © 2024 RechenStar Team. Alle Rechte vorbehalten.
-
-## 📧 Kontakt
-
-- Email: info@rechenstar.de
-- Support: support@rechenstar.de
-- Website: www.rechenstar.de
-
----
-
-**RechenStar** - Wo Lernen zum Abenteuer wird! 🚀✨
+anbeda AG — info@anbeda.com
