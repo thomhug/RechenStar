@@ -18,14 +18,14 @@ struct HelpView: View {
                         icon: "square.grid.2x2.fill",
                         color: .appSkyBlue,
                         title: "Aufgabentypen",
-                        text: "In den Einstellungen kannst du auswählen, welche Aufgaben vorkommen: Addition und Subtraktion bis 10 oder bis 100, sowie kleines und grosses Einmaleins. Bei Subtraktion bis 100 gibt es einen ±-Knopf für negative Ergebnisse."
+                        text: "In den Einstellungen kannst du auswählen, welche Aufgaben vorkommen: Addition und Subtraktion bis 10 oder bis 100, sowie kleines und grosses Einmaleins. Bei Subtraktion bis 100 gibt es einen ±-Knopf für negative Ergebnisse. Wenn Lückenaufgaben aktiviert sind, kommen auch Aufgaben wie ? + 4 = 7 oder 3 + ? = 7 vor."
                     )
 
                     helpSection(
                         icon: "star.fill",
                         color: .appSunYellow,
                         title: "Sterne sammeln",
-                        text: "Für jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 3 Sterne, beim zweiten 2 und beim dritten noch 1 Stern."
+                        text: "Für jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 3 Sterne, beim zweiten 2 und beim dritten noch 1 Stern. Nach zwei falschen Antworten wird die Lösung gezeigt. Wenn du eine Aufgabe überspringst, siehst du ebenfalls die richtige Antwort."
                     )
 
                     helpSection(
@@ -46,14 +46,21 @@ struct HelpView: View {
                         icon: "brain.head.profile",
                         color: .appGrassGreen,
                         title: "Schlaues Üben",
-                        text: "Die App merkt sich, welche Aufgaben dir schwerfallen, und zeigt sie dir öfter. So übst du genau das, was du noch brauchst!"
+                        text: "Die App merkt sich, welche Aufgaben dir schwerfallen, und zeigt sie dir öfter. Wenn du eine schwierige Aufgabe dann richtig löst, bekommst du Bonus-Sterne als Belohnung! Ausserdem erkennt die App, wenn du Plus und Minus verwechselst, und gibt dir einen Hinweis."
+                    )
+
+                    helpSection(
+                        icon: "target",
+                        color: .appSkyBlue,
+                        title: "Tagesziel",
+                        text: "Auf dem Startbildschirm siehst du dein Tagesziel. Versuche jeden Tag genug Aufgaben zu lösen, um den Balken zu füllen!"
                     )
 
                     helpSection(
                         icon: "chart.line.uptrend.xyaxis",
                         color: .appGrassGreen,
                         title: "Fortschritt",
-                        text: "Im Fortschritt-Tab siehst du, wie viele Aufgaben du schon gelöst hast und wie lang deine aktuelle Serie ist."
+                        text: "Im Fortschritt-Tab siehst du dein Level und deinen Skill. Tippe auf die Badges, um alle Stufen zu sehen. Dein Level steigt mit der Anzahl gelöster Aufgaben, dein Skill zeigt deine Genauigkeit der letzten 7 Tage."
                     )
 
                     difficultySection
@@ -62,7 +69,7 @@ struct HelpView: View {
                         icon: "gearshape.fill",
                         color: .appTextSecondary,
                         title: "Einstellungen",
-                        text: "Passe die Aufgabentypen, Schriftgrösse, Töne und die Anzahl der Aufgaben pro Runde an. Du findest die Einstellungen im letzten Tab."
+                        text: "Passe die Aufgabentypen, Schriftgrösse, Töne und die Anzahl der Aufgaben pro Runde an. Eltern können auch den Überspringen-Knopf ausblenden oder einen Timer einstellen, der die Lösung nach einer gewissen Zeit automatisch zeigt."
                     )
 
                     helpSection(
