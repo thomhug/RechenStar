@@ -126,6 +126,55 @@ final class ExerciseFlowUITests: XCTestCase {
         }
     }
 
+    func testEasyDifficultyLimitsNumbers() throws {
+        // Navigate to Settings
+        app.buttons["tab-Einstellungen"].firstMatch.tap()
+
+        // Set difficulty to "Leicht"
+        let difficultyPicker = app.buttons["difficulty-picker"].firstMatch
+        XCTAssertTrue(difficultyPicker.waitForExistence(timeout: 5), "Difficulty picker should exist")
+        difficultyPicker.tap()
+
+        let leichtOption = app.buttons["Leicht"].firstMatch
+        XCTAssertTrue(leichtOption.waitForExistence(timeout: 3), "Leicht option should appear")
+        leichtOption.tap()
+
+        sleep(1)
+
+        // Navigate to Home and start session
+        app.buttons["tab-Spielen"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["play-button"].waitForExistence(timeout: 5))
+        app.buttons["play-button"].tap()
+
+        // With easy difficulty (range 1...5), ALL numbers must be <= 5
+        for i in 0..<10 {
+            let exerciseCard = app.descendants(matching: .any)["exercise-card"].firstMatch
+            guard exerciseCard.waitForExistence(timeout: 5) else {
+                XCTFail("Exercise card not found")
+                return
+            }
+
+            let label = exerciseCard.label
+            let parts = label.components(separatedBy: " ")
+            if let first = Int(parts[0]) {
+                XCTAssertLessThanOrEqual(first, 5,
+                    "Exercise \(i+1): first number \(first) exceeds easy range (max 5) — \(label)")
+            }
+            if parts.count >= 3, let second = Int(parts[2]) {
+                XCTAssertLessThanOrEqual(second, 5,
+                    "Exercise \(i+1): second number \(second) exceeds easy range (max 5) — \(label)")
+            }
+
+            solveCurrentExercise()
+        }
+
+        // Dismiss session complete
+        let sessionComplete = app.descendants(matching: .any)["session-complete"].firstMatch
+        if sessionComplete.waitForExistence(timeout: 5) {
+            app.buttons["done-button"].tap()
+        }
+    }
+
     // MARK: - Helpers
 
     private func ensureUserExists() {

@@ -20,6 +20,7 @@ struct ExerciseView: View {
         difficulty: Difficulty = .easy,
         categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
         metrics: ExerciseMetrics? = nil,
+        adaptiveDifficulty: Bool = true,
         onSessionComplete: @escaping ([ExerciseResult]) -> Void,
         onCancel: @escaping ([ExerciseResult]) -> Void
     ) {
@@ -27,7 +28,8 @@ struct ExerciseView: View {
             sessionLength: sessionLength,
             difficulty: difficulty,
             categories: categories,
-            metrics: metrics
+            metrics: metrics,
+            adaptiveDifficulty: adaptiveDifficulty
         ))
         self.onSessionComplete = onSessionComplete
         self.onCancel = onCancel

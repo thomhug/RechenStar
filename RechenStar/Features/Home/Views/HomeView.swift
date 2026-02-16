@@ -63,7 +63,8 @@ struct HomeView: View {
                     sessionLength: appState.currentUser?.preferences?.sessionLength ?? 10,
                     difficulty: difficultyFromPreferences(),
                     categories: categoriesFromPreferences(),
-                    metrics: computeMetrics()
+                    metrics: computeMetrics(),
+                    adaptiveDifficulty: appState.currentUser?.preferences?.adaptiveDifficulty ?? true
                 ) { results in
                     let engagement = saveSession(results: results)
                     exerciseFlowState = .completed(

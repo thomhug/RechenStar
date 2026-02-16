@@ -30,6 +30,7 @@ final class ExerciseViewModel {
     let sessionLength: Int
     let categories: [ExerciseCategory]
     let metrics: ExerciseMetrics?
+    let adaptiveDifficulty: Bool
 
     private var exercises: [Exercise] = []
     private var currentAttempts: Int = 0
@@ -82,12 +83,14 @@ final class ExerciseViewModel {
         sessionLength: Int = 10,
         difficulty: Difficulty = .easy,
         categories: [ExerciseCategory] = [.addition_10, .subtraction_10],
-        metrics: ExerciseMetrics? = nil
+        metrics: ExerciseMetrics? = nil,
+        adaptiveDifficulty: Bool = true
     ) {
         self.sessionLength = sessionLength
         self.currentDifficulty = difficulty
         self.categories = categories
         self.metrics = metrics
+        self.adaptiveDifficulty = adaptiveDifficulty
     }
 
     // MARK: - Actions
@@ -166,8 +169,8 @@ final class ExerciseViewModel {
             return
         }
 
-        // Adaptive difficulty every 3 exercises
-        if nextIndex % 3 == 0 {
+        // Adaptive difficulty every 3 exercises (only when enabled)
+        if adaptiveDifficulty && nextIndex % 3 == 0 {
             let recentResults = sessionResults.suffix(3)
             let recentAccuracy = Double(recentResults.filter(\.isCorrect).count) / Double(recentResults.count)
             let newDifficulty = ExerciseGenerator.adaptDifficulty(
