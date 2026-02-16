@@ -19,6 +19,14 @@ enum SoundService {
         playTone(frequency: 280, duration: 0.25) // tiefer Ton
     }
 
+    // Aufmerksamkeitston bei +/- Verwechslung
+    static func playOperationHint() {
+        playMelody(notes: [
+            (frequency: 523.25, duration: 0.12),  // C5 – aufsteigend
+            (frequency: 659.25, duration: 0.20),  // E5 – "Achtung!"
+        ])
+    }
+
     // Fanfare "tütertütüü" bei Session-Abschluss
     static func playSessionComplete() {
         playMelody(notes: [

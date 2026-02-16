@@ -12,6 +12,7 @@ final class ExerciseViewModel {
         case correct(stars: Int)
         case revenge(stars: Int)
         case incorrect
+        case wrongOperation(correct: String, wrong: String)
         case showAnswer(Int)
     }
 
@@ -61,6 +62,7 @@ final class ExerciseViewModel {
     var isInputDisabled: Bool {
         if case .showAnswer = feedbackState { return true }
         if case .revenge = feedbackState { return true }
+        if case .wrongOperation = feedbackState { return false }
         return feedbackState != .none && feedbackState != .incorrect
     }
 
@@ -191,15 +193,37 @@ final class ExerciseViewModel {
             feedbackState = .showAnswer(exercise.correctAnswer)
             consecutiveErrors += 1
         } else {
+            // Check for +/- confusion (standard format only)
+            if exercise.format == .standard {
+                let oppositeAnswer: Int?
+                switch exercise.type {
+                case .addition:
+                    oppositeAnswer = exercise.firstNumber - exercise.secondNumber
+                case .subtraction:
+                    oppositeAnswer = exercise.firstNumber + exercise.secondNumber
+                case .multiplication:
+                    oppositeAnswer = nil
+                }
+                if let opposite = oppositeAnswer, answer == opposite {
+                    let correctSymbol = exercise.type.symbol
+                    let wrongSymbol = exercise.type == .addition ? "-" : "+"
+                    feedbackState = .wrongOperation(correct: correctSymbol, wrong: wrongSymbol)
+                    return
+                }
+            }
             feedbackState = .incorrect
         }
     }
 
     func clearIncorrectFeedback() {
-        guard feedbackState == .incorrect else { return }
-        feedbackState = .none
-        userAnswer = ""
-        isNegative = false
+        switch feedbackState {
+        case .incorrect, .wrongOperation:
+            feedbackState = .none
+            userAnswer = ""
+            isNegative = false
+        default:
+            break
+        }
     }
 
     func nextExercise() {

@@ -271,6 +271,13 @@ struct ExerciseView: View {
                     .frame(height: isCompact ? 30 : 40)
                     .transition(.scale.combined(with: .opacity))
 
+            case .wrongOperation(let correct, let wrong):
+                Text("Achtung, \(correct) nicht \(wrong)!")
+                    .font(isCompact ? AppFonts.subheadline : AppFonts.headline)
+                    .foregroundColor(.appOrange)
+                    .frame(height: isCompact ? 30 : 40)
+                    .transition(.scale.combined(with: .opacity))
+
             case .showAnswer(let answer):
                 Text("Die Antwort ist \(answer)")
                     .font(isCompact ? AppFonts.subheadline : AppFonts.headline)
@@ -379,7 +386,7 @@ struct ExerciseView: View {
                     }
                     .accessibilityIdentifier("skip-button")
                 }
-            case .incorrect:
+            case .incorrect, .wrongOperation:
                 Color.clear.frame(height: btnHeight)
             case .showAnswer:
                 Color.clear.frame(height: btnHeight)
@@ -401,6 +408,16 @@ struct ExerciseView: View {
                 SoundService.playIncorrect()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                viewModel.clearIncorrectFeedback()
+            }
+
+        case .wrongOperation:
+            if !themeManager.reducedMotion { triggerShake() }
+            HapticFeedback.notification(.warning)
+            if themeManager.soundEnabled {
+                SoundService.playOperationHint()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 viewModel.clearIncorrectFeedback()
             }
 
