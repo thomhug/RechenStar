@@ -424,9 +424,13 @@ struct ParentDashboardView: View {
             return userSessionIDs.contains(session.id)
         }
 
-        let grouped = Dictionary(grouping: userRecords, by: \.exerciseSignature)
+        // Group by category + numbers (ignoring format to avoid duplicates
+        // like "1 + 1" appearing for both standard and gap-fill)
+        let grouped = Dictionary(grouping: userRecords) { record in
+            "\(record.category)_\(record.firstNumber)_\(record.secondNumber)"
+        }
 
-        return grouped.map { (sig, records) in
+        return grouped.map { (key, records) in
             let correct = records.filter(\.isCorrect).count
             let total = records.count
             let avgTime = records.map(\.timeSpent).reduce(0, +) / Double(max(total, 1))
@@ -434,10 +438,10 @@ struct ParentDashboardView: View {
                 .sorted { $0.date > $1.date }
                 .prefix(3)
                 .map(\.timeSpent)
-            let display = records.first?.displayText ?? sig
+            let display = records.first?.displayText ?? key
 
             return ExerciseStats(
-                id: sig,
+                id: key,
                 displayText: display,
                 correctCount: correct,
                 totalCount: total,
