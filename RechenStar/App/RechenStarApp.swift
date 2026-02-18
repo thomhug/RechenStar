@@ -8,28 +8,43 @@ struct RechenStarApp: App {
     @State private var themeManager = ThemeManager()
 
     init() {
+        let schema = Schema([
+            User.self,
+            DailyProgress.self,
+            Session.self,
+            Achievement.self,
+            UserPreferences.self,
+            ExerciseRecord.self
+        ])
+
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: true
+        )
+
         do {
-            let schema = Schema([
-                User.self,
-                DailyProgress.self,
-                Session.self,
-                Achievement.self,
-                UserPreferences.self,
-                ExerciseRecord.self
-            ])
-
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true
-            )
-
             modelContainer = try ModelContainer(
                 for: schema,
                 configurations: [modelConfiguration]
             )
         } catch {
-            fatalError("Failed to initialize ModelContainer: \(error)")
+            // Store is corrupted — delete and recreate
+            let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            if let appSupport = urls.first {
+                for ext in ["store", "store-shm", "store-wal"] {
+                    let url = appSupport.appendingPathComponent("default.\(ext)")
+                    try? FileManager.default.removeItem(at: url)
+                }
+            }
+            do {
+                modelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
+            } catch {
+                fatalError("Failed to initialize ModelContainer after reset: \(error)")
+            }
         }
 
         UserDefaults.standard.register(defaults: [
