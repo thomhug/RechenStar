@@ -38,10 +38,10 @@ enum Level: Int, CaseIterable {
         case .matheHeld: 300
         case .zahlenkoenig: 500
         case .rechenstar: 1000
-        case .rechenstar2: 2000
-        case .rechenstar3: 3000
-        case .rechenstar4: 5000
-        case .rechenstar5: 10000
+        case .rechenstar2: 1500
+        case .rechenstar3: 2000
+        case .rechenstar4: 3000
+        case .rechenstar5: 5000
         }
     }
 
