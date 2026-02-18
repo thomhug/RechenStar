@@ -6,6 +6,7 @@ struct EngagementResult {
     let currentStreak: Int
     let isNewStreak: Bool
     let dailyGoalReached: Bool
+    let newLevel: Level?
 }
 
 struct EngagementService {
@@ -40,7 +41,8 @@ struct EngagementService {
             newlyUnlockedAchievements: unlocked,
             currentStreak: streakResult.streak,
             isNewStreak: streakResult.isNew,
-            dailyGoalReached: goalJustReached
+            dailyGoalReached: goalJustReached,
+            newLevel: nil
         )
     }
 

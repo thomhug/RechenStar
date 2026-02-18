@@ -138,9 +138,15 @@ struct ExerciseGenerator {
         case .multiplication_100:
             let maxProduct = difficulty.maxProduct
             let minFactor = difficulty.range.lowerBound
-            let first = Int.random(in: minFactor...20)
-            let maxSecond = min(20, maxProduct / max(first, 1))
-            let second = Int.random(in: minFactor...max(minFactor, maxSecond))
+            // For hard mode, exclude trivially easy factors (10, 20)
+            let excludedFactors: Set<Int> = difficulty == .hard ? [10, 20] : []
+            var first: Int
+            var second: Int
+            repeat {
+                first = Int.random(in: minFactor...20)
+                let maxSecond = min(20, maxProduct / max(first, 1))
+                second = Int.random(in: minFactor...max(minFactor, maxSecond))
+            } while excludedFactors.contains(first) || excludedFactors.contains(second)
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty, format: format)
         }
     }

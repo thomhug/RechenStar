@@ -8,6 +8,10 @@ enum Level: Int, CaseIterable {
     case matheHeld = 5
     case zahlenkoenig = 6
     case rechenstar = 7
+    case rechenstar2 = 8
+    case rechenstar3 = 9
+    case rechenstar4 = 10
+    case rechenstar5 = 11
 
     var title: String {
         switch self {
@@ -18,6 +22,10 @@ enum Level: Int, CaseIterable {
         case .matheHeld: "Mathe-Held"
         case .zahlenkoenig: "Zahlenkönig"
         case .rechenstar: "RechenStar"
+        case .rechenstar2: "RechenStar 2"
+        case .rechenstar3: "RechenStar 3"
+        case .rechenstar4: "RechenStar 4"
+        case .rechenstar5: "RechenStar 5"
         }
     }
 
@@ -30,6 +38,10 @@ enum Level: Int, CaseIterable {
         case .matheHeld: 300
         case .zahlenkoenig: 500
         case .rechenstar: 1000
+        case .rechenstar2: 2000
+        case .rechenstar3: 3000
+        case .rechenstar4: 5000
+        case .rechenstar5: 10000
         }
     }
 
@@ -41,7 +53,7 @@ enum Level: Int, CaseIterable {
         case .rechenprofi: "level_rechenprofi"
         case .matheHeld: "level_mathe_held"
         case .zahlenkoenig: "level_zahlenkoenig"
-        case .rechenstar: "level_rechenstar"
+        case .rechenstar, .rechenstar2, .rechenstar3, .rechenstar4, .rechenstar5: "level_rechenstar"
         }
     }
 

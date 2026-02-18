@@ -27,12 +27,18 @@ struct RechenStarApp: App {
         // 1. Try normal open
         if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
             modelContainer = container
+            Self.createBackup()
         }
         // 2. Repair: checkpoint WAL and retry
         else if Self.repairStore(), let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
             modelContainer = container
+            Self.createBackup()
         }
-        // 3. Last resort: delete and recreate (data lost)
+        // 3. Restore from backup
+        else if Self.restoreFromBackup(), let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+            modelContainer = container
+        }
+        // 4. Last resort: delete and recreate (data lost)
         else {
             Self.deleteStore()
             do {
@@ -70,6 +76,7 @@ struct RechenStarApp: App {
     }
 
     /// Repair corrupted store by checkpointing the WAL via sqlite3
+    @discardableResult
     private static func repairStore() -> Bool {
         guard let url = storeURL else { return false }
         let path = url.path
@@ -84,6 +91,65 @@ struct RechenStarApp: App {
         let rc = sqlite3_wal_checkpoint_v2(db, nil, SQLITE_CHECKPOINT_TRUNCATE, &pnLog, &pnCkpt)
 
         return rc == SQLITE_OK
+    }
+
+    // MARK: - Backup
+
+    private static var backupDir: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .first?.appendingPathComponent("Backups")
+    }
+
+    /// Create a backup of the current store (keep last 3)
+    private static func createBackup() {
+        guard let storeURL, let backupDir else { return }
+        let fm = FileManager.default
+
+        // Only backup if store exists and has data
+        guard fm.fileExists(atPath: storeURL.path),
+              (try? fm.attributesOfItem(atPath: storeURL.path)[.size] as? UInt64) ?? 0 > 0 else { return }
+
+        // Checkpoint WAL first so backup is self-contained
+        repairStore()
+
+        try? fm.createDirectory(at: backupDir, withIntermediateDirectories: true)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HHmmss"
+        let backupName = "backup-\(formatter.string(from: Date())).store"
+        let destination = backupDir.appendingPathComponent(backupName)
+
+        try? fm.copyItem(at: storeURL, to: destination)
+
+        // Keep only last 3 backups
+        if let files = try? fm.contentsOfDirectory(at: backupDir, includingPropertiesForKeys: [.creationDateKey])
+            .filter({ $0.pathExtension == "store" })
+            .sorted(by: { ($0.lastPathComponent) > ($1.lastPathComponent) }) {
+            for file in files.dropFirst(3) {
+                try? fm.removeItem(at: file)
+            }
+        }
+    }
+
+    /// Try to restore from most recent backup
+    private static func restoreFromBackup() -> Bool {
+        guard let backupDir else { return false }
+        let fm = FileManager.default
+
+        guard let backups = try? fm.contentsOfDirectory(at: backupDir, includingPropertiesForKeys: nil)
+            .filter({ $0.pathExtension == "store" })
+            .sorted(by: { $0.lastPathComponent > $1.lastPathComponent }) else { return false }
+
+        for backup in backups {
+            // Delete current corrupt store
+            deleteStore()
+
+            guard let storeURL else { return false }
+            if (try? fm.copyItem(at: backup, to: storeURL)) != nil {
+                return true
+            }
+        }
+        return false
     }
 
     /// Delete all store files as last resort

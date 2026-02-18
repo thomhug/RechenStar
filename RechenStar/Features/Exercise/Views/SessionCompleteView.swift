@@ -8,6 +8,7 @@ struct SessionCompleteView: View {
     var currentStreak: Int = 0
     var isNewStreak: Bool = false
     var dailyGoalReached: Bool = false
+    var newLevel: Level? = nil
     let onDismiss: () -> Void
 
     @State private var starsVisible = 0
@@ -79,7 +80,7 @@ struct SessionCompleteView: View {
     }
 
     private var showConfetti: Bool {
-        accuracy >= 0.6 || !unlockedAchievements.isEmpty || dailyGoalReached
+        accuracy >= 0.6 || !unlockedAchievements.isEmpty || dailyGoalReached || newLevel != nil
     }
 
     var body: some View {
@@ -111,6 +112,31 @@ struct SessionCompleteView: View {
                         Text("\(totalStars) von \(maxStars) Sternen")
                             .font(AppFonts.headline)
                             .foregroundColor(.appTextPrimary)
+                    }
+
+                    // Level Up
+                    if let newLevel {
+                        AppCard(backgroundColor: .appSkyBlue.opacity(0.12)) {
+                            VStack(spacing: 12) {
+                                Image(newLevel.imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 80)
+
+                                Text("Level Up!")
+                                    .font(AppFonts.title)
+                                    .foregroundColor(.appSkyBlue)
+                                Text("Du bist jetzt \(newLevel.title)!")
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(.appTextPrimary)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.appSkyBlue.opacity(0.4), lineWidth: 2)
+                        )
+                        .padding(.horizontal, 20)
                     }
 
                     // Stats
@@ -255,7 +281,7 @@ struct SessionCompleteView: View {
                                     .font(.system(size: 32))
                                     .foregroundColor(.appOrange)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(currentStreak) Tage am Stueck!")
+                                    Text("\(currentStreak) Tage am Stück!")
                                         .font(AppFonts.headline)
                                         .foregroundColor(.appTextPrimary)
                                     if isNewStreak {

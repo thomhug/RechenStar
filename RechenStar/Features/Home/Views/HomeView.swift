@@ -90,7 +90,8 @@ struct HomeView: View {
                     unlockedAchievements: engagement.newlyUnlockedAchievements,
                     currentStreak: engagement.currentStreak,
                     isNewStreak: engagement.isNewStreak,
-                    dailyGoalReached: engagement.dailyGoalReached
+                    dailyGoalReached: engagement.dailyGoalReached,
+                    newLevel: engagement.newLevel
                 ) {
                     exerciseFlowState = nil
                 }
@@ -124,15 +125,26 @@ struct HomeView: View {
 
         if let user = appState.currentUser {
             let correctResults = results.filter { $0.isCorrect }
+            let levelBefore = Level.current(for: user.totalExercises)
             user.totalExercises += correctResults.count
             user.totalStars += session.starsEarned
+            let levelAfter = Level.current(for: user.totalExercises)
 
-            let engagement = EngagementService.processSession(
+            var engagement = EngagementService.processSession(
                 results: results,
                 session: session,
                 user: user,
                 context: modelContext
             )
+            if levelAfter != levelBefore {
+                engagement = EngagementResult(
+                    newlyUnlockedAchievements: engagement.newlyUnlockedAchievements,
+                    currentStreak: engagement.currentStreak,
+                    isNewStreak: engagement.isNewStreak,
+                    dailyGoalReached: engagement.dailyGoalReached,
+                    newLevel: levelAfter
+                )
+            }
             return engagement
         }
 
@@ -140,7 +152,8 @@ struct HomeView: View {
             newlyUnlockedAchievements: [],
             currentStreak: 0,
             isNewStreak: false,
-            dailyGoalReached: false
+            dailyGoalReached: false,
+            newLevel: nil
         )
     }
 
