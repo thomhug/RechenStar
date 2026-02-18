@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RechenStar — Mathe üben, spielend leicht</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1d1d1f;
+            background: #fff;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            text-align: center;
+            padding: 80px 24px 60px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero .star { font-size: 56px; }
+
+        .hero .subtitle {
+            font-size: 22px;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .hero .badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .hero .badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 14px;
+            backdrop-filter: blur(4px);
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            padding: 48px 0;
+        }
+
+        section + section {
+            border-top: 1px solid #e5e5e7;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0 8px;
+            color: #1d1d1f;
+        }
+
+        p { margin-bottom: 12px; color: #424245; }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .feature {
+            background: #f5f5f7;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .feature .icon { font-size: 32px; margin-bottom: 8px; }
+        .feature h3 { margin-top: 0; }
+        .feature p { font-size: 15px; margin-bottom: 0; }
+
+        .privacy-section h3 {
+            color: #6b4fa2;
+        }
+
+        ul {
+            margin: 8px 0 12px 20px;
+            color: #424245;
+        }
+
+        li { margin-bottom: 4px; }
+
+        .support-box {
+            background: #f5f5f7;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .support-box a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .support-box a:hover { text-decoration: underline; }
+
+        footer {
+            text-align: center;
+            padding: 32px 24px;
+            color: #86868b;
+            font-size: 14px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 16px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e5e7;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav a {
+            color: #424245;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        nav a:hover { color: #667eea; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 32px; }
+            .hero .subtitle { font-size: 18px; }
+            .features { grid-template-columns: 1fr; }
+            nav { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#app">App</a>
+    <a href="#datenschutz">Datenschutz</a>
+    <a href="#support">Support</a>
+</nav>
+
+<div class="hero">
+    <div class="star">⭐</div>
+    <h1>RechenStar</h1>
+    <p class="subtitle">Mathe üben — spielend leicht</p>
+    <div class="badges">
+        <span class="badge">Keine Werbung</span>
+        <span class="badge">Kein Tracking</span>
+        <span class="badge">Kein Abo</span>
+        <span class="badge">100 % lokal</span>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- APP / MARKETING -->
+    <section id="app">
+        <h2>Rechnen lernen mit Spass</h2>
+        <p>
+            Ob Plus, Minus oder Mal — RechenStar begleitet Grundschulkinder Schritt für Schritt
+            durch die Welt der Zahlen. Nicht mit Druck, sondern mit Freude: Jede richtige Antwort
+            bringt Sterne, Konfetti und ein breites Lächeln.
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <div class="icon">🧮</div>
+                <h3>6 Übungsarten</h3>
+                <p>Addition, Subtraktion und Multiplikation — jeweils im kleinen und grossen Zahlenbereich.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🎯</div>
+                <h3>Adaptiv</h3>
+                <p>4 Schwierigkeitsstufen, die sich dem Kind anpassen. Fehler werden gezielt wiederholt.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">⭐</div>
+                <h3>Motivation</h3>
+                <p>Sterne, 16 Auszeichnungen und Tagesserien halten die Freude am Lernen hoch.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">📊</div>
+                <h3>Für Eltern</h3>
+                <p>Elternbereich mit Analyse-Dashboard, Sessionverlauf und Stärken-/Schwächenanalyse.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- DATENSCHUTZ -->
+    <section id="datenschutz" class="privacy-section">
+        <h2>Datenschutzerklärung</h2>
+        <p><strong>Stand: Februar 2026</strong></p>
+
+        <h3>1. Verantwortlicher</h3>
+        <p>
+            RechenStar ist eine iOS-App für das Mathe-Üben für Kinder im Grundschulalter.<br>
+            Kontakt: <a href="mailto:rechenstar-datenschutz@tom.li">rechenstar-datenschutz@tom.li</a>
+        </p>
+
+        <h3>2. Welche Daten werden erfasst?</h3>
+        <p>
+            <strong>Keine.</strong> RechenStar erfasst, speichert oder überträgt keinerlei persönliche Daten.
+            Die App benötigt keine Anmeldung, kein Benutzerkonto und keine Internetverbindung.
+        </p>
+        <p>
+            Alle Informationen, die die App erzeugt (z. B. Übungsfortschritt, Einstellungen, Lernstatistiken),
+            werden ausschliesslich lokal auf dem Gerät gespeichert – mit der Apple-Technologie SwiftData.
+            Diese Daten verlassen das Gerät zu keinem Zeitpunkt.
+        </p>
+
+        <h3>3. Wie werden die Daten verwendet?</h3>
+        <p>Die lokal gespeicherten Daten dienen einzig dazu, die App auf dem Gerät funktionsfähig zu machen:</p>
+        <ul>
+            <li>Speichern des Lernfortschritts</li>
+            <li>Anzeigen von Statistiken und Tageszielen</li>
+            <li>Merken der Einstellungen (z. B. Schwierigkeitsgrad, aktivierte Themen)</li>
+        </ul>
+        <p>Es findet keine Auswertung, keine Analyse und keine Weitergabe dieser Daten statt.</p>
+
+        <h3>4. Weitergabe von Daten an Dritte</h3>
+        <p>Es werden keine Daten an Dritte weitergegeben. RechenStar enthält:</p>
+        <ul>
+            <li>Kein Tracking</li>
+            <li>Keine Werbung</li>
+            <li>Keine Analysedienste (z. B. kein Firebase, kein Google Analytics)</li>
+            <li>Keine Verbindung zu externen Servern oder Diensten</li>
+        </ul>
+
+        <h3>5. Datenschutz für Kinder</h3>
+        <p>
+            RechenStar richtet sich an Kinder im Grundschulalter und ist so konzipiert, dass der Schutz
+            der Privatsphäre von Kindern vollständig gewährleistet ist.
+        </p>
+        <p>
+            Die App erfüllt die Anforderungen der <strong>DSGVO</strong> (Datenschutz-Grundverordnung)
+            sowie des amerikanischen <strong>COPPA</strong> (Children's Online Privacy Protection Act) –
+            nicht durch aufwändige Massnahmen, sondern durch das einfache Prinzip:
+            Es werden gar keine Daten erhoben.
+        </p>
+        <p>
+            Eltern und Erziehungsberechtigte müssen keine Einwilligung erteilen,
+            da keinerlei persönliche Daten verarbeitet werden.
+        </p>
+
+        <h3>6. Datensicherheit</h3>
+        <p>
+            Da alle Daten ausschliesslich lokal auf dem Gerät gespeichert werden und keine
+            Netzwerkverbindungen hergestellt werden, gibt es keinen Datenübertragungsweg,
+            der gesichert werden müsste. Die Sicherheit der Daten hängt von der
+            Geräteschutzfunktion des iPhones oder iPads ab (z. B. Face ID, Gerätepasswort).
+        </p>
+
+        <h3>7. Löschen der Daten</h3>
+        <p>
+            Alle Daten der App werden vollständig gelöscht, wenn die App vom Gerät
+            deinstalliert wird. Eine darüber hinausgehende Datenspeicherung findet nicht statt.
+        </p>
+
+        <h3>8. Änderungen dieser Datenschutzerklärung</h3>
+        <p>
+            Sollte sich an der Datenverarbeitung etwas ändern, wird diese Datenschutzerklärung
+            aktualisiert. Die aktuelle Version ist stets unter dieser Adresse abrufbar.
+        </p>
+
+        <h3>9. Kontakt</h3>
+        <p>
+            Bei Fragen zum Datenschutz:
+            <a href="mailto:rechenstar-datenschutz@tom.li">rechenstar-datenschutz@tom.li</a>
+        </p>
+    </section>
+
+    <!-- SUPPORT -->
+    <section id="support">
+        <h2>Support</h2>
+        <div class="support-box">
+            <p>Fragen, Probleme oder Feedback? Wir helfen gerne.</p>
+            <p><a href="mailto:rechenstar-datenschutz@tom.li">rechenstar-datenschutz@tom.li</a></p>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    &copy; 2026 RechenStar. Alle Rechte vorbehalten.
+</footer>
+
+</body>
+</html>
