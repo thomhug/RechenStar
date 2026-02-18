@@ -141,12 +141,12 @@ struct MetricsService {
 - **SettingsView**: Gameplay, Kategorien, Accessibility, Eltern-Kontrolle
 
 #### ViewModels
-- **ExerciseViewModel**: Session-State, Antwort-Pruefung, adaptive Schwierigkeit, Revenge-Erkennung, +/- Verwechslungs-Erkennung, timeSpent-Cap (10s), autoRevealAnswer
+- **ExerciseViewModel**: Session-State, Antwort-Pruefung, adaptive Schwierigkeit (alle 2 Aufgaben + Frustrations-Erkennung), Revenge-Erkennung, +/- Verwechslungs-Erkennung, timeSpent-Cap (10s), autoRevealAnswer
 
 ### Business Layer
 
 #### ExerciseGenerator
-- Adaptive Schwierigkeit (4 Stufen), Anpassung alle 3 Aufgaben
+- Adaptive Schwierigkeit (4 Stufen), Anpassung alle 2 Aufgaben
 - 6 Kategorien: Addition/Subtraktion (bis 10, bis 100), Multiplikation (klein, gross)
 - 3 Formate: Standard, firstGap, secondGap
 - Gewichtete Kategorie-Auswahl (schwache Kategorien bevorzugt)
@@ -155,6 +155,8 @@ struct MetricsService {
 - Hard-Mode Multiplikation: Faktoren 10 und 20 ausgeschlossen (trivial einfach)
 
 ##### Adaptiver Schwierigkeits-Algorithmus
+
+Paedagogische Grundlage: **Errorless Learning** (Fehler koennen sich bei Kindern als falsche Antworten einpraegen) und **Selbstwirksamkeit** (Erfolg baut Vertrauen auf). Daher: lieber zu leicht als zu schwer. Hochstufen nur bei fehlerfreiem, automatisiertem Wissen.
 
 **1. Start-Schwierigkeit** (bei Session-Beginn, basierend auf den letzten 30 Tagen):
 
@@ -167,20 +169,27 @@ struct MetricsService {
 
 Bei manueller Schwierigkeit (nicht "Automatisch") wird die gewaehlte Stufe direkt verwendet.
 
-**2. Laufende Anpassung** (alle 3 Aufgaben innerhalb einer Session):
+**2. Laufende Anpassung** (alle 2 Aufgaben innerhalb einer Session):
 
-| Letzte 3 Aufgaben | Aktion |
-|---|---|
-| ≥ 90% richtig UND Ø < 3 Sek | 2 Stufen hoch (Turbo) |
-| ≥ 90% richtig | 1 Stufe hoch |
-| < 50% richtig | 1 Stufe runter |
-| Sonst | Bleibt gleich |
+| Richtig (2 Aufgaben) | Ø Loese-Zeit | Aktion |
+|---|---|---|
+| 2/2 | < 3s | 1 Stufe hoch (automatisiert) |
+| 2/2 | ≥ 3s | Bleibt (kann es, aber noch nicht schnell genug) |
+| 1/2 | egal | Bleibt |
+| 0/2 | egal | 1 Stufe runter |
+| egal | > 7s | 1 Stufe runter (ueberfordert, auch bei richtiger Antwort) |
+
+Prinzipien:
+- **Kein Turbo-Sprung**: Maximal 1 Stufe pro Anpassung (vermeidet ploetzliche Ueberforderung)
+- **Hoch nur bei 0 Fehlern UND schnell**: Ein Fehler bedeutet, die Stufe ist noch nicht gemeistert
+- **Zeit als eigenes Signal**: Langsames Loesen (>7s) zeigt Ueberforderung, auch bei richtiger Antwort
+- **Schneller runter als hoch**: Frustration ist schaedlicher als Langeweile bei diesem Alter (6-10)
 
 Bei Stufenwechsel werden die verbleibenden Aufgaben der Session neu generiert.
 
-**3. Frustrations-Erkennung** (sofort, nicht erst nach 3 Aufgaben):
+**3. Frustrations-Erkennung** (bei jedem 2er-Check):
 
-3+ Fehler in Folge → 1 Stufe runter + Ermutigungs-Nachricht ("Das schaffst du!")
+Letzte 4 Aufgaben < 40% Genauigkeit (≤ 1 richtig) → 1 Stufe runter + Ermutigungs-Nachricht. Erkennt auch nicht-aufeinanderfolgende Fehler (z.B. Falsch-Richtig-Falsch-Falsch).
 
 **4. Zahlenbereich pro Stufe:**
 
@@ -190,6 +199,15 @@ Bei Stufenwechsel werden die verbleibenden Aufgaben der Session neu generiert.
 | Leicht | 1–5 | 1–40 | 1–5 | 100 |
 | Mittel | 2–7 | 2–70 | 2–7 | 200 |
 | Schwer | 2–9 | 2–99 | 2–9 | 400 |
+
+**5. Zeitschwellen (paedagogisch begruendet):**
+
+| Loese-Zeit | Bedeutung |
+|---|---|
+| < 3s | Automatisiertes Wissen (sofort gewusst) |
+| 3–5s | Entwickelt sich, kurz ueberlegt |
+| 5–7s | Muss rechnen, an der Grenze |
+| > 7s | Ueberfordert (zaehlt an Fingern, nutzt Umwege) |
 
 #### EngagementService
 - Verarbeitet Session-Ergebnisse: DailyProgress, Streaks, 16 Achievements
@@ -256,8 +274,8 @@ enum FeedbackState {
 
 ## Testing-Strategie
 
-### Unit Tests (80 Tests)
-- `ExerciseGeneratorTests` (33) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben
+### Unit Tests (82 Tests)
+- `ExerciseGeneratorTests` (35) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben, Zeit-Schwellen
 - `ExerciseViewModelTests` (22) — Session-Flow, Revenge, Cross-Session Integration
 - `EngagementServiceTests` (12) — Achievements, Streaks, CategoryMaster
 - `MetricsServiceTests` (8) — Genauigkeit, Weak Exercises, Format-agnostisch

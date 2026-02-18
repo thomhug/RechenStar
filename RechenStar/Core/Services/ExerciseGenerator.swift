@@ -71,14 +71,19 @@ struct ExerciseGenerator {
         recentAccuracy: Double,
         averageTime: TimeInterval = .infinity
     ) -> Difficulty {
-        if recentAccuracy >= 0.9 && averageTime < 3.0 {
-            // Fast and accurate: jump 2 levels
-            return nextHigher(nextHigher(current))
-        } else if recentAccuracy >= 0.9 {
-            return nextHigher(current)
-        } else if recentAccuracy < 0.5 {
+        // Slow → down (child is struggling, even if answers are correct)
+        if averageTime.isFinite && averageTime > 7.0 {
             return nextLower(current)
         }
+        // Perfect AND fast → up (automated knowledge)
+        if recentAccuracy >= 1.0 && averageTime < 3.0 {
+            return nextHigher(current)
+        }
+        // All wrong → down
+        if recentAccuracy < 0.01 {
+            return nextLower(current)
+        }
+        // Otherwise stay (partial success, or correct but slow)
         return current
     }
 

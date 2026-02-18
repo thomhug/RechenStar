@@ -42,7 +42,6 @@ final class ExerciseViewModel {
     private var currentAttempts: Int = 0
     private var exerciseStartTime: Date = Date()
     private(set) var currentDifficulty: Difficulty
-    private(set) var consecutiveErrors: Int = 0
     private(set) var showEncouragement: Bool = false
 
     // MARK: - Computed
@@ -126,7 +125,6 @@ final class ExerciseViewModel {
         isNegative = false
         feedbackState = .none
         currentAttempts = 0
-        consecutiveErrors = 0
         showEncouragement = false
         sessionState = .inProgress
         currentExercise = exercises.first
@@ -178,7 +176,6 @@ final class ExerciseViewModel {
             // or exercise was previously failed (from metrics)
             let isRevenge = exercise.isRetry || currentAttempts > 1 || isWeakExercise(exercise)
             feedbackState = isRevenge ? .revenge(stars: result.stars) : .correct(stars: result.stars)
-            consecutiveErrors = 0
         } else if currentAttempts >= Self.maxAttempts {
             // Show the correct answer after max attempts
             let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
@@ -192,7 +189,6 @@ final class ExerciseViewModel {
             )
             sessionResults.append(result)
             feedbackState = .showAnswer(exercise.correctAnswer)
-            consecutiveErrors += 1
         } else {
             // Check for +/- confusion (standard format only)
             if exercise.format == .standard {
@@ -235,29 +231,36 @@ final class ExerciseViewModel {
             return
         }
 
-        // Frustration detection: 3+ consecutive errors → reduce difficulty immediately
-        if adaptiveDifficulty && consecutiveErrors >= 3 {
-            let lowerDifficulty = lowerDifficultyLevel(currentDifficulty)
-            if lowerDifficulty != currentDifficulty {
-                currentDifficulty = lowerDifficulty
-                regenerateRemaining(from: nextIndex)
-                showEncouragement = true
+        // Adaptive difficulty every 2 exercises
+        if adaptiveDifficulty && nextIndex % 2 == 0 {
+            // Frustration check: last 4 exercises <40% accuracy
+            var frustrated = false
+            if sessionResults.count >= 4 {
+                let last4 = sessionResults.suffix(4)
+                let accuracy4 = Double(last4.filter(\.isCorrect).count) / Double(last4.count)
+                frustrated = accuracy4 < 0.4
             }
-            consecutiveErrors = 0
-        }
-        // Normal adaptive difficulty every 3 exercises
-        else if adaptiveDifficulty && nextIndex % 3 == 0 {
-            let recentResults = sessionResults.suffix(3)
-            let recentAccuracy = Double(recentResults.filter(\.isCorrect).count) / Double(recentResults.count)
-            let avgTime = recentResults.map(\.timeSpent).reduce(0, +) / Double(recentResults.count)
-            let newDifficulty = ExerciseGenerator.adaptDifficulty(
-                current: currentDifficulty,
-                recentAccuracy: recentAccuracy,
-                averageTime: avgTime
-            )
-            if newDifficulty != currentDifficulty {
-                currentDifficulty = newDifficulty
-                regenerateRemaining(from: nextIndex)
+
+            if frustrated {
+                let lower = lowerDifficultyLevel(currentDifficulty)
+                if lower != currentDifficulty {
+                    currentDifficulty = lower
+                    regenerateRemaining(from: nextIndex)
+                    showEncouragement = true
+                }
+            } else {
+                let last2 = sessionResults.suffix(2)
+                let accuracy = Double(last2.filter(\.isCorrect).count) / Double(last2.count)
+                let avgTime = last2.map(\.timeSpent).reduce(0, +) / Double(last2.count)
+                let newDifficulty = ExerciseGenerator.adaptDifficulty(
+                    current: currentDifficulty,
+                    recentAccuracy: accuracy,
+                    averageTime: avgTime
+                )
+                if newDifficulty != currentDifficulty {
+                    currentDifficulty = newDifficulty
+                    regenerateRemaining(from: nextIndex)
+                }
             }
         }
 

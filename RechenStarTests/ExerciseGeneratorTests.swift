@@ -140,39 +140,53 @@ final class ExerciseGeneratorTests: XCTestCase {
         }
     }
 
-    func testAdaptDifficultyUp() {
-        let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 0.9)
-        XCTAssertEqual(result, .medium)
-    }
+    // MARK: - Adaptive Difficulty
 
-    func testAdaptDifficultyDown() {
-        let result = ExerciseGenerator.adaptDifficulty(current: .medium, recentAccuracy: 0.4)
-        XCTAssertEqual(result, .easy)
-    }
-
-    func testAdaptDifficultyStays() {
-        let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 0.7)
-        XCTAssertEqual(result, .easy)
-    }
-
-    func testAdaptDifficultyFastAndAccurateJumps2Levels() {
+    func testAdaptDifficultyUpWhenPerfectAndFast() {
         let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 1.0, averageTime: 2.0)
-        XCTAssertEqual(result, .hard)
+        XCTAssertEqual(result, .medium, "Perfect + fast (<3s) should go up 1 level")
     }
 
-    func testAdaptDifficultyFastFromVeryEasyToMedium() {
-        let result = ExerciseGenerator.adaptDifficulty(current: .veryEasy, recentAccuracy: 1.0, averageTime: 1.5)
-        XCTAssertEqual(result, .medium)
+    func testAdaptDifficultyStaysWhenPerfectButSlow() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 1.0, averageTime: 4.0)
+        XCTAssertEqual(result, .easy, "Perfect but slow (≥3s) should stay — not yet automated")
+    }
+
+    func testAdaptDifficultyStaysWhenPartiallyCorrect() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .easy, recentAccuracy: 0.5)
+        XCTAssertEqual(result, .easy, "1/2 correct should stay")
+    }
+
+    func testAdaptDifficultyDownWhenAllWrong() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .medium, recentAccuracy: 0.0)
+        XCTAssertEqual(result, .easy, "0/2 correct should go down")
+    }
+
+    func testAdaptDifficultyDownWhenSlow() {
+        let result = ExerciseGenerator.adaptDifficulty(current: .medium, recentAccuracy: 1.0, averageTime: 8.0)
+        XCTAssertEqual(result, .easy, "Avg >7s should go down even when correct")
     }
 
     func testAdaptDifficultyHardCeiling() {
-        let result = ExerciseGenerator.adaptDifficulty(current: .hard, recentAccuracy: 1.0)
-        XCTAssertEqual(result, .hard)
+        let result = ExerciseGenerator.adaptDifficulty(current: .hard, recentAccuracy: 1.0, averageTime: 2.0)
+        XCTAssertEqual(result, .hard, "Can't go above hard")
     }
 
     func testAdaptDifficultyVeryEasyFloor() {
         let result = ExerciseGenerator.adaptDifficulty(current: .veryEasy, recentAccuracy: 0.0)
-        XCTAssertEqual(result, .veryEasy)
+        XCTAssertEqual(result, .veryEasy, "Can't go below veryEasy")
+    }
+
+    func testAdaptDifficultyNoTurboJump() {
+        // Old algorithm jumped 2 levels; new one maxes at 1
+        let result = ExerciseGenerator.adaptDifficulty(current: .veryEasy, recentAccuracy: 1.0, averageTime: 1.0)
+        XCTAssertEqual(result, .easy, "Should only go up 1 level, never 2")
+    }
+
+    func testAdaptDifficultySlowOverridesAccuracy() {
+        // Even 100% correct, if slow → down
+        let result = ExerciseGenerator.adaptDifficulty(current: .hard, recentAccuracy: 1.0, averageTime: 9.0)
+        XCTAssertEqual(result, .medium, "Slow (>7s) should go down regardless of accuracy")
     }
 
     func testAddition100RespectsEasyDifficulty() {
