@@ -152,6 +152,44 @@ struct MetricsService {
 - Gewichtete Kategorie-Auswahl (schwache Kategorien bevorzugt)
 - 30% Chance schwache Aufgaben einzustreuen (isRetry)
 - Duplikat-Vermeidung innerhalb einer Session
+- Hard-Mode Multiplikation: Faktoren 10 und 20 ausgeschlossen (trivial einfach)
+
+##### Adaptiver Schwierigkeits-Algorithmus
+
+**1. Start-Schwierigkeit** (bei Session-Beginn, basierend auf den letzten 30 Tagen):
+
+| Ø Genauigkeit | Start-Stufe |
+|---|---|
+| ≥ 90% | Schwer |
+| ≥ 70% | Mittel |
+| ≥ 50% | Leicht |
+| < 50% | Sehr leicht |
+
+Bei manueller Schwierigkeit (nicht "Automatisch") wird die gewaehlte Stufe direkt verwendet.
+
+**2. Laufende Anpassung** (alle 3 Aufgaben innerhalb einer Session):
+
+| Letzte 3 Aufgaben | Aktion |
+|---|---|
+| ≥ 90% richtig UND Ø < 3 Sek | 2 Stufen hoch (Turbo) |
+| ≥ 90% richtig | 1 Stufe hoch |
+| < 50% richtig | 1 Stufe runter |
+| Sonst | Bleibt gleich |
+
+Bei Stufenwechsel werden die verbleibenden Aufgaben der Session neu generiert.
+
+**3. Frustrations-Erkennung** (sofort, nicht erst nach 3 Aufgaben):
+
+3+ Fehler in Folge → 1 Stufe runter + Ermutigungs-Nachricht ("Das schaffst du!")
+
+**4. Zahlenbereich pro Stufe:**
+
+| Stufe | Addition/Subtraktion bis 10 | bis 100 | Kleines 1×1 | Grosses 1×1 (max. Produkt) |
+|---|---|---|---|---|
+| Sehr leicht | 1–3 | 1–20 | 1–3 | 50 |
+| Leicht | 1–5 | 1–40 | 1–5 | 100 |
+| Mittel | 2–7 | 2–70 | 2–7 | 200 |
+| Schwer | 2–9 | 2–99 | 2–9 | 400 |
 
 #### EngagementService
 - Verarbeitet Session-Ergebnisse: DailyProgress, Streaks, 16 Achievements
