@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import SQLite3
 
 @main
 struct RechenStarApp: App {
@@ -23,20 +24,17 @@ struct RechenStarApp: App {
             allowsSave: true
         )
 
-        do {
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
-        } catch {
-            // Store is corrupted — delete and recreate
-            let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            if let appSupport = urls.first {
-                for ext in ["store", "store-shm", "store-wal"] {
-                    let url = appSupport.appendingPathComponent("default.\(ext)")
-                    try? FileManager.default.removeItem(at: url)
-                }
-            }
+        // 1. Try normal open
+        if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+            modelContainer = container
+        }
+        // 2. Repair: checkpoint WAL and retry
+        else if Self.repairStore(), let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+            modelContainer = container
+        }
+        // 3. Last resort: delete and recreate (data lost)
+        else {
+            Self.deleteStore()
             do {
                 modelContainer = try ModelContainer(
                     for: schema,
@@ -63,6 +61,36 @@ struct RechenStarApp: App {
                 .environment(\.colorTheme, themeManager.currentTheme)
                 .preferredColorScheme(themeManager.preferredColorScheme)
                 .modelContainer(modelContainer)
+        }
+    }
+
+    private static var storeURL: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .first?.appendingPathComponent("default.store")
+    }
+
+    /// Repair corrupted store by checkpointing the WAL via sqlite3
+    private static func repairStore() -> Bool {
+        guard let url = storeURL else { return false }
+        let path = url.path
+
+        var db: OpaquePointer?
+        guard sqlite3_open(path, &db) == SQLITE_OK else { return false }
+        defer { sqlite3_close(db) }
+
+        // Checkpoint WAL — merges WAL into main store file
+        var pnLog: Int32 = 0
+        var pnCkpt: Int32 = 0
+        let rc = sqlite3_wal_checkpoint_v2(db, nil, SQLITE_CHECKPOINT_TRUNCATE, &pnLog, &pnCkpt)
+
+        return rc == SQLITE_OK
+    }
+
+    /// Delete all store files as last resort
+    private static func deleteStore() {
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
+        for ext in ["store", "store-shm", "store-wal"] {
+            try? FileManager.default.removeItem(at: appSupport.appendingPathComponent("default.\(ext)"))
         }
     }
 
