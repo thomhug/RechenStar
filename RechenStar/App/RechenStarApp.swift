@@ -2,54 +2,21 @@ import SwiftUI
 import SwiftData
 import SQLite3
 
+private enum RecoveryState {
+    case loading
+    case ready(ModelContainer)
+    case needsBackupRestore(backupDate: String)
+    case needsFullReset
+}
+
 @main
 struct RechenStarApp: App {
-    let modelContainer: ModelContainer
+    @State private var recoveryState: RecoveryState = .loading
     @State private var appState = AppState()
     @State private var themeManager = ThemeManager()
 
     init() {
-        let schema = Schema([
-            User.self,
-            DailyProgress.self,
-            Session.self,
-            Achievement.self,
-            UserPreferences.self,
-            ExerciseRecord.self
-        ])
-
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            allowsSave: true
-        )
-
-        // 1. Try normal open
-        if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
-            modelContainer = container
-            Self.createBackup()
-        }
-        // 2. Repair: checkpoint WAL and retry
-        else if Self.repairStore(), let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
-            modelContainer = container
-            Self.createBackup()
-        }
-        // 3. Restore from backup
-        else if Self.restoreFromBackup(), let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
-            modelContainer = container
-        }
-        // 4. Last resort: delete and recreate (data lost)
-        else {
-            Self.deleteStore()
-            do {
-                modelContainer = try ModelContainer(
-                    for: schema,
-                    configurations: [modelConfiguration]
-                )
-            } catch {
-                fatalError("Failed to initialize ModelContainer after reset: \(error)")
-            }
-        }
+        _recoveryState = State(initialValue: Self.attemptInitialization())
 
         UserDefaults.standard.register(defaults: [
             "soundEnabled": true,
@@ -61,18 +28,104 @@ struct RechenStarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(appState)
-                .environment(themeManager)
-                .environment(\.colorTheme, themeManager.currentTheme)
-                .preferredColorScheme(themeManager.preferredColorScheme)
-                .modelContainer(modelContainer)
+            switch recoveryState {
+            case .loading:
+                ProgressView("Laden...")
+            case .ready(let container):
+                ContentView()
+                    .environment(appState)
+                    .environment(themeManager)
+                    .environment(\.colorTheme, themeManager.currentTheme)
+                    .preferredColorScheme(themeManager.preferredColorScheme)
+                    .modelContainer(container)
+            case .needsBackupRestore(let backupDate):
+                RecoveryView(
+                    message: "Die Datenbank ist beschädigt. Letztes Backup vom \(backupDate) wiederherstellen?",
+                    primaryButtonLabel: "Wiederherstellen",
+                    isDestructive: false,
+                    primaryAction: {
+                        if Self.restoreFromBackup(), let container = Self.makeContainer() {
+                            recoveryState = .ready(container)
+                        } else {
+                            recoveryState = .needsFullReset
+                        }
+                    }
+                )
+            case .needsFullReset:
+                RecoveryView(
+                    message: "Die Datenbank kann nicht repariert werden. Alle Daten müssen gelöscht werden, um die App weiter zu nutzen.",
+                    primaryButtonLabel: "Alle Daten löschen",
+                    isDestructive: true,
+                    primaryAction: {
+                        Self.deleteStore()
+                        if let container = Self.makeContainer() {
+                            recoveryState = .ready(container)
+                        }
+                    }
+                )
+            }
         }
     }
 
     private static var storeURL: URL? {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
             .first?.appendingPathComponent("default.store")
+    }
+
+    private static func makeContainer() -> ModelContainer? {
+        let schema = Schema([
+            User.self,
+            DailyProgress.self,
+            Session.self,
+            Achievement.self,
+            UserPreferences.self,
+            ExerciseRecord.self
+        ])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
+        return try? ModelContainer(for: schema, configurations: [config])
+    }
+
+    private static func attemptInitialization() -> RecoveryState {
+        // 1. Normal open
+        if let container = makeContainer() {
+            createBackup()
+            return .ready(container)
+        }
+
+        // 2. WAL repair + retry
+        if repairStore(), let container = makeContainer() {
+            createBackup()
+            return .ready(container)
+        }
+
+        // 3-4. Need user input — check if backups exist
+        if let backupDate = getMostRecentBackupDate() {
+            return .needsBackupRestore(backupDate: backupDate)
+        }
+        return .needsFullReset
+    }
+
+    private static func getMostRecentBackupDate() -> String? {
+        guard let backupDir else { return nil }
+        let fm = FileManager.default
+        guard let backups = try? fm.contentsOfDirectory(at: backupDir, includingPropertiesForKeys: nil)
+            .filter({ $0.pathExtension == "store" })
+            .sorted(by: { $0.lastPathComponent > $1.lastPathComponent }),
+            let mostRecent = backups.first else { return nil }
+
+        let name = mostRecent.deletingPathExtension().lastPathComponent
+        guard name.hasPrefix("backup-") else { return nil }
+        let dateStr = String(name.dropFirst("backup-".count))
+
+        let parser = DateFormatter()
+        parser.dateFormat = "yyyy-MM-dd_HHmmss"
+        guard let date = parser.date(from: dateStr) else { return nil }
+
+        let display = DateFormatter()
+        display.dateStyle = .medium
+        display.timeStyle = .short
+        display.locale = Locale(identifier: "de_DE")
+        return display.string(from: date)
     }
 
     /// Repair corrupted store by checkpointing the WAL via sqlite3
@@ -268,5 +321,43 @@ final class ThemeManager {
             case .extraLarge: "Sehr gross"
             }
         }
+    }
+}
+
+// MARK: - Recovery View
+private struct RecoveryView: View {
+    let message: String
+    let primaryButtonLabel: String
+    let isDestructive: Bool
+    let primaryAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 56))
+                .foregroundStyle(.orange)
+
+            Text("Datenbankfehler")
+                .font(.title2.bold())
+
+            Text(message)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+
+            Button(action: primaryAction) {
+                Text(primaryButtonLabel)
+                    .frame(maxWidth: 260)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(isDestructive ? .red : .accentColor)
+            .controlSize(.large)
+
+            Button("App beenden") {
+                exit(0)
+            }
+            .foregroundStyle(.secondary)
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
