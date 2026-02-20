@@ -315,7 +315,7 @@ final class ExerciseViewModel {
     func skipExercise() {
         guard let exercise = currentExercise else { return }
 
-        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
+        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), ExerciseConstants.timeSpentCap)
         let result = ExerciseResult(
             exercise: exercise,
             userAnswer: 0,
@@ -332,7 +332,7 @@ final class ExerciseViewModel {
         guard let exercise = currentExercise,
               feedbackState == .none else { return }
 
-        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
+        let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), ExerciseConstants.timeSpentCap)
         let result = ExerciseResult(
             exercise: exercise,
             userAnswer: 0,

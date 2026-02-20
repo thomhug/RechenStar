@@ -146,20 +146,14 @@ struct SessionCompleteView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 24))
                                     .foregroundColor(.appSuccess)
-                                Text(skippedCount > 0
-                                    ? "\(correctCount)/\(attemptedResults.count)"
-                                    : "\(correctCount)/\(results.count)")
+                                Text("\(correctCount)/\(results.count)")
                                     .font(AppFonts.headline)
                                     .foregroundColor(.appTextPrimary)
-                                if skippedCount > 0 {
-                                    Text("\(skippedCount) übersprungen")
-                                        .font(AppFonts.caption)
-                                        .foregroundColor(.appSunYellow)
-                                } else {
-                                    Text("Richtig")
-                                        .font(AppFonts.caption)
-                                        .foregroundColor(.appTextSecondary)
-                                }
+                                Text(skippedCount > 0
+                                    ? "\(skippedCount) übersprungen"
+                                    : "Richtig")
+                                    .font(AppFonts.caption)
+                                    .foregroundColor(skippedCount > 0 ? .appSunYellow : .appTextSecondary)
                             }
                             .frame(maxWidth: .infinity)
                         }
