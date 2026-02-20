@@ -346,8 +346,8 @@ final class ExerciseFlowUITests: XCTestCase {
 
         app.buttons["submit-button"].tap()
 
-        // Wait for auto-advance (0.6s) to move to next exercise
-        sleep(1)
+        // Wait for star animation + auto-advance (1.0s)
+        sleep(2)
     }
 
     private func parseAnswer(from label: String) -> Int {
