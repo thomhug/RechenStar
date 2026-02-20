@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,7 @@
 		34765620C274A1B05A6B71DB /* NavigationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC2692687ED098F44AFA231 /* NavigationUITests.swift */; };
 		3C4328F3ACFE4B7E08F763C8 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */; };
 		45FC38C19B09708DE0E1437C /* MetricsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9899687E5EA9BFFCAE7C6C2F /* MetricsServiceTests.swift */; };
+		4D23954AF65E169DEFEC9F95 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FC062E871C90712A4DF20E /* Constants.swift */; };
 		501552BC492F90A49CBAFC0B /* EngagementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67421D387F9B7E9D8567056 /* EngagementServiceTests.swift */; };
 		524852831B3B3A4F4027B24C /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A8D726BA0823ED2D3A7CCE /* User.swift */; };
 		5B40BAE1A7DEC5BA88118EE5 /* LearningProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD13591B21634708F88F0F /* LearningProgressView.swift */; };
@@ -70,7 +71,7 @@
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseRecord.swift; sourceTree = "<group>"; };
 		1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
-		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		27A1C13AC56E6645E33390C2 /* RechenStar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RechenStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		299E1653F5C2F1EF6117A17F /* ExerciseGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseGenerator.swift; sourceTree = "<group>"; };
 		2A80DB39F65231DBC960C839 /* ExerciseResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseResult.swift; sourceTree = "<group>"; };
 		2CB8C72E39F96B902703ED33 /* BuildNumber.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildNumber.xcconfig; sourceTree = "<group>"; };
@@ -102,6 +103,7 @@
 		C1B974D51C0159D70FBE06C0 /* SessionCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompleteView.swift; sourceTree = "<group>"; };
 		C624BF870DA45D04D32A388F /* DailyProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProgress.swift; sourceTree = "<group>"; };
 		C73E48A43E789A7E8CF34E4D /* RechenStarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RechenStarApp.swift; sourceTree = "<group>"; };
+		D0FC062E871C90712A4DF20E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D2671F1CC36C36A15C1AB0F6 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D6D303572F93A4D4924B3A03 /* ScreenshotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotUITests.swift; sourceTree = "<group>"; };
 		EEDEFE67ADD31B189A288875 /* MetricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsService.swift; sourceTree = "<group>"; };
@@ -127,6 +129,13 @@
 				F7DB69DCE6EE3DBB8569E642 /* AppCard.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		29C258F6F21AC326F73253A1 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		2E4D76E69F9AE8177F8665E6 /* Design */ = {
@@ -168,8 +177,11 @@
 		42B696A7307AF2268E949441 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D0FC062E871C90712A4DF20E /* Constants.swift */,
 				72EA08A1F3D8ED0BFD002538 /* Models */,
+				7CAD0F7A384A07C0B7389135 /* Persistence */,
 				59AA1DFDB93C1685ECBFD336 /* Services */,
+				60BCE0BA6BEC8A8375AC7F6B /* Utilities */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -185,6 +197,7 @@
 		4F8B1EA6DDE100A1758DAA04 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				E84493B56DAE5575F2CAA382 /* ViewModels */,
 				570EA2CCA5187DDA08EF9A6C /* Views */,
 			);
 			path = Settings;
@@ -208,6 +221,13 @@
 				757E1DAB6B2B2029FC4C0994 /* SoundService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		60BCE0BA6BEC8A8375AC7F6B /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		72EA08A1F3D8ED0BFD002538 /* Models */ = {
@@ -235,6 +255,20 @@
 			path = Exercise;
 			sourceTree = "<group>";
 		};
+		7CAD0F7A384A07C0B7389135 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		81951AB7FB8D203A6D1938E0 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		84325B512EA93424BA2771C1 /* Theme */ = {
 			isa = PBXGroup;
 			children = (
@@ -255,6 +289,7 @@
 		8FE754729FD52F4656F0554D /* Progress */ = {
 			isa = PBXGroup;
 			children = (
+				29C258F6F21AC326F73253A1 /* ViewModels */,
 				38F2FB93F2D3BC74D2747388 /* Views */,
 			);
 			path = Progress;
@@ -263,6 +298,7 @@
 		A48B12498D8C55B7FFCD2E01 /* Parent */ = {
 			isa = PBXGroup;
 			children = (
+				81951AB7FB8D203A6D1938E0 /* ViewModels */,
 				E23633C28AF08DC25B4F640C /* Views */,
 			);
 			path = Parent;
@@ -299,9 +335,17 @@
 		BEEEA795828964834876336B /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				C0113999A937523EE6AFFCA3 /* ViewModels */,
 				8F52371A4E9EAF78A56BD52E /* Views */,
 			);
 			path = Home;
+			sourceTree = "<group>";
+		};
+		C0113999A937523EE6AFFCA3 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		CBDB5663A525576415A5145B /* Resources */ = {
@@ -353,6 +397,13 @@
 				2E5888F7CE6CDD7E93E5B4B6 /* RechenStarUITests */,
 				1C5F11EC5772B709DCEF878F /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		E84493B56DAE5575F2CAA382 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		F41037E909BD3FB275A07426 /* Features */ = {
@@ -432,10 +483,16 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1540;
-				ORGANIZATIONNAME = "anbeda AG";
 				TargetAttributes = {
+					39A0EA699C4CB2C3F6476FF1 = {
+						DevelopmentTeam = 97M8QABMLM;
+					};
 					6D67302455B93519EE4FA5B7 = {
+						DevelopmentTeam = 97M8QABMLM;
 						TestTargetID = 39A0EA699C4CB2C3F6476FF1;
+					};
+					7FFF028C5EE1881FDC16E68D = {
+						DevelopmentTeam = 97M8QABMLM;
 					};
 				};
 			};
@@ -449,6 +506,7 @@
 			);
 			mainGroup = E628E28473DE54C6C218CDE8;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -503,6 +561,7 @@
 				CF7A8A8646288D4506550402 /* AppCard.swift in Sources */,
 				89D4D864BA6833F65AF28741 /* Colors.swift in Sources */,
 				32259AA10C9FF87476BA98C6 /* ConfettiView.swift in Sources */,
+				4D23954AF65E169DEFEC9F95 /* Constants.swift in Sources */,
 				B5D4C9E87B37D127733A70A3 /* ContentView.swift in Sources */,
 				D8D7D35E4AA8F4DA43EBFDAF /* DailyProgress.swift in Sources */,
 				74B1771F3C55A8CB8438694C /* EngagementService.swift in Sources */,
@@ -549,6 +608,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 97M8QABMLM;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -609,6 +669,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = RechenStar;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -631,6 +692,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 97M8QABMLM;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -648,6 +710,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 97M8QABMLM;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -714,6 +777,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = RechenStar;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -775,6 +839,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 97M8QABMLM;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

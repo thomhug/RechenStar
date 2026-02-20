@@ -195,10 +195,12 @@ Letzte 4 Aufgaben < 40% Genauigkeit (≤ 1 richtig) → 1 Stufe runter + Ermutig
 
 | Stufe | Addition/Subtraktion bis 10 | bis 100 | Kleines 1×1 | Grosses 1×1 (max. Produkt) |
 |---|---|---|---|---|
-| Sehr leicht | 1–3 | 1–20 | 1–3 | 50 |
-| Leicht | 1–5 | 1–40 | 1–5 | 100 |
-| Mittel | 2–7 | 2–70 | 2–7 | 200 |
-| Schwer | 2–9 | 2–99 | 2–9 | 400 |
+| Sehr leicht | 1–3 | 1–20 | 2–3 | 50, ab 2×2 |
+| Leicht | 1–5 | 1–40 | 2–5 | 100, ab 2×2 |
+| Mittel | 2–7 | 2–70 | 2–7 | 200, ab 2×2 |
+| Schwer | 2–9 | 2–99 | 2–9 | 400, ab 2×2 |
+
+Multiplikation verwendet immer Minimum-Faktor 2 (1×n ist trivial). Bei Schwer-Multiplikation (grosses 1×1) werden die Faktoren 10 und 20 ausgeschlossen (trivial einfach).
 
 **5. Zeitschwellen (paedagogisch begruendet):**
 
@@ -274,9 +276,9 @@ enum FeedbackState {
 
 ## Testing-Strategie
 
-### Unit Tests (82 Tests)
-- `ExerciseGeneratorTests` (35) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben, Zeit-Schwellen
-- `ExerciseViewModelTests` (22) — Session-Flow, Revenge, Cross-Session Integration
+### Unit Tests (91 Tests)
+- `ExerciseGeneratorTests` (41) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben, Zeit-Schwellen, Multiplikations-Minimum, Addition-Bounds
+- `ExerciseViewModelTests` (25) — Session-Flow, Revenge, Cross-Session Integration, Frustrations-Erkennung
 - `EngagementServiceTests` (12) — Achievements, Streaks, CategoryMaster
 - `MetricsServiceTests` (8) — Genauigkeit, Weak Exercises, Format-agnostisch
 - `ExerciseResultTests` (5) — Sterne-Berechnung

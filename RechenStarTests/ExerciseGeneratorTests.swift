@@ -381,4 +381,71 @@ final class ExerciseGeneratorTests: XCTestCase {
             XCTAssertTrue(categories.contains(cat))
         }
     }
+
+    // MARK: - Multiplication Minimum Factor
+
+    func testMultiplication10VeryEasyExcludesOnes() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .veryEasy, category: .multiplication_10)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
+                "VeryEasy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "VeryEasy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+        }
+    }
+
+    func testMultiplication10EasyExcludesOnes() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .multiplication_10)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
+                "Easy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "Easy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+        }
+    }
+
+    func testMultiplication100VeryEasyExcludesOnes() {
+        for _ in 0..<100 {
+            let exercise = ExerciseGenerator.generate(difficulty: .veryEasy, category: .multiplication_100)
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
+                "VeryEasy grosses 1x1 should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "VeryEasy grosses 1x1 should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+        }
+    }
+
+    // MARK: - Addition 100 Lower Bound
+
+    func testAddition100HardSecondNumberRespectsLowerBound() {
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(difficulty: .hard, category: .addition_100)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "Hard addition_100 second number should be ≥2, got \(exercise.firstNumber)+\(exercise.secondNumber)")
+            XCTAssertLessThanOrEqual(exercise.firstNumber + exercise.secondNumber, 100,
+                "Sum exceeds 100: \(exercise.firstNumber)+\(exercise.secondNumber)")
+        }
+    }
+
+    func testAddition100MediumSecondNumberRespectsLowerBound() {
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(difficulty: .medium, category: .addition_100)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
+                "Medium addition_100 second number should be ≥2, got \(exercise.firstNumber)+\(exercise.secondNumber)")
+            XCTAssertLessThanOrEqual(exercise.firstNumber + exercise.secondNumber, 100)
+        }
+    }
+
+    // MARK: - Constants Used Correctly
+
+    func testHardMultiplication100ExcludesTenAndTwenty() {
+        for _ in 0..<200 {
+            let exercise = ExerciseGenerator.generate(difficulty: .hard, category: .multiplication_100)
+            XCTAssertFalse(
+                ExerciseConstants.excludedHardMultiplicationFactors.contains(exercise.firstNumber),
+                "Hard multiplication_100 should exclude factor \(exercise.firstNumber)")
+            XCTAssertFalse(
+                ExerciseConstants.excludedHardMultiplicationFactors.contains(exercise.secondNumber),
+                "Hard multiplication_100 should exclude factor \(exercise.secondNumber)")
+        }
+    }
 }

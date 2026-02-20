@@ -389,6 +389,130 @@ final class ExerciseViewModelTests: XCTestCase {
         }
     }
 
+    // MARK: - Frustration Detection
+
+    func testFrustrationDetectionLowersDifficulty() {
+        // Start at hard. Pattern: correct, wrong, wrong, wrong = 1/4 = 25% < 40%
+        // The normal 2-exercise check at index 2 sees [correct, wrong] = 50% → stays at hard.
+        // Then at index 4, frustration check sees 1/4 = 25% → triggers → hard → medium.
+        let vm = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .hard,
+            categories: [.addition_10],
+            metrics: nil,
+            adaptiveDifficulty: true,
+            gapFillEnabled: false
+        )
+        vm.startSession()
+
+        for i in 0..<4 {
+            guard let exercise = vm.currentExercise, vm.sessionState == .inProgress else {
+                XCTFail("No exercise at index \(i)")
+                return
+            }
+            if i == 0 {
+                // Correct answer
+                let answer = exercise.correctAnswer
+                for digit in String(answer) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.nextExercise()
+            } else {
+                // Wrong twice → showAnswer → clearShowAnswer → nextExercise
+                let wrong = (exercise.correctAnswer + 1) % 100
+                for digit in String(wrong) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearIncorrectFeedback()
+                let wrong2 = (exercise.correctAnswer + 2) % 100
+                for digit in String(wrong2) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearShowAnswer()
+            }
+        }
+
+        // Frustration (1/4 correct = 25%) should lower difficulty by 1
+        XCTAssertEqual(vm.currentDifficulty, .medium,
+            "Frustration (1/4 correct) should lower from hard to medium")
+    }
+
+    func testNoFrustrationWhenAccuracyAboveThreshold() {
+        // Start at hard. Pattern: correct, correct, wrong, wrong = 2/4 = 50% ≥ 40%
+        // Normal check at index 2: [correct, correct] = 100% but time is slow → stays.
+        // At index 4: 2/4 = 50% ≥ 40% → no frustration. Normal check: [wrong, wrong] = 0% → down.
+        let vm = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .hard,
+            categories: [.addition_10],
+            metrics: nil,
+            adaptiveDifficulty: true,
+            gapFillEnabled: false
+        )
+        vm.startSession()
+
+        for i in 0..<4 {
+            guard let exercise = vm.currentExercise, vm.sessionState == .inProgress else {
+                XCTFail("No exercise at index \(i)")
+                return
+            }
+            if i < 2 {
+                let answer = exercise.correctAnswer
+                for digit in String(answer) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.nextExercise()
+            } else {
+                let wrong = (exercise.correctAnswer + 1) % 100
+                for digit in String(wrong) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearIncorrectFeedback()
+                let wrong2 = (exercise.correctAnswer + 2) % 100
+                for digit in String(wrong2) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearShowAnswer()
+            }
+        }
+
+        // 2/4 (50%) doesn't trigger frustration; normal check (0/2) lowers by 1
+        XCTAssertEqual(vm.currentDifficulty, .medium,
+            "2/4 correct (50%) should not trigger frustration, but normal 0/2 check lowers 1 step")
+        XCTAssertFalse(vm.showEncouragement,
+            "No frustration → no encouragement message")
+    }
+
+    func testEncouragementShownOnFrustration() {
+        // Same as frustration test but verify encouragement flag
+        let vm = ExerciseViewModel(
+            sessionLength: 10,
+            difficulty: .hard,
+            categories: [.addition_10],
+            metrics: nil,
+            adaptiveDifficulty: true,
+            gapFillEnabled: false
+        )
+        vm.startSession()
+
+        // Pattern: correct, wrong, wrong, wrong = 1/4 = 25% < 40%
+        for i in 0..<4 {
+            guard let exercise = vm.currentExercise, vm.sessionState == .inProgress else { return }
+            if i == 0 {
+                let answer = exercise.correctAnswer
+                for digit in String(answer) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.nextExercise()
+            } else {
+                let wrong = (exercise.correctAnswer + 1) % 100
+                for digit in String(wrong) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearIncorrectFeedback()
+                let wrong2 = (exercise.correctAnswer + 2) % 100
+                for digit in String(wrong2) { vm.appendDigit(Int(String(digit))!) }
+                vm.submitAnswer()
+                vm.clearShowAnswer()
+            }
+        }
+
+        XCTAssertTrue(vm.showEncouragement,
+            "Frustration should trigger encouragement message")
+    }
+
     // MARK: - Cross-Session Integration Test
 
     func testCrossSessionRevengeEndToEnd() {

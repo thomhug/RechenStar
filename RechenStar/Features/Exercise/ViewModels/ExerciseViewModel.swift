@@ -5,7 +5,7 @@ final class ExerciseViewModel {
 
     // MARK: - Enums
 
-    static let maxAttempts = 2
+    static let maxAttempts = ExerciseConstants.maxAttempts
 
     enum FeedbackState: Equatable {
         case none
@@ -163,7 +163,7 @@ final class ExerciseViewModel {
         currentAttempts += 1
 
         if answer == exercise.correctAnswer {
-            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
+            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), ExerciseConstants.timeSpentCap)
             let result = ExerciseResult(
                 exercise: exercise,
                 userAnswer: answer,
@@ -178,7 +178,7 @@ final class ExerciseViewModel {
             feedbackState = isRevenge ? .revenge(stars: result.stars) : .correct(stars: result.stars)
         } else if currentAttempts >= Self.maxAttempts {
             // Show the correct answer after max attempts
-            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), 10.0)
+            let timeSpent = min(Date().timeIntervalSince(exerciseStartTime), ExerciseConstants.timeSpentCap)
             let result = ExerciseResult(
                 exercise: exercise,
                 userAnswer: answer,
@@ -231,14 +231,14 @@ final class ExerciseViewModel {
             return
         }
 
-        // Adaptive difficulty every 2 exercises
-        if adaptiveDifficulty && nextIndex % 2 == 0 {
-            // Frustration check: last 4 exercises <40% accuracy
+        // Adaptive difficulty check
+        if adaptiveDifficulty && nextIndex % ExerciseConstants.adaptationCheckInterval == 0 {
+            // Frustration check: rolling window
             var frustrated = false
-            if sessionResults.count >= 4 {
-                let last4 = sessionResults.suffix(4)
-                let accuracy4 = Double(last4.filter(\.isCorrect).count) / Double(last4.count)
-                frustrated = accuracy4 < 0.4
+            if sessionResults.count >= ExerciseConstants.frustrationWindowSize {
+                let window = sessionResults.suffix(ExerciseConstants.frustrationWindowSize)
+                let windowAccuracy = Double(window.filter(\.isCorrect).count) / Double(window.count)
+                frustrated = windowAccuracy < ExerciseConstants.frustrationAccuracyThreshold
             }
 
             if frustrated {

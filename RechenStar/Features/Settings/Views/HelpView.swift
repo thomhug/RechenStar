@@ -112,13 +112,24 @@ struct HelpView: View {
             }
 
             difficultyTable(
-                title: "Bis 10 (+ − ×)",
-                subtitle: "Addition, Subtraktion & Kleines 1×1",
+                title: "Bis 10 (+ −)",
+                subtitle: "Addition & Subtraktion",
                 rows: [
                     ("Sehr leicht", "Zahlen 1–3"),
                     ("Leicht", "Zahlen 1–5"),
                     ("Mittel", "Zahlen 2–7"),
                     ("Schwer", "Zahlen 2–9"),
+                ]
+            )
+
+            difficultyTable(
+                title: "Kleines 1×1",
+                subtitle: "Multiplikation bis 10",
+                rows: [
+                    ("Sehr leicht", "Faktoren 2–3"),
+                    ("Leicht", "Faktoren 2–5"),
+                    ("Mittel", "Faktoren 2–7"),
+                    ("Schwer", "Faktoren 2–9"),
                 ]
             )
 
@@ -137,12 +148,14 @@ struct HelpView: View {
                 title: "Grosses 1×1",
                 subtitle: "Faktoren bis 20",
                 rows: [
-                    ("Sehr leicht", "Ergebnis bis 50"),
-                    ("Leicht", "Ergebnis bis 100"),
+                    ("Sehr leicht", "Ergebnis bis 50, ab 2×2"),
+                    ("Leicht", "Ergebnis bis 100, ab 2×2"),
                     ("Mittel", "Ergebnis bis 200, ab 2×2"),
                     ("Schwer", "Ergebnis bis 400, ab 2×2"),
                 ]
             )
+
+            adaptiveExplanation
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -151,6 +164,50 @@ struct HelpView: View {
                 .fill(Color.appCardBackground)
         )
         .accessibilityElement(children: .combine)
+    }
+
+    private var adaptiveExplanation: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Automatische Anpassung")
+                .font(AppFonts.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.appTextPrimary)
+            Text("Im Automatik-Modus passt die App die Schwierigkeit alle 2 Aufgaben an:")
+                .font(AppFonts.footnote)
+                .foregroundColor(.appTextSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                adaptiveRow("Stufe hoch", "2/2 richtig und schnell gelöst (unter 3 Sekunden)")
+                adaptiveRow("Bleibt gleich", "Teilweise richtig, oder richtig aber langsam")
+                adaptiveRow("Stufe runter", "Beide falsch, oder zu langsam (über 7 Sekunden)")
+            }
+            .padding(.top, 4)
+
+            Text("Wenn in den letzten 4 Aufgaben weniger als 2 richtig waren, wird die Stufe ebenfalls gesenkt und eine Ermutigungs-Nachricht angezeigt.")
+                .font(AppFonts.footnote)
+                .foregroundColor(.appTextSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 4)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.appSunYellow.opacity(0.06))
+        )
+    }
+
+    private func adaptiveRow(_ label: String, _ description: String) -> some View {
+        HStack(alignment: .top) {
+            Text(label)
+                .font(AppFonts.caption)
+                .foregroundColor(.appTextSecondary)
+                .frame(width: 90, alignment: .leading)
+            Text(description)
+                .font(AppFonts.caption)
+                .foregroundColor(.appTextSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 
     private func difficultyTable(title: String, subtitle: String, rows: [(String, String)]) -> some View {

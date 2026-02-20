@@ -16,11 +16,11 @@ struct ExerciseGenerator {
     ) -> Exercise {
         let format = randomFormat(for: category, allowGapFill: allowGapFill)
 
-        // 30% chance to use a weak exercise if available
+        // Chance to use a weak exercise if available
         if let metrics = metrics,
            let weakPairs = metrics.weakExercises[category],
            !weakPairs.isEmpty,
-           Double.random(in: 0..<1) < 0.3 {
+           Double.random(in: 0..<1) < ExerciseConstants.weakExerciseChance {
             let pair = weakPairs.randomElement()!
             let exercise = Exercise(
                 type: category.operationType,
@@ -72,11 +72,11 @@ struct ExerciseGenerator {
         averageTime: TimeInterval = .infinity
     ) -> Difficulty {
         // Slow → down (child is struggling, even if answers are correct)
-        if averageTime.isFinite && averageTime > 7.0 {
+        if averageTime.isFinite && averageTime > ExerciseConstants.slowTimeThreshold {
             return nextLower(current)
         }
         // Perfect AND fast → up (automated knowledge)
-        if recentAccuracy >= 1.0 && averageTime < 3.0 {
+        if recentAccuracy >= 1.0 && averageTime < ExerciseConstants.fastTimeThreshold {
             return nextHigher(current)
         }
         // All wrong → down
@@ -93,9 +93,9 @@ struct ExerciseGenerator {
             return .veryEasy
         }
         let avgAccuracy = metrics.categoryAccuracy.values.reduce(0, +) / Double(metrics.categoryAccuracy.count)
-        if avgAccuracy >= 0.9 { return .hard }
-        if avgAccuracy >= 0.7 { return .medium }
-        if avgAccuracy >= 0.5 { return .easy }
+        if avgAccuracy >= ExerciseConstants.startHardThreshold { return .hard }
+        if avgAccuracy >= ExerciseConstants.startMediumThreshold { return .medium }
+        if avgAccuracy >= ExerciseConstants.startEasyThreshold { return .easy }
         return .veryEasy
     }
 
@@ -117,9 +117,10 @@ struct ExerciseGenerator {
 
         case .addition_100:
             let range100 = difficulty.range100
-            let first = Int.random(in: range100)
+            let maxFirst = 100 - range100.lowerBound // leave room for second ≥ lowerBound
+            let first = Int.random(in: range100.lowerBound...min(range100.upperBound, maxFirst))
             let maxSecond = min(range100.upperBound, 100 - first)
-            let second = Int.random(in: 1...max(1, maxSecond))
+            let second = Int.random(in: range100.lowerBound...max(range100.lowerBound, maxSecond))
             return Exercise(type: .addition, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty, format: format)
 
         case .subtraction_10:
@@ -136,15 +137,15 @@ struct ExerciseGenerator {
 
         case .multiplication_10:
             let range = difficulty.range
-            let first = Int.random(in: range)
-            let second = Int.random(in: range)
+            let minFactor = max(range.lowerBound, ExerciseConstants.minimumMultiplicationFactor)
+            let first = Int.random(in: minFactor...range.upperBound)
+            let second = Int.random(in: minFactor...range.upperBound)
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty, format: format)
 
         case .multiplication_100:
             let maxProduct = difficulty.maxProduct
-            let minFactor = difficulty.range.lowerBound
-            // For hard mode, exclude trivially easy factors (10, 20)
-            let excludedFactors: Set<Int> = difficulty == .hard ? [10, 20] : []
+            let minFactor = max(difficulty.range.lowerBound, ExerciseConstants.minimumMultiplicationFactor)
+            let excludedFactors: Set<Int> = difficulty == .hard ? ExerciseConstants.excludedHardMultiplicationFactors : []
             var first: Int
             var second: Int
             repeat {
@@ -160,8 +161,7 @@ struct ExerciseGenerator {
         guard allowGapFill else { return .standard }
         // Only addition/subtraction bis 10
         guard category == .addition_10 || category == .subtraction_10 else { return .standard }
-        // 30% chance for gap-fill
-        guard Double.random(in: 0..<1) < 0.3 else { return .standard }
+        guard Double.random(in: 0..<1) < ExerciseConstants.gapFillChance else { return .standard }
         return Bool.random() ? .firstGap : .secondGap
     }
 

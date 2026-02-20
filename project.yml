@@ -55,6 +55,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rechenstar.tests
         GENERATE_INFOPLIST_FILE: YES
+        DEVELOPMENT_TEAM: 97M8QABMLM
 
   RechenStarUITests:
     type: bundle.ui-testing
@@ -70,3 +71,4 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.rechenstar.uitests
         GENERATE_INFOPLIST_FILE: YES
         TEST_TARGET_NAME: RechenStar
+        DEVELOPMENT_TEAM: 97M8QABMLM
