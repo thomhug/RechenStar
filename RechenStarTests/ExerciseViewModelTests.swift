@@ -67,7 +67,7 @@ final class ExerciseViewModelTests: XCTestCase {
             vm.appendDigit(Int(String(digit))!)
         }
         vm.submitAnswer()
-        XCTAssertEqual(vm.feedbackState, .correct(stars: 3))
+        XCTAssertEqual(vm.feedbackState, .correct(stars: 2))
         XCTAssertEqual(vm.sessionResults.count, 1)
         XCTAssertTrue(vm.sessionResults.first?.isCorrect == true)
     }
@@ -113,7 +113,7 @@ final class ExerciseViewModelTests: XCTestCase {
 
         // Should be revenge (not just correct) because it took 2 attempts
         if case .revenge(let stars) = vm.feedbackState {
-            XCTAssertEqual(stars, 2) // 2nd attempt = 2 stars
+            XCTAssertEqual(stars, 1) // 2nd attempt = 1 star
         } else {
             XCTFail("Expected .revenge feedback on 2nd attempt success, got \(vm.feedbackState)")
         }
@@ -234,7 +234,7 @@ final class ExerciseViewModelTests: XCTestCase {
             }
         }
         vm.submitAnswer()
-        XCTAssertEqual(vm.feedbackState, .correct(stars: 3))
+        XCTAssertEqual(vm.feedbackState, .correct(stars: 2))
     }
 
     func testDisplayAnswerWithNegative() {
@@ -655,5 +655,71 @@ final class ExerciseViewModelTests: XCTestCase {
         // we should see at least some revenge over 10 exercises
         // (unless no generated exercise matches the weak list — which is possible but unlikely)
         print("Cross-session revenge test: \(revengeCount) revenge, \(normalCount) normal out of 10")
+    }
+
+    // MARK: - Auto-Reveal (Zeitüberschreitung)
+
+    func testAutoRevealAnswerRecordsIncorrectSkippedResult() {
+        let vm = makeSUT(sessionLength: 3)
+        vm.startSession()
+        guard let exercise = vm.currentExercise else {
+            return XCTFail("No current exercise")
+        }
+
+        // Simulate time expiry without any user input
+        vm.autoRevealAnswer()
+
+        XCTAssertEqual(vm.sessionResults.count, 1)
+        let result = vm.sessionResults.first!
+        XCTAssertFalse(result.isCorrect, "Auto-reveal should count as incorrect")
+        XCTAssertTrue(result.wasRevealed, "Auto-reveal should mark wasRevealed")
+        XCTAssertTrue(result.wasSkipped, "Auto-reveal should mark wasSkipped")
+        XCTAssertEqual(result.userAnswer, 0, "Auto-reveal should record 0 as user answer")
+        XCTAssertEqual(result.stars, 0, "Auto-reveal should give 0 stars")
+
+        if case .showAnswer(let answer) = vm.feedbackState {
+            XCTAssertEqual(answer, exercise.correctAnswer,
+                "Should show the correct answer after time expiry")
+        } else {
+            XCTFail("Expected .showAnswer feedback after auto-reveal, got \(vm.feedbackState)")
+        }
+    }
+
+    func testAutoRevealAfterPartialInputRecordsResult() {
+        let vm = makeSUT(sessionLength: 3)
+        vm.startSession()
+
+        // User started typing but didn't submit
+        vm.appendDigit(9)
+        vm.appendDigit(9)
+
+        vm.autoRevealAnswer()
+
+        XCTAssertEqual(vm.sessionResults.count, 1)
+        let result = vm.sessionResults.first!
+        XCTAssertFalse(result.isCorrect)
+        XCTAssertTrue(result.wasRevealed)
+        XCTAssertEqual(result.userAnswer, 0, "Auto-reveal always records 0 regardless of partial input")
+    }
+
+    func testAutoRevealDoesNothingDuringFeedback() {
+        let vm = makeSUT(sessionLength: 3)
+        vm.startSession()
+        guard let exercise = vm.currentExercise else {
+            return XCTFail("No current exercise")
+        }
+
+        // Submit correct answer first
+        let answer = exercise.correctAnswer
+        for digit in String(answer) {
+            vm.appendDigit(Int(String(digit))!)
+        }
+        vm.submitAnswer()
+        XCTAssertEqual(vm.sessionResults.count, 1)
+
+        // Auto-reveal should be ignored since feedbackState is not .none
+        vm.autoRevealAnswer()
+        XCTAssertEqual(vm.sessionResults.count, 1,
+            "Auto-reveal should not add a second result when feedback is already showing")
     }
 }

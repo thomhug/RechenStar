@@ -22,7 +22,7 @@ struct SessionCompleteView: View {
     }
 
     private var maxStars: Int {
-        sessionLength * 3
+        sessionLength * 2
     }
 
     private var correctCount: Int {

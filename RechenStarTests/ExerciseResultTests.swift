@@ -7,7 +7,7 @@ final class ExerciseResultTests: XCTestCase {
         Exercise(type: type, category: type == .addition ? .addition_10 : .subtraction_10, firstNumber: first, secondNumber: second)
     }
 
-    func testStarsThreeOnFirstAttempt() {
+    func testStarsTwoOnFirstAttempt() {
         let result = ExerciseResult(
             exercise: makeExercise(),
             userAnswer: 7,
@@ -15,10 +15,10 @@ final class ExerciseResultTests: XCTestCase {
             attempts: 1,
             timeSpent: 5.0
         )
-        XCTAssertEqual(result.stars, 3)
+        XCTAssertEqual(result.stars, 2)
     }
 
-    func testStarsTwoOnSecondAttempt() {
+    func testStarsOneOnSecondAttempt() {
         let result = ExerciseResult(
             exercise: makeExercise(),
             userAnswer: 7,
@@ -26,27 +26,7 @@ final class ExerciseResultTests: XCTestCase {
             attempts: 2,
             timeSpent: 8.0
         )
-        XCTAssertEqual(result.stars, 2)
-    }
-
-    func testStarsOneOnThirdOrMoreAttempts() {
-        let result3 = ExerciseResult(
-            exercise: makeExercise(),
-            userAnswer: 7,
-            isCorrect: true,
-            attempts: 3,
-            timeSpent: 12.0
-        )
-        XCTAssertEqual(result3.stars, 1)
-
-        let result4 = ExerciseResult(
-            exercise: makeExercise(),
-            userAnswer: 7,
-            isCorrect: true,
-            attempts: 4,
-            timeSpent: 15.0
-        )
-        XCTAssertEqual(result4.stars, 1)
+        XCTAssertEqual(result.stars, 1)
     }
 
     func testStarsZeroWhenIncorrect() {

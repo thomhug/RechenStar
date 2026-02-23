@@ -31,8 +31,7 @@ struct ExerciseResult: Identifiable {
     var stars: Int {
         guard isCorrect else { return 0 }
         switch attempts {
-        case 1: return 3
-        case 2: return 2
+        case 1: return 2
         default: return 1
         }
     }

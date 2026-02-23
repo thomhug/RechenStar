@@ -702,6 +702,7 @@ struct ParentDashboardView: View {
                                 try? modelContext.save()
                             }
                         )) {
+                            Text("5 Min").tag(300)
                             Text("10 Min").tag(600)
                             Text("15 Min").tag(900)
                             Text("20 Min").tag(1200)

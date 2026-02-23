@@ -25,7 +25,7 @@ struct HelpView: View {
                         icon: "star.fill",
                         color: .appSunYellow,
                         title: "Sterne sammeln",
-                        text: "Für jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 3 Sterne, beim zweiten 2 und beim dritten noch 1 Stern. Nach zwei falschen Antworten wird die Lösung gezeigt. Wenn du eine Aufgabe überspringst, siehst du ebenfalls die richtige Antwort."
+                        text: "Für jede richtige Antwort bekommst du Sterne. Beim ersten Versuch gibt es 2 Sterne, beim zweiten noch 1 Stern. Nach zwei falschen Antworten wird die Lösung gezeigt. Wenn du eine Aufgabe überspringst, siehst du ebenfalls die richtige Antwort."
                     )
 
                     helpSection(
@@ -46,7 +46,7 @@ struct HelpView: View {
                         icon: "brain.head.profile",
                         color: .appGrassGreen,
                         title: "Schlaues Üben",
-                        text: "Die App merkt sich, welche Aufgaben dir schwerfallen, und zeigt sie dir öfter. Wenn du eine schwierige Aufgabe dann richtig löst, bekommst du Bonus-Sterne als Belohnung! Ausserdem erkennt die App, wenn du Plus und Minus verwechselst, und gibt dir einen Hinweis."
+                        text: "Die App merkt sich, welche Aufgaben dir schwerfallen, und zeigt sie dir öfter. Wenn du eine schwierige Aufgabe dann richtig löst, wirst du mit einem besonderen Lob belohnt! Ausserdem erkennt die App, wenn du Plus und Minus verwechselst, und gibt dir einen Hinweis."
                     )
 
                     helpSection(
