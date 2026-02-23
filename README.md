@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="RechenStar/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="128" alt="RechenStar App Icon">
+</p>
+
 # RechenStar
 
 Eine kindgerechte Mathe-Lern-App für iOS, speziell entwickelt für Grundschulkinder (6-10 Jahre).
