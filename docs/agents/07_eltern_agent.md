@@ -48,7 +48,7 @@ Ich bin ein Elternteil eines 7-jährigen Kindes. Meine Hauptanliegen sind die Bi
 - **Schulische Verbesserung**: Bessere Noten in Mathe
 - **Selbstständigkeit**: Kind übt freiwillig
 - **Zeitersparnis**: Weniger Hausaufgaben-Stress
-- **Transparenz**: Ich weiß, was mein Kind lernt
+- **Transparenz**: Ich weiss, was mein Kind lernt
 - **Preis-Leistung**: Wert rechtfertigt Kosten
 - **Empfehlung**: Würde es anderen Eltern empfehlen
 
@@ -153,7 +153,7 @@ Benachrichtigungen:
 - **Keine**: Versteckte Kosten
 
 ### Wert-Faktoren:
-- Regelmäßige Updates
+- Regelmässige Updates
 - Neue Inhalte
 - Mehrere Kinder nutzbar
 - Cross-Platform

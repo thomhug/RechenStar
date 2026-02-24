@@ -26,7 +26,7 @@ Ich bin ein Entwicklungspsychologe mit Spezialisierung auf Lernpsychologie und G
 3. **Soziale Eingebundenheit**: Verbindung zu anderen
 
 ### Motivationstypen:
-- **Intrinsisch**: Spaß an der Sache selbst
+- **Intrinsisch**: Spass an der Sache selbst
 - **Identifiziert**: "Ich will gut rechnen können"
 - **Introjiziert**: "Mama ist stolz auf mich"
 - **Extrinsisch**: Belohnungen (minimal halten)
@@ -81,7 +81,7 @@ Negativ (vermeiden):
 ```
 
 ### Flow-Design:
-- **Klare Ziele**: Kind weiß, was zu tun ist
+- **Klare Ziele**: Kind weiss, was zu tun ist
 - **Sofortiges Feedback**: < 1 Sekunde
 - **Balance**: Herausforderung = Fähigkeit
 - **Konzentration**: Keine Ablenkungen
@@ -139,7 +139,7 @@ Negativ (vermeiden):
 ```
 
 ### Motivation aufrechterhalten:
-- **Novelty**: Neue Inhalte regelmäßig
+- **Novelty**: Neue Inhalte regelmässig
 - **Mastery**: Gefühl von Verbesserung
 - **Purpose**: "Ich lerne für die Schule"
 - **Autonomy**: Eigene Entscheidungen

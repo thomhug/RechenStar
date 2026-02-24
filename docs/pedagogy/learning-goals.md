@@ -56,7 +56,7 @@ Stufe 1: Kleine Differenzen
 Stufe 2: Mittlere Differenzen
 - 7-3, 8-2, 9-4, 6-3
 
-Stufe 3: Größere Differenzen
+Stufe 3: Grössere Differenzen
 - 10-5, 10-7, 9-6, 8-5
 ```
 
@@ -161,7 +161,7 @@ Ziel: Flexibilität
   - Geometrische Formen
   - Lagebeziehungen
 
-- **Größen und Messen**: (→ Version 2.0)
+- **Grössen und Messen**: (→ Version 2.0)
   - Geld, Zeit, Längen
 
 - **Daten und Zufall**: (→ Version 3.0)

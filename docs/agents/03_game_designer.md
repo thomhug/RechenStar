@@ -141,7 +141,7 @@ Welt 3: Mathe-Ozean (Gemischt)
 ## Game Feel Elemente
 
 ### Juice & Polish:
-- **Screen Shake**: Bei großen Erfolgen (subtil)
+- **Screen Shake**: Bei grossen Erfolgen (subtil)
 - **Particle Effects**: Konfetti, Sterne, Funken
 - **Sound Design**: Aufsteigende Töne bei Erfolg
 - **Haptic Feedback**: Leichte Vibration

@@ -85,7 +85,7 @@ Button(action: submitAnswer) {
 ```
 
 #### Visual Adaptations:
-- **Dynamic Type**: Schriftgröße anpassbar
+- **Dynamic Type**: Schriftgrösse anpassbar
 - **Bold Text**: Optionale Fettschrift
 - **High Contrast**: Verstärkte Kontraste
 - **Reduce Transparency**: Keine Durchsichtigkeit
@@ -188,7 +188,7 @@ struct NumberPad: View {
 
 - **Legasthenie**:
   - Klare Schriftarten
-  - Größere Spacing
+  - Grössere Spacing
   - Audio-Instruktionen
   - Minimaler Text
 
@@ -232,7 +232,7 @@ func testMinimumTouchTargets() {
 2. **Switch Control**: Alle Funktionen erreichbar
 3. **Voice Control**: Sprachbefehle testen
 4. **Keyboard Navigation**: External Keyboard
-5. **Zoom**: 200% Vergrößerung
+5. **Zoom**: 200% Vergrösserung
 
 ### User Testing:
 - 5 Kinder mit verschiedenen Beeinträchtigungen
@@ -245,7 +245,7 @@ func testMinimumTouchTargets() {
 - [ ] Text-Alternativen für Bilder
 - [ ] Kontraste min. 4.5:1
 - [ ] Keine Farbe als einziger Indicator
-- [ ] Anpassbare Textgröße
+- [ ] Anpassbare Textgrösse
 
 ### ✓ Operable:
 - [ ] Keyboard/Switch navigierbar
@@ -288,4 +288,4 @@ Bei Fragen: accessibility@rechenstar.de
 - USA: Section 508 / ADA
 - DE: BITV 2.0
 - Dokumentation vollständig
-- Regelmäßige Audits
+- Regelmässige Audits

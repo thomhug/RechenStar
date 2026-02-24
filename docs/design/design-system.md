@@ -69,7 +69,7 @@ enum AppFonts {
     static let body = Font.custom("SF Rounded", size: 20).weight(.medium)
     static let caption = Font.custom("SF Rounded", size: 16).weight(.regular)
 
-    // Numbers: Extra groß und klar
+    // Numbers: Extra gross und klar
     static let numberLarge = Font.custom("SF Rounded", size: 56).weight(.bold)
     static let numberMedium = Font.custom("SF Rounded", size: 40).weight(.bold)
     static let numberSmall = Font.custom("SF Rounded", size: 28).weight(.semibold)
@@ -232,7 +232,7 @@ enum AppIcons {
 ```
 Sterni (Hauptcharakter):
 - Gelber, lächelnder Stern
-- Große, freundliche Augen
+- Grosse, freundliche Augen
 - Verschiedene Emotionen:
   * Happy (Standard)
   * Super Happy (3 Sterne)

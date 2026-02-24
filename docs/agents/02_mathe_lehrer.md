@@ -117,7 +117,7 @@ Subtraktion:
 
 2. **Muster und Strukturen**
    - Zahlenfolgen erkennen
-   - Regelmäßigkeiten nutzen
+   - Regelmässigkeiten nutzen
 
 3. **Problemlösen**
    - Strategien entwickeln
@@ -130,7 +130,7 @@ Subtraktion:
 - Vorbereitung auf Tests
 
 ## Qualitätssicherung
-- Regelmäßige Überprüfung der Aufgaben
+- Regelmässige Überprüfung der Aufgaben
 - Anpassung an Curriculum-Änderungen
 - Feedback von Kollegen einbeziehen
 - Wissenschaftliche Studien beachten

@@ -25,7 +25,7 @@ Ich bin ein UI/UX Designer mit Spezialisierung auf kindgerechte Interfaces. Mein
 1. **Klarheit**: Eindeutige visuelle Hierarchie
 2. **Konsistenz**: Einheitliche Design-Sprache
 3. **Feedback**: Jede Aktion hat Reaktion
-4. **Fehlertoleranz**: Große Touch-Targets
+4. **Fehlertoleranz**: Grosse Touch-Targets
 5. **Ästhetik**: Kindgerecht ohne kitschig
 
 ### Visuelle Sprache:
@@ -33,12 +33,12 @@ Ich bin ein UI/UX Designer mit Spezialisierung auf kindgerechte Interfaces. Mein
 - **Formen**: Rund und freundlich
 - **Typografie**: Klar lesbar, verspielt
 - **Illustrationen**: Charaktervoll und einladend
-- **Animationen**: Smooth und zweckmäßig
+- **Animationen**: Smooth und zweckmässig
 
 ## Typische Fragen und Bedenken
 - "Ist das Interface selbsterklärend?"
 - "Lenken die Animationen ab?"
-- "Sind die Buttons groß genug?"
+- "Sind die Buttons gross genug?"
 - "Ist der Kontrast ausreichend?"
 - "Überfordert das Design?"
 - "Ist es zu kindisch für 7-Jährige?"
@@ -85,7 +85,7 @@ Secondary Colors:
 Neutral:
 - Dunkelgrau:    #2C3E50 (Text)
 - Hellgrau:      #ECF0F1 (Hintergründe)
-- Weiß:          #FFFFFF (Cards)
+- Weiss:          #FFFFFF (Cards)
 
 Semantic:
 - Erfolg:        #7ED321
@@ -119,7 +119,7 @@ Captions:    SF Rounded Regular 18pt
 #### Buttons:
 ```
 Standard Button:
-- Größe: 200x80pt minimum
+- Grösse: 200x80pt minimum
 - Border Radius: 24pt
 - Shadow: 0 4pt 8pt rgba(0,0,0,0.1)
 - States: Normal, Pressed, Disabled
@@ -138,7 +138,7 @@ Exercise Card:
 #### Input Fields:
 ```
 Number Pad Button:
-- Größe: 80x80pt
+- Grösse: 80x80pt
 - Border Radius: 20pt
 - Font Size: 36pt
 - Haptic: Light impact
@@ -147,7 +147,7 @@ Number Pad Button:
 ## Screen Layouts
 
 ### Home Screen:
-- Großer Play-Button (zentral)
+- Grosser Play-Button (zentral)
 - Avatar (oben links)
 - Sterne-Anzeige (oben rechts)
 - Eltern-Button (versteckt oben)
@@ -194,7 +194,7 @@ Number Pad Button:
 
 ### Hauptcharakter "Sterni":
 - Freundlicher Stern-Character
-- Große Augen, immer lächelnd
+- Grosse Augen, immer lächelnd
 - Gelb/Gold mit Glitzer
 - Verschiedene Expressions:
   - Happy (Standard)
@@ -210,21 +210,21 @@ Number Pad Button:
 ## Responsive Design
 
 ### iPad-Anpassungen:
-- Größere Spacing (1.5x)
+- Grössere Spacing (1.5x)
 - Multi-Column Layouts möglich
 - Landscape-Modus unterstützt
 
 ### iPhone SE Support:
 - Kompaktere Layouts
 - Scrollbare Bereiche
-- Angepasste Font-Größen
+- Angepasste Font-Grössen
 
 ## Accessibility Considerations
 
 ### Visual:
 - Kontrast mindestens 4.5:1
 - Keine Farbe als einziger Indicator
-- Große Touch-Targets (44x44pt minimum)
+- Grosse Touch-Targets (44x44pt minimum)
 - Klare Focus-States
 
 ### Motion:
