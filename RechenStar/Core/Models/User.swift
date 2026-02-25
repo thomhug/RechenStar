@@ -24,6 +24,9 @@ final class User {
     @Relationship(deleteRule: .cascade, inverse: \UserPreferences.user)
     var preferences: UserPreferences?
 
+    @Relationship(deleteRule: .cascade, inverse: \AdjustmentLog.user)
+    var adjustmentLogs: [AdjustmentLog] = []
+
     init(name: String = "", avatarCharacter: String = "star") {
         self.name = name
         self.avatarCharacter = avatarCharacter

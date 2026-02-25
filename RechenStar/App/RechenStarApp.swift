@@ -79,7 +79,8 @@ struct RechenStarApp: App {
             Session.self,
             Achievement.self,
             UserPreferences.self,
-            ExerciseRecord.self
+            ExerciseRecord.self,
+            AdjustmentLog.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true)
         return try? ModelContainer(for: schema, configurations: [config])

@@ -7,6 +7,10 @@ struct ParentDashboardView: View {
     let onDismiss: () -> Void
     @Environment(\.modelContext) private var modelContext
     @State private var exerciseDetailsPage = 0
+    @State private var adjustStars: Int = 0
+    @State private var adjustExercises: Int = 0
+    @State private var isEditingProgress = false
+    @State private var showAdjustmentConfirmation = false
 
     private var sortedProgress: [DailyProgress] {
         user.progress.sorted { $0.date < $1.date }
@@ -56,6 +60,7 @@ struct ParentDashboardView: View {
                     overallStats
                     sessionsHistory
                     parentSettings
+                    progressAdjustment
                 }
                 .padding(20)
             }
@@ -718,6 +723,223 @@ struct ParentDashboardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.appCardBackground)
         )
+    }
+
+    // MARK: - Progress Adjustment
+
+    private var progressAdjustment: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Fortschritt anpassen")
+                .font(AppFonts.headline)
+                .foregroundColor(.appTextPrimary)
+
+            if isEditingProgress {
+                VStack(spacing: 16) {
+                    // Stars
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Sterne")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextSecondary)
+                        HStack(spacing: 12) {
+                            Button {
+                                adjustStars = max(0, adjustStars - 10)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appCoral)
+                            }
+                            TextField("", value: $adjustStars, format: .number)
+                                .keyboardType(.numberPad)
+                                .font(AppFonts.headline)
+                                .foregroundColor(.appTextPrimary)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 100)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.appCardBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.appSunYellow.opacity(0.5), lineWidth: 1)
+                                        )
+                                )
+                            Button {
+                                adjustStars += 10
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appGrassGreen)
+                            }
+                        }
+                    }
+
+                    // Exercises
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Aufgaben (korrekt)")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextSecondary)
+                        HStack(spacing: 12) {
+                            Button {
+                                adjustExercises = max(0, adjustExercises - 10)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appCoral)
+                            }
+                            TextField("", value: $adjustExercises, format: .number)
+                                .keyboardType(.numberPad)
+                                .font(AppFonts.headline)
+                                .foregroundColor(.appTextPrimary)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 100)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.appCardBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.appSkyBlue.opacity(0.5), lineWidth: 1)
+                                        )
+                                )
+                            Button {
+                                adjustExercises += 10
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appGrassGreen)
+                            }
+                        }
+                    }
+
+                    // Level preview
+                    let previewLevel = Level.current(for: adjustExercises)
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.right.circle.fill")
+                            .foregroundColor(.appSkyBlue)
+                        Text("Level: \(previewLevel.title)")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextPrimary)
+                    }
+
+                    // Buttons
+                    HStack(spacing: 12) {
+                        Button {
+                            isEditingProgress = false
+                        } label: {
+                            Text("Abbrechen")
+                                .font(AppFonts.body)
+                                .foregroundColor(.appTextSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.appCardBackground)
+                                )
+                        }
+
+                        Button {
+                            showAdjustmentConfirmation = true
+                        } label: {
+                            Text("Speichern")
+                                .font(AppFonts.body)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.appSkyBlue)
+                                )
+                        }
+                    }
+                }
+            } else {
+                Button {
+                    adjustStars = user.totalStars
+                    adjustExercises = user.totalExercises
+                    isEditingProgress = true
+                } label: {
+                    HStack {
+                        Image(systemName: "slider.horizontal.3")
+                            .foregroundColor(.appSkyBlue)
+                        Text("Sterne & Aufgaben anpassen")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appSkyBlue)
+                    }
+                }
+            }
+
+            // Log
+            let logs = user.adjustmentLogs.sorted { $0.timestamp > $1.timestamp }
+            if !logs.isEmpty {
+                Divider()
+                Text("Änderungsprotokoll")
+                    .font(AppFonts.caption)
+                    .foregroundColor(.appTextSecondary)
+
+                ForEach(logs, id: \.id) { log in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(formatLogDate(log.timestamp))
+                            .font(AppFonts.footnote)
+                            .foregroundColor(.appTextSecondary)
+                        Text(log.summary)
+                            .font(AppFonts.caption)
+                            .foregroundColor(.appTextPrimary)
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.appCardBackground)
+        )
+        .alert("Änderung bestätigen", isPresented: $showAdjustmentConfirmation) {
+            Button("Abbrechen", role: .cancel) { }
+            Button("Ändern", role: .destructive) {
+                saveProgressAdjustment()
+            }
+        } message: {
+            Text("Diese Änderung wird im Protokoll gespeichert und ist sichtbar. Wirklich ändern?")
+        }
+    }
+
+    private func saveProgressAdjustment() {
+        let oldStars = user.totalStars
+        let oldExercises = user.totalExercises
+
+        guard adjustStars != oldStars || adjustExercises != oldExercises else {
+            isEditingProgress = false
+            return
+        }
+
+        // Build summary
+        var parts: [String] = []
+        if adjustStars != oldStars {
+            parts.append("Sterne \(oldStars) → \(adjustStars)")
+        }
+        if adjustExercises != oldExercises {
+            parts.append("Aufgaben \(oldExercises) → \(adjustExercises)")
+        }
+
+        // Apply changes
+        user.totalStars = max(0, adjustStars)
+        user.totalExercises = max(0, adjustExercises)
+
+        // Create log
+        let log = AdjustmentLog(summary: parts.joined(separator: ", "))
+        log.user = user
+        modelContext.insert(log)
+
+        try? modelContext.save()
+        isEditingProgress = false
+    }
+
+    private func formatLogDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "dd.MM HH:mm:ss"
+        return formatter.string(from: date)
     }
 
     // MARK: - Helpers

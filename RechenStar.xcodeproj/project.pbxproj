@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7F3E2D1C0B9A8F7E6D5C4B3A /* AdjustmentLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7B2C4D5E6F1A8B9C0D2E3F /* AdjustmentLog.swift */; };
 		0B33C51776D4568F9391FEA7 /* ExerciseGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299E1653F5C2F1EF6117A17F /* ExerciseGenerator.swift */; };
 		10F4F1D2722A7E33FE3BF0A5 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F4468940269559665D3FD /* Fonts.swift */; };
 		1E9BA0E866E0618A59D4BB45 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02B8622AE612BA76FAD6F4A /* Achievement.swift */; };
@@ -66,6 +67,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3A7B2C4D5E6F1A8B9C0D2E3F /* AdjustmentLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentLog.swift; sourceTree = "<group>"; };
 		0D4CE589B640738E3A4D5FA9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F57A79A2599132E39E9EFEF /* ExerciseViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseViewModelTests.swift; sourceTree = "<group>"; };
 		0FDDBFF8E95CF8693B149D32 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 			isa = PBXGroup;
 			children = (
 				B02B8622AE612BA76FAD6F4A /* Achievement.swift */,
+				3A7B2C4D5E6F1A8B9C0D2E3F /* AdjustmentLog.swift */,
 				C624BF870DA45D04D32A388F /* DailyProgress.swift */,
 				1C3B1D1FD3C0C14EFF2EC044 /* Exercise.swift */,
 				1B78ED334F48DEAF4796FA6D /* ExerciseRecord.swift */,
@@ -555,6 +558,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E9BA0E866E0618A59D4BB45 /* Achievement.swift in Sources */,
+				7F3E2D1C0B9A8F7E6D5C4B3A /* AdjustmentLog.swift in Sources */,
 				22902F2213D5592DB4CE72F1 /* AchievementsView.swift in Sources */,
 				ED8FC640FC38A799CE379F22 /* AppButton.swift in Sources */,
 				CF7A8A8646288D4506550402 /* AppCard.swift in Sources */,
