@@ -21,17 +21,17 @@ enum HapticFeedback {
     }
 
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
-        guard isEnabled else { return }
+        guard isEnabled, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         UIImpactFeedbackGenerator(style: style).impactOccurred()
     }
 
     static func selection() {
-        guard isEnabled else { return }
+        guard isEnabled, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         UISelectionFeedbackGenerator().selectionChanged()
     }
 
     static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
-        guard isEnabled else { return }
+        guard isEnabled, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         UINotificationFeedbackGenerator().notificationOccurred(type)
     }
 }

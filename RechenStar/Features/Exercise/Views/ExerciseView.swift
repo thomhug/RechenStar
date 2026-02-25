@@ -46,8 +46,9 @@ struct ExerciseView: View {
     }
 
     /// Whether the screen is compact (iPhone SE etc.)
+    /// On Mac (iPad app), always use non-compact layout.
     private var isCompact: Bool {
-        UIScreen.main.bounds.height < 700
+        ProcessInfo.processInfo.isiOSAppOnMac ? false : UIScreen.main.bounds.height < 700
     }
 
     private var padButtonSize: CGFloat {

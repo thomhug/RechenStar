@@ -215,9 +215,13 @@ struct RechenStarApp: App {
     }
 
     private func configureAppearance() {
-        UINavigationBar.appearance().largeTitleTextAttributes = [
-            .font: UIFont.rounded(ofSize: 34, weight: .bold)
-        ]
+        #if !targetEnvironment(macCatalyst)
+        if !ProcessInfo.processInfo.isiOSAppOnMac {
+            UINavigationBar.appearance().largeTitleTextAttributes = [
+                .font: UIFont.rounded(ofSize: 34, weight: .bold)
+            ]
+        }
+        #endif
     }
 }
 

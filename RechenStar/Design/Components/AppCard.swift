@@ -48,7 +48,7 @@ struct ExerciseCard: View {
     let revealedAnswer: Int?
 
     private var isCompact: Bool {
-        UIScreen.main.bounds.height < 700
+        ProcessInfo.processInfo.isiOSAppOnMac ? false : UIScreen.main.bounds.height < 700
     }
 
     private var numberFont: Font {
