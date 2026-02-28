@@ -9,6 +9,7 @@ struct ParentDashboardView: View {
     @State private var exerciseDetailsPage = 0
     @State private var adjustStars: Int = 0
     @State private var adjustExercises: Int = 0
+    @State private var adjustStreak: Int = 0
     @State private var isEditingProgress = false
     @State private var showAdjustmentConfirmation = false
 
@@ -811,6 +812,44 @@ struct ParentDashboardView: View {
                         }
                     }
 
+                    // Streak
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Streak (Tage)")
+                            .font(AppFonts.body)
+                            .foregroundColor(.appTextSecondary)
+                        HStack(spacing: 12) {
+                            Button {
+                                adjustStreak = max(0, adjustStreak - 1)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appCoral)
+                            }
+                            TextField("", value: $adjustStreak, format: .number)
+                                .keyboardType(.numberPad)
+                                .font(AppFonts.headline)
+                                .foregroundColor(.appTextPrimary)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 100)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.appCardBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.appOrange.opacity(0.5), lineWidth: 1)
+                                        )
+                                )
+                            Button {
+                                adjustStreak += 1
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.appGrassGreen)
+                            }
+                        }
+                    }
+
                     // Level preview
                     let previewLevel = Level.current(for: adjustExercises)
                     HStack(spacing: 8) {
@@ -857,6 +896,7 @@ struct ParentDashboardView: View {
                 Button {
                     adjustStars = user.totalStars
                     adjustExercises = user.totalExercises
+                    adjustStreak = user.currentStreak
                     isEditingProgress = true
                 } label: {
                     HStack {
@@ -907,8 +947,9 @@ struct ParentDashboardView: View {
     private func saveProgressAdjustment() {
         let oldStars = user.totalStars
         let oldExercises = user.totalExercises
+        let oldStreak = user.currentStreak
 
-        guard adjustStars != oldStars || adjustExercises != oldExercises else {
+        guard adjustStars != oldStars || adjustExercises != oldExercises || adjustStreak != oldStreak else {
             isEditingProgress = false
             return
         }
@@ -921,10 +962,18 @@ struct ParentDashboardView: View {
         if adjustExercises != oldExercises {
             parts.append("Aufgaben \(oldExercises) → \(adjustExercises)")
         }
+        if adjustStreak != oldStreak {
+            parts.append("Streak \(oldStreak) → \(adjustStreak)")
+        }
 
         // Apply changes
         user.totalStars = max(0, adjustStars)
         user.totalExercises = max(0, adjustExercises)
+        let newStreak = max(0, adjustStreak)
+        user.currentStreak = newStreak
+        if newStreak > user.longestStreak {
+            user.longestStreak = newStreak
+        }
 
         // Create log
         let log = AdjustmentLog(summary: parts.joined(separator: ", "))
