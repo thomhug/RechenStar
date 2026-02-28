@@ -4,7 +4,9 @@ import SwiftData
 struct HomeView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var exerciseFlowState: ExerciseFlowState?
+    @State private var today = Calendar.current.startOfDay(for: Date())
 
     enum ExerciseFlowState: Identifiable {
         case exercising
@@ -56,6 +58,14 @@ struct HomeView: View {
             Spacer()
         }
         .padding(20)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                let newDay = Calendar.current.startOfDay(for: Date())
+                if newDay != today {
+                    today = newDay
+                }
+            }
+        }
         .fullScreenCover(item: $exerciseFlowState) { state in
             switch state {
             case .exercising:
@@ -167,8 +177,7 @@ struct HomeView: View {
 
     private func dailyGoalSection(user: User) -> some View {
         let dailyGoal = user.preferences?.dailyGoal ?? 20
-        let calendar = Calendar.current
-        let todayProgress = user.progress.first { calendar.isDateInToday($0.date) }
+        let todayProgress = user.progress.first { Calendar.current.isDate($0.date, inSameDayAs: today) }
         let completed = todayProgress?.exercisesCompleted ?? 0
         let fraction = min(Double(completed) / Double(dailyGoal), 1.0)
         let done = completed >= dailyGoal
