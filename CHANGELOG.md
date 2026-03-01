@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.2
+
+### Neue Funktionen
+- Fortschritt im Eltern-Dashboard manuell anpassen (Aufgaben, Sterne, Streak)
+- Faktor 1 bei leichter Multiplikation erlaubt (z.B. 1×5)
+
+### Bugfixes
+- Tägliches Ziel wird zurückgesetzt wenn die App an einem neuen Tag geöffnet wird
+- App stürzt nicht mehr auf Apple Silicon Macs ab (Haptics, UINavigationBar, UIScreen)
+- Schwierigkeitsvergleich korrigiert (rawValue für Comparable)
+
+### Sonstiges
+- ParentGate (Elternbereich-Sperre) entfernt
+
 ## 1.0.1
 
 ### Bugfixes
