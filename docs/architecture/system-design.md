@@ -98,7 +98,9 @@ struct Exercise: Identifiable, Codable, Hashable { ... }
 // App-weiter State via @Observable + @Environment
 @Observable class AppState {
     var currentUser: User?
-    var selectedTab: ContentTab = .home
+    var isParentMode = false
+    var currentSession: Session?
+    var hasLaunchedBefore: Bool  // UserDefaults-backed
 }
 
 @Observable class ThemeManager {
@@ -259,7 +261,7 @@ MetricsService: lastCorrect=true → faellt aus Weak-Liste
 ```swift
 enum FeedbackState {
     case none                                    // Warten auf Eingabe
-    case correct(stars: Int)                     // Richtig (1-3 Sterne)
+    case correct(stars: Int)                     // Richtig (1-2 Sterne)
     case revenge(stars: Int)                     // Revenge-Erfolg + Bonus
     case incorrect                               // Falsch (nochmal versuchen)
     case wrongOperation(correct: String, wrong: String)  // +/- Verwechslung
@@ -276,15 +278,17 @@ enum FeedbackState {
 
 ## Testing-Strategie
 
-### Unit Tests (91 Tests)
+### Unit Tests (93 Tests)
 - `ExerciseGeneratorTests` (41) — Schwierigkeit, Kategorien, Duplikate, schwache Aufgaben, Zeit-Schwellen, Multiplikations-Minimum, Addition-Bounds
-- `ExerciseViewModelTests` (25) — Session-Flow, Revenge, Cross-Session Integration, Frustrations-Erkennung
+- `ExerciseViewModelTests` (28) — Session-Flow, Revenge, Cross-Session Integration, Frustrations-Erkennung, Auto-Reveal
 - `EngagementServiceTests` (12) — Achievements, Streaks, CategoryMaster
 - `MetricsServiceTests` (8) — Genauigkeit, Weak Exercises, Format-agnostisch
-- `ExerciseResultTests` (5) — Sterne-Berechnung
+- `ExerciseResultTests` (4) — Sterne-Berechnung
 
-### UI Tests
-- `ExerciseFlowUITests` — Kompletter Session-Flow, Cross-Session Revenge
+### UI Tests (11 Tests)
+- `ExerciseFlowUITests` (9) — Kompletter Session-Flow, Cross-Session Revenge, NumberPad, Skip, Cancel
+- `NavigationUITests` (1) — Tab-Navigation
+- `ScreenshotUITests` (1) — App Store Screenshots
 
 ## Build & Deployment
 

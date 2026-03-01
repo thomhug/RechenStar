@@ -23,12 +23,12 @@ struct Exercise: Identifiable, Codable, Hashable {
     var correctAnswer: Int { ... }
     var displayText: String { ... }
     var displayNumbers: (left: String, right: String, result: String) { ... }
-    var signature: String { ... }  // z.B. "addition_10_3_4_standard"
+    var signature: String { ... }  // z.B. "addition_10_3_4_standard" (inkl. Format)
 }
 
 enum OperationType: String, Codable, CaseIterable {
     case addition, subtraction, multiplication
-    var symbol: String { ... }  // "+", "-", "x"
+    var symbol: String { ... }  // "+", "-", "×"
 }
 
 enum ExerciseFormat: String, Codable {
@@ -51,35 +51,39 @@ enum ExerciseCategory: String, Codable, CaseIterable {
 }
 
 enum Difficulty: Int, Codable, CaseIterable {
-    case veryEasy = 0
-    case easy = 1
-    case medium = 2
-    case hard = 3
+    case veryEasy = 1
+    case easy = 2
+    case medium = 3
+    case hard = 4
 
     var label: String { ... }       // "Sehr leicht" bis "Schwer"
-    var skillTitle: String { ... }  // "Anfänger" bis "Experte"
+    var skillTitle: String { ... }  // "Entdecker", "Kenner", "Könner", "Meister"
+    var skillImageName: String { ... }  // "skill_entdecker" etc.
+    var range: ClosedRange<Int> { ... }      // 1...3, 1...5, 2...7, 2...9
+    var range100: ClosedRange<Int> { ... }   // 1...20, 1...40, 2...70, 2...99
+    var maxProduct: Int { ... }              // 50, 100, 200, 400
 }
 ```
 
 ### ExerciseResult (Ergebnis)
 
 ```swift
-struct ExerciseResult: Identifiable, Codable {
+struct ExerciseResult: Identifiable {
     let id: UUID = UUID()
     let exercise: Exercise
     let userAnswer: Int
     let isCorrect: Bool
     let attempts: Int
     let timeSpent: TimeInterval  // Gekappt auf max 10s
-    let wasSkipped: Bool
     let wasRevealed: Bool        // Auto-Reveal nach Timer
-    let timestamp: Date = Date()
+    let wasSkipped: Bool
 
     var stars: Int {
-        if !isCorrect { return 0 }
-        if attempts == 1 { return 3 }
-        if attempts == 2 { return 2 }
-        return 1
+        guard isCorrect else { return 0 }
+        switch attempts {
+        case 1: return 2
+        default: return 1
+        }
     }
 }
 ```
@@ -90,24 +94,28 @@ struct ExerciseResult: Identifiable, Codable {
 @Model
 class User {
     @Attribute(.unique) var id: UUID = UUID()
-    var name: String
-    var avatarName: String
+    var name: String = ""
+    var avatarCharacter: String = "star"
+    var avatarColor: String = "#4A90E2"
     var createdAt: Date = Date()
     var lastActiveAt: Date = Date()
-
-    @Relationship(deleteRule: .cascade)
-    var progress: [DailyProgress] = []
-
-    @Relationship(deleteRule: .cascade)
-    var achievements: [Achievement] = []
-
-    @Relationship(deleteRule: .cascade)
-    var preferences: UserPreferences?
 
     var currentStreak: Int = 0
     var longestStreak: Int = 0
     var totalExercises: Int = 0   // Nur korrekt gelöste Aufgaben
     var totalStars: Int = 0
+
+    @Relationship(deleteRule: .cascade, inverse: \DailyProgress.user)
+    var progress: [DailyProgress] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \Achievement.user)
+    var achievements: [Achievement] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \UserPreferences.user)
+    var preferences: UserPreferences?
+
+    @Relationship(deleteRule: .cascade, inverse: \AdjustmentLog.user)
+    var adjustmentLogs: [AdjustmentLog] = []
 }
 ```
 
@@ -173,19 +181,22 @@ Persistierte Version eines ExerciseResult fuer Langzeit-Analyse.
 ```swift
 @Model
 class ExerciseRecord {
-    var date: Date
-    var category: String           // ExerciseCategory.rawValue
-    var exerciseSignature: String   // z.B. "addition_10_3_4_standard"
-    var firstNumber: Int
-    var secondNumber: Int
-    var isCorrect: Bool
-    var timeSpent: Double
-    var attempts: Int
-    var wasSkipped: Bool
-    var displayText: String
+    var id: UUID = UUID()
+    var exerciseSignature: String = ""   // z.B. "addition_10_3_4_standard"
+    var operationType: String = ""       // "plus", "minus", "mal"
+    var category: String = ""            // ExerciseCategory.rawValue
+    var firstNumber: Int = 0
+    var secondNumber: Int = 0
+    var isCorrect: Bool = false
+    var timeSpent: TimeInterval = 0
+    var attempts: Int = 1
+    var wasSkipped: Bool = false
+    var difficulty: Int = 2              // Difficulty.rawValue
+    var date: Date = Date()
 
-    @Relationship(inverse: \Session.exerciseRecords)
     var session: Session?
+
+    var displayText: String { ... }  // Computed: "3 + 4"
 }
 ```
 
@@ -229,6 +240,19 @@ enum AchievementType: String, Codable, CaseIterable {
     case categoryMaster     // "Kategorie-Profi" — 90%+ in Kategorie (min 20, kumulativ)
     case variety            // "Vielseitig" — 4+ Kategorien in einer Runde
     case dailyChampion      // "Tages-Champion" — 100 Aufgaben an einem Tag
+}
+```
+
+### AdjustmentLog (Anpassungs-Protokoll)
+
+```swift
+@Model
+class AdjustmentLog {
+    var id: UUID = UUID()
+    var timestamp: Date = Date()
+    var summary: String = ""
+
+    var user: User?
 }
 ```
 
@@ -278,6 +302,7 @@ class UserPreferences {
 User (1) ─────> (n) DailyProgress
 User (1) ─────> (n) Achievement
 User (1) ─────> (1) UserPreferences
+User (1) ─────> (n) AdjustmentLog
 DailyProgress (1) ─────> (n) Session
 Session (1) ─────> (n) ExerciseRecord
 ```
@@ -328,6 +353,7 @@ struct RechenStarApp: App {
                  ExerciseRecord.self,
                  Achievement.self,
                  UserPreferences.self,
+                 AdjustmentLog.self,
             configurations: config
         )
     }
@@ -338,6 +364,6 @@ struct RechenStarApp: App {
 
 - Alle Daten lokal gespeichert
 - Keine Cloud-Synchronisation
-- Eltern-Gate mit Rechenaufgabe (kein PIN)
+- Elternbereich direkt zugänglich (kein Passwort, kein Gate)
 - Keine persönlichen Daten gesammelt
 - Keine Analytics, kein Tracking

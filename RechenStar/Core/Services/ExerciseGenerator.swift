@@ -137,7 +137,7 @@ struct ExerciseGenerator {
 
         case .multiplication_10:
             let range = difficulty.range
-            let minFactor = max(range.lowerBound, ExerciseConstants.minimumMultiplicationFactor)
+            let minFactor = difficulty <= .easy ? range.lowerBound : max(range.lowerBound, ExerciseConstants.minimumMultiplicationFactor)
             let first = Int.random(in: minFactor...range.upperBound)
             let second = Int.random(in: minFactor...range.upperBound)
             return Exercise(type: .multiplication, category: category, firstNumber: first, secondNumber: second, difficulty: difficulty, format: format)

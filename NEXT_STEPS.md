@@ -7,7 +7,7 @@
 ## Abgeschlossen
 
 - [x] Phase 1: Engagement-System (Achievements, Streaks, DailyProgress, EngagementService)
-- [x] Phase 2: Parent Features Basis (Parent Gate, Pausen-Erinnerung, Basis-Einstellungen)
+- [x] Phase 2: Parent Features Basis (Elternbereich, Pausen-Erinnerung, Basis-Einstellungen)
 - [x] Phase 3: Settings, Accessibility, VoiceOver (ThemeManager, Farbpaletten, Dynamic Type)
 - [x] Phase 4: Unit Tests (16+ Tests fuer ExerciseGenerator, ExerciseResult, ViewModel, EngagementService)
 - [x] Phase 5: Stern-Animation + UI Tests (StarAnimationView, 5 UI Tests)

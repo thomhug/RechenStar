@@ -39,7 +39,7 @@ Polish:                ░░░░░░░░░░░░░░░░░░░
 ### Core Models (100%)
 Alle 8 Models implementiert:
 - `Exercise` — Aufgaben-Struct mit OperationType (Addition/Subtraktion/Multiplikation), ExerciseCategory (6 Typen), ExerciseFormat (standard/firstGap/secondGap), Difficulty (4 Stufen)
-- `ExerciseResult` — Ergebnis-Struct mit Sterne-Berechnung (3/2/1), wasSkipped, wasRevealed, timeSpent (max 10s)
+- `ExerciseResult` — Ergebnis-Struct mit Sterne-Berechnung (2/1), wasSkipped, wasRevealed, timeSpent (max 10s)
 - `User` — SwiftData-Model mit Streaks, Sternen (nur korrekte zaehlen), Beziehungen
 - `Session` — SwiftData-Model mit Accuracy-Berechnung, Addition/Subtraktion-Stats, ExerciseRecords
 - `ExerciseRecord` — SwiftData-Model fuer persistierte Aufgaben-Protokolle (Langzeit-Analyse)
@@ -56,7 +56,7 @@ Alle 8 Models implementiert:
 ### UI Implementation (100%)
 - `HomeView` — Willkommen, Sterne-Anzeige, Tagesziel-Fortschritt, Spielen-Button, Session-Speicherung, Metriken-Berechnung ueber Relationship-Chain
 - `ExerciseView` — Aufgaben-Anzeige (inkl. Lueckenaufgaben), NumberPad (0-9 + ±), Feedback-Animationen, Shake bei Fehler, Auto-Advance, Stern-Animation, Revenge-Feedback mit animierten Sternen, +/- Verwechslungs-Erkennung, Skip zeigt Loesung 2.5s, Auto-Reveal Timer, konfigurierbarer Skip-Button
-- `ExerciseViewModel` — Session-State, Antwort-Pruefung, adaptive Schwierigkeit alle 3 Aufgaben, Revenge-Erkennung (isRetry + weak exercises), timeSpent auf 10s gekappt, autoRevealAnswer
+- `ExerciseViewModel` — Session-State, Antwort-Pruefung, adaptive Schwierigkeit alle 2 Aufgaben, Revenge-Erkennung (isRetry + weak exercises), timeSpent auf 10s gekappt, autoRevealAnswer
 - `SessionCompleteView` — Sterne, Accuracy-Statistiken, Konfetti, Streak-Anzeige, neue Achievements, Tagesziel-Anzeige
 - `LearningProgressView` — Statistiken (heutige Aufgaben, Streak, Sterne), Level-Badge und Skill-Badge mit Tap-Uebersicht (alle 7 Level, alle 4 Skill-Stufen)
 - `AchievementsView` — Echte Achievement-Daten mit Fortschritts-Labels (z.B. 7/10), 16 Achievements
@@ -64,18 +64,18 @@ Alle 8 Models implementiert:
 - `ParentDashboardView` — Charts, Staerken/Schwaechen pro Kategorie, Aufgaben-Details mit Pagination (deterministische Sortierung), Fokus-Aufgaben, Sessions-Historie, Gesamt-Stats, alles ueber Relationship-Chain
 
 ### Gamification (100%)
-- Sterne pro Aufgabe (3/2/1 basierend auf Versuchen)
+- Sterne pro Aufgabe (2/1 basierend auf Versuchen)
 - Achievement-System mit 16 Typen, automatisches Unlocking nach Sessions
 - Fortschrittsbalken + Labels pro Achievement (freigeschaltet vs. gesperrt)
 - Streak-Tracking (aktuell + laengster)
 - DailyProgress-Aggregation
 - Stern-Sammel-Animation (fliegen zum Zaehler)
-- Konfetti auf SessionCompleteView bei >= 90% Accuracy
+- Konfetti auf SessionCompleteView bei >= 60% Accuracy (oder Achievements, Tagesziel, Level-Up)
 - Revenge-System: Falsch geloeste Aufgaben kommen in spaeteren Sessions wieder, bei Erfolg gibt es Bonus-Sterne und spezielles Feedback
 - Tagesziel mit Fortschrittsbalken auf HomeView
 
 ### Parent Features (100%)
-- Parent-Gate mit Mathe-Aufgabe
+- Elternbereich direkt zugänglich (kein Passwort)
 - Einstellungen: Aufgabenanzahl, Schwierigkeit, Pausen, Kategorien, Lueckenaufgaben, Skip-Button, Auto-Loesung
 - Aufgaben-Chart (Balken pro Tag, letzte 7 Tage)
 - Genauigkeits-Trend (Linien-Chart)
@@ -96,13 +96,13 @@ Alle 8 Models implementiert:
 - Kompaktes Layout fuer iPhone SE (< 700pt Hoehe)
 
 ### Testing (100%)
-- 80 Unit Tests in 5 Test-Dateien:
-  - `ExerciseGeneratorTests` (33 Tests) — Adaptive Schwierigkeit, Kategorie-Gewichtung, Duplikate, Schwierigkeitsgrade, schwache Aufgaben
-  - `ExerciseViewModelTests` (22 Tests) — Session-Flow, Antwort-Pruefung, Revenge, Cross-Session-Integration
+- 93 Unit Tests in 5 Test-Dateien:
+  - `ExerciseGeneratorTests` (41 Tests) — Adaptive Schwierigkeit, Kategorie-Gewichtung, Duplikate, Schwierigkeitsgrade, schwache Aufgaben
+  - `ExerciseViewModelTests` (28 Tests) — Session-Flow, Antwort-Pruefung, Revenge, Cross-Session-Integration, Auto-Reveal
   - `EngagementServiceTests` (12 Tests) — Achievements, Streaks, DailyProgress, CategoryMaster, Revenge-Flow
   - `MetricsServiceTests` (8 Tests) — Kategorie-Genauigkeit, schwache Aufgaben, format-agnostische Revenge
-  - `ExerciseResultTests` (5 Tests) — Sterne-Berechnung
-- 2 UI Tests: CompleteExerciseFlow, CrossSessionRevenge
+  - `ExerciseResultTests` (4 Tests) — Sterne-Berechnung
+- 11 UI Tests in 3 Dateien: ExerciseFlowUITests (9), NavigationUITests (1), ScreenshotUITests (1)
 
 ## Projektstruktur
 
@@ -110,8 +110,9 @@ Alle 8 Models implementiert:
 RechenStar/
   App/
     RechenStarApp.swift          # Hauptapp, SwiftData, AppState, ThemeManager
-    ContentView.swift            # Tab-Navigation, UserSelection, ParentGate
+    ContentView.swift            # Tab-Navigation, UserSelection, ParentFlow
   Core/
+    Constants.swift              # ExerciseConstants (Schwellenwerte)
     Models/
       Exercise.swift             # Aufgaben-Struct, ExerciseCategory, ExerciseFormat
       ExerciseResult.swift       # Ergebnis-Struct
@@ -121,19 +122,19 @@ RechenStar/
       Achievement.swift          # Achievement-Model (SwiftData)
       DailyProgress.swift        # Tagesfortschritt-Model (SwiftData)
       UserPreferences.swift      # Einstellungen-Model (SwiftData)
+      Level.swift                # Level-System (11 Stufen)
+      AdjustmentLog.swift        # Anpassungs-Protokoll (SwiftData)
     Services/
       ExerciseGenerator.swift    # Aufgaben-Generierung
       MetricsService.swift       # Performance-Metriken & schwache Aufgaben
-      SoundService.swift         # System-Sounds
+      SoundService.swift         # Synthetisierte Sounds (WAV)
       EngagementService.swift    # Achievements, Streaks, DailyProgress
   Design/
     Animations/
       ConfettiView.swift         # Konfetti-Animation
-      StarAnimationView.swift    # Stern-Sammel-Animation
     Components/
       AppButton.swift            # Button-System, NumberPad, HapticFeedback
       AppCard.swift              # Cards, ProgressBar, Sticker, Achievements
-      ExerciseCard.swift         # Aufgaben-Karte mit Luecken-Support
     Theme/
       Colors.swift               # Farbsystem inkl. Accessibility-Paletten
       Fonts.swift                # Typografie, Dynamic Type
@@ -143,17 +144,18 @@ RechenStar/
     Exercise/Views/
       ExerciseView.swift         # Uebungsansicht
       SessionCompleteView.swift  # Session-Abschluss
+      AchievementsView.swift     # Erfolge-Ansicht
     Exercise/ViewModels/
       ExerciseViewModel.swift    # Uebungs-Logik
     Progress/Views/
       LearningProgressView.swift # Fortschritts-Ansicht mit Level/Skill Sheets
-      AchievementsView.swift     # Erfolge-Ansicht
     Settings/Views/
       SettingsView.swift         # Einstellungen
+      HelpView.swift             # Hilfe-Sektion
     Parent/Views/
       ParentDashboardView.swift  # Elternbereich
-RechenStarTests/                 # 80 Unit Tests
-RechenStarUITests/               # UI Tests
+RechenStarTests/                 # 93 Unit Tests
+RechenStarUITests/               # 11 UI Tests
 scripts/
   build-and-deploy.sh            # Build & Deploy auf Geraete
 ```

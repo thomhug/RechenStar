@@ -29,7 +29,7 @@ Ich bin ein erfahrener iOS-Entwickler mit Fokus auf Swift und SwiftUI. Meine Auf
 - **Testabdeckung**: >80% für Business Logic
 
 ### Technische Standards:
-- iOS 16+ (SwiftUI neueste Features)
+- iOS 17+ (SwiftUI mit @Observable)
 - Swift 5.9+ (Modern Concurrency)
 - MVVM Architektur
 - Dependency Injection
@@ -76,165 +76,59 @@ Ich bin ein erfahrener iOS-Entwickler mit Fokus auf Swift und SwiftUI. Meine Auf
 ```swift
 RechenStar/
 ├── App/
-│   ├── RechenStarApp.swift
-│   ├── AppDelegate.swift
-│   └── Configuration/
-│       ├── AppConfig.swift
-│       └── Environment.swift
+│   ├── RechenStarApp.swift      # Hauptapp, SwiftData, AppState, ThemeManager
+│   └── ContentView.swift        # Tab-Navigation, UserSelection, ParentFlow
 ├── Core/
+│   ├── Constants.swift          # ExerciseConstants
 │   ├── Models/
-│   │   ├── Exercise.swift
-│   │   ├── User.swift
-│   │   ├── Progress.swift
-│   │   └── Achievement.swift
-│   ├── Services/
-│   │   ├── ExerciseService.swift
-│   │   ├── ProgressService.swift
-│   │   ├── AudioService.swift
-│   │   └── HapticService.swift
-│   ├── Persistence/
-│   │   ├── DataController.swift
-│   │   └── SwiftDataModels/
-│   └── Utilities/
-│       ├── Extensions/
-│       ├── Helpers/
-│       └── Constants.swift
+│   │   ├── Exercise.swift       # Aufgaben-Struct, ExerciseCategory, Difficulty
+│   │   ├── ExerciseResult.swift # Ergebnis-Struct
+│   │   ├── User.swift           # User-Model (SwiftData)
+│   │   ├── Session.swift        # Session-Model (SwiftData)
+│   │   ├── ExerciseRecord.swift # Aufgaben-Protokoll (SwiftData)
+│   │   ├── Achievement.swift    # Achievement-Model (SwiftData)
+│   │   ├── DailyProgress.swift  # Tagesfortschritt (SwiftData)
+│   │   ├── UserPreferences.swift# Einstellungen (SwiftData)
+│   │   ├── Level.swift          # Level-System (11 Stufen)
+│   │   └── AdjustmentLog.swift  # Anpassungs-Protokoll (SwiftData)
+│   └── Services/
+│       ├── ExerciseGenerator.swift  # Aufgaben-Generierung
+│       ├── MetricsService.swift     # Performance-Metriken
+│       ├── SoundService.swift       # Synthetisierte Sounds
+│       └── EngagementService.swift  # Achievements, Streaks
 ├── Features/
 │   ├── Exercise/
 │   │   ├── ViewModels/
 │   │   │   └── ExerciseViewModel.swift
 │   │   └── Views/
 │   │       ├── ExerciseView.swift
-│   │       └── Components/
-│   ├── Home/
-│   ├── Progress/
-│   └── Settings/
+│   │       ├── SessionCompleteView.swift
+│   │       └── AchievementsView.swift
+│   ├── Home/Views/
+│   │   └── HomeView.swift
+│   ├── Progress/Views/
+│   │   └── LearningProgressView.swift
+│   ├── Settings/Views/
+│   │   ├── SettingsView.swift
+│   │   └── HelpView.swift
+│   └── Parent/Views/
+│       └── ParentDashboardView.swift
 ├── Design/
-│   ├── Theme.swift
-│   ├── Colors.swift
-│   ├── Fonts.swift
-│   └── Components/
+│   ├── Animations/ConfettiView.swift
+│   ├── Components/
+│   │   ├── AppButton.swift
+│   │   └── AppCard.swift
+│   └── Theme/
+│       ├── Colors.swift
+│       └── Fonts.swift
 └── Resources/
 ```
 
-### Core Models:
-```swift
-// Exercise.swift
-struct Exercise: Identifiable, Codable {
-    let id = UUID()
-    let type: OperationType
-    let firstNumber: Int
-    let secondNumber: Int
-    var userAnswer: Int?
-    let createdAt = Date()
-
-    var correctAnswer: Int {
-        switch type {
-        case .addition:
-            return firstNumber + secondNumber
-        case .subtraction:
-            return firstNumber - secondNumber
-        }
-    }
-}
-
-// Progress.swift
-@Model
-final class Progress {
-    var date: Date = Date()
-    var exercisesCompleted: Int = 0
-    var correctAnswers: Int = 0
-    var totalTime: TimeInterval = 0
-    var streakDays: Int = 0
-    var achievements: [Achievement] = []
-}
-```
-
-### Services Layer:
-```swift
-// ExerciseService.swift
-@MainActor
-final class ExerciseService: ObservableObject {
-    @Published var currentExercise: Exercise?
-    @Published var sessionProgress: SessionProgress
-
-    private let difficultyManager: DifficultyManager
-
-    func generateExercise() -> Exercise {
-        // Adaptive difficulty logic
-    }
-
-    func submitAnswer(_ answer: Int) async -> ExerciseResult {
-        // Validation and scoring
-    }
-}
-```
-
-### ViewModels (MVVM):
-```swift
-// ExerciseViewModel.swift
-@MainActor
-final class ExerciseViewModel: ObservableObject {
-    @Published var exercise: Exercise?
-    @Published var userInput: String = ""
-    @Published var showFeedback: Bool = false
-    @Published var isCorrect: Bool = false
-    @Published var stars: Int = 0
-
-    private let exerciseService: ExerciseService
-    private let audioService: AudioService
-    private let hapticService: HapticService
-
-    func submitAnswer() async {
-        guard let answer = Int(userInput) else { return }
-
-        let result = await exerciseService.submitAnswer(answer)
-        isCorrect = result.isCorrect
-        stars = result.stars
-
-        await showFeedbackAnimation()
-
-        if isCorrect {
-            audioService.playSuccess()
-            hapticService.success()
-        } else {
-            audioService.playTryAgain()
-            hapticService.error()
-        }
-    }
-}
-```
-
-### SwiftUI Views:
-```swift
-// ExerciseView.swift
-struct ExerciseView: View {
-    @StateObject private var viewModel: ExerciseViewModel
-    @Namespace private var animation
-
-    var body: some View {
-        VStack(spacing: 24) {
-            ProgressBar(progress: viewModel.sessionProgress)
-
-            ExerciseCard(exercise: viewModel.exercise)
-                .matchedGeometryEffect(id: "exercise", in: animation)
-
-            NumberPadView(input: $viewModel.userInput)
-
-            SubmitButton(action: viewModel.submitAnswer)
-                .disabled(viewModel.userInput.isEmpty)
-        }
-        .padding()
-        .overlay(
-            FeedbackOverlay(
-                isShowing: viewModel.showFeedback,
-                isCorrect: viewModel.isCorrect,
-                stars: viewModel.stars
-            )
-        )
-    }
-}
-```
+### Architektur-Muster:
+- **Services** sind structs mit static methods (kein DI nötig)
+- **ViewModels** nutzen `@Observable` (nicht ObservableObject)
+- **Models** nutzen SwiftData `@Model`
+- Siehe `data-model.md` für alle Models und `system-design.md` für Architektur-Details
 
 ## Performance Optimierungen
 
@@ -303,17 +197,9 @@ func testAnswerSubmission() {
 - Keine Cloud-Sync für sensible Daten
 - App Transport Security aktiv
 
-### Parental Gate:
-```swift
-struct ParentalGate: View {
-    @State private var answer = ""
-    let question = "Was ist 15 + 27?"
-
-    var isCorrect: Bool {
-        answer == "42"
-    }
-}
-```
+### Elternbereich:
+- Direkt zugänglich ohne Passwort oder Gate
+- Eltern-Dashboard mit Statistiken und Einstellungen
 
 ## App Store Optimierung
 

@@ -384,23 +384,24 @@ final class ExerciseGeneratorTests: XCTestCase {
 
     // MARK: - Multiplication Minimum Factor
 
-    func testMultiplication10VeryEasyExcludesOnes() {
+    func testMultiplication10VeryEasyAllowsOnes() {
+        // veryEasy and easy allow factor 1 for Kleines 1x1
         for _ in 0..<100 {
             let exercise = ExerciseGenerator.generate(difficulty: .veryEasy, category: .multiplication_10)
-            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
-                "VeryEasy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
-            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
-                "VeryEasy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 1)
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 3)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 1)
+            XCTAssertLessThanOrEqual(exercise.secondNumber, 3)
         }
     }
 
-    func testMultiplication10EasyExcludesOnes() {
+    func testMultiplication10EasyAllowsOnes() {
         for _ in 0..<100 {
             let exercise = ExerciseGenerator.generate(difficulty: .easy, category: .multiplication_10)
-            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 2,
-                "Easy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
-            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 2,
-                "Easy multiplication should not have factor 1, got \(exercise.firstNumber)×\(exercise.secondNumber)")
+            XCTAssertGreaterThanOrEqual(exercise.firstNumber, 1)
+            XCTAssertLessThanOrEqual(exercise.firstNumber, 5)
+            XCTAssertGreaterThanOrEqual(exercise.secondNumber, 1)
+            XCTAssertLessThanOrEqual(exercise.secondNumber, 5)
         }
     }
 

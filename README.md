@@ -41,8 +41,8 @@ RechenStar macht Mathematik-Lernen zum Spass! Die App hilft Kindern, Addition, S
 | Addition bis 100 | Summe max. 100 | Zweistellig |
 | Subtraktion bis 10 | Ergebnis >= 0 | Einstieg |
 | Subtraktion bis 100 | Negativ erlaubt | Mit +/- Button |
-| Kleines 1x1 | Faktoren 1-10 | Einmaleins |
-| Grosses 1x1 | Produkt max. 100 | Fortgeschritten |
+| Kleines 1x1 | Faktoren 1-10 (leicht), 2-9 (schwer) | Einmaleins |
+| Grosses 1x1 | Faktoren 2-20, Produkt bis 400 | Fortgeschritten |
 
 ## Technologie-Stack
 
@@ -65,13 +65,12 @@ RechenStar/
 │   ├── Features/
 │   │   ├── Home/      # Startbildschirm
 │   │   ├── Exercise/  # Aufgaben-View und ViewModel
-│   │   ├── Session/   # Session-Abschluss
-│   │   ├── Progress/  # Fortschritt und Erfolge
+│   │   ├── Progress/  # Fortschritt
 │   │   ├── Settings/  # Einstellungen und Hilfe
 │   │   └── Parent/    # Eltern-Dashboard
 │   ├── Design/        # Theme, Fonts, Components, Animations
 │   └── Resources/     # Assets & Sounds
-├── RechenStarTests/    # 80 Unit Tests
+├── RechenStarTests/    # 93 Unit Tests
 ├── RechenStarUITests/  # UI Tests
 └── scripts/            # Build & Deploy
 ```
