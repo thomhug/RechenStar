@@ -21,4 +21,6 @@ platform :ios do
     build_app(scheme: "RechenStar")
     upload_to_testflight
   end
+
+
 end
