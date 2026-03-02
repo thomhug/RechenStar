@@ -2,3 +2,5 @@
 *.xcuserstate
 .local-build-count
 .env
+fastlane/report.xml
+fastlane/README.md
