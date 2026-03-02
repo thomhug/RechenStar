@@ -1,0 +1,18 @@
+RechenStar macht Mathe zum Abenteuer.
+
+Ob Plus, Minus oder Mal - RechenStar begleitet Grundschulkinder Schritt für Schritt durch die Welt der Zahlen. Nicht mit Druck, sondern mit Freude: Jede richtige Antwort bringt Sterne, Konfetti und ein breites Lächeln. Und wer mal daneben tippt, bekommt einen Hinweis und eine neue Chance.
+
+Für Kinder gemacht
+- 6 Übungsarten: Addition, Subtraktion und Multiplikation
+- 3 Aufgabenformate: klassisch und Lückentext
+- Adaptiver Schwierigkeitsgrad in 4 Stufen
+- Fehler werden schlau wiederholt mit dem "Revanche-System"
+- 16 Auszeichnungen, Tagesserien und bis zu 2 Sterne pro Runde
+
+Für Eltern gemacht
+- Elternbereich mit Analyse-Dashboard
+- Alle Einstellungen frei konfigurierbar
+- 100 % lokal - alle Daten bleiben auf dem Gerät
+- Keine Werbung, keine In-App-Käufe, kein Tracking
+
+RechenStar unterstützt VoiceOver, Dynamic Type, hohen Kontrast und Farbenblind-Modi.
