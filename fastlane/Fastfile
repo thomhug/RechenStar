@@ -13,13 +13,18 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+Dotenv.load(File.expand_path('../.env', __dir__))
+
 default_platform(:ios)
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     build_app(scheme: "RechenStar")
-    upload_to_testflight
+    upload_to_testflight(
+      apple_id: ENV.fetch('APPLE_ID'),
+      app_identifier: ENV.fetch('APP_IDENTIFIER')
+    )
   end
 
 

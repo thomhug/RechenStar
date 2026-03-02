@@ -21,18 +21,17 @@
 - `.local-build-count` — lokaler Zaehler (git-ignored)
 - **Wichtig**: Vor dem Setzen von `.testflight-build-number` immer pruefen: `fastlane run latest_testflight_build_number`
 
+## Credentials & Konfiguration
+- Alle Apple-/App-Store-IDs liegen in `.env` (git-ignored) — siehe `.env.example` als Template
+- Fastlane Appfile/Fastfile und `scripts/query-builds.rb` lesen Werte aus `.env`
+
 ## Fastlane
 
 ### Abfragen
 - **Aktuelle App Store Build-Nummer**: `fastlane run app_store_build_number live:true`
 - **Aktuellen TestFlight Build**: `fastlane run latest_testflight_build_number`
-- **Commit eines Xcode Cloud Builds finden**: Ueber die ASC API via Spaceship — CI Product ID ist `A1C21319-EF16-405D-AE6D-D4BA80A706F7`. Build Runs abfragen mit:
-  ```ruby
-  client = Spaceship::ConnectAPI.client.tunes_request_client
-  runs = client.get("v1/ciProducts/A1C21319-EF16-405D-AE6D-D4BA80A706F7/buildRuns", {"limit" => 50})
-  # Jeder Run hat attrs["sourceCommit"]["commitSha"]
-  ```
-  Hinweis: `Spaceship::ConnectAPI.get_builds()` ist wegen fastlane Bug #21104 (`betaBuildMetrics`) kaputt — daher den `tunes_request_client` direkt nutzen.
+- **Commit eines Xcode Cloud Builds finden**: `ruby scripts/query-builds.rb`
+  Hinweis: `Spaceship::ConnectAPI.get_builds()` ist wegen fastlane Bug #21104 (`betaBuildMetrics`) kaputt — daher den `tunes_request_client` direkt nutzen (wie in `scripts/query-builds.rb`).
 
 ### Release-Vorgang (App Store)
 1. **Build in Xcode Cloud starten** (oder `fastlane beta` fuer lokalen Upload)
