@@ -6,6 +6,8 @@
 
 Eine kindgerechte Mathe-Lern-App für iOS, speziell entwickelt für Grundschulkinder (6-10 Jahre).
 
+Auch im Web spielbar unter **[rechenstar.ch](https://rechenstar.ch)**!
+
 ## Projektziel
 
 RechenStar macht Mathematik-Lernen zum Spass! Die App hilft Kindern, Addition, Subtraktion und Multiplikation spielerisch zu meistern.
